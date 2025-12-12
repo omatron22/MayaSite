@@ -28,3 +28,4 @@ dist-ssr
 # Dataset folders
 yax-1/
 *.coco.json
+public/instances/
