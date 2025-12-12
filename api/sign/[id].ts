@@ -10,21 +10,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query;
 
   try {
-    const sign = await db.execute({
+    const signResult = await db.execute({
       sql: 'SELECT * FROM signs WHERE id = ?',
       args: [id as string]
     });
 
-    const instances = await db.execute({
+    const instancesResult = await db.execute({
       sql: 'SELECT * FROM sign_instances WHERE sign_id = ?',
       args: [id as string]
     });
 
     res.status(200).json({
-      sign: sign.rows[0],
-      instances: instances.rows
+      sign: signResult.rows[0] || null,
+      instances: instancesResult.rows || []
     });
   } catch (error) {
+    console.error('API Error:', error);
     res.status(500).json({ error: String(error) });
   }
 }

@@ -28,8 +28,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       args: [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]
     });
 
-    res.status(200).json(result.rows);
+    // Convert rows to plain objects
+    const signs = result.rows.map(row => ({
+      id: row.id,
+      bonn_id: row.bonn_id,
+      thompson_id: row.thompson_id,
+      mhd_id: row.mhd_id,
+      phonetic_value: row.phonetic_value,
+      description: row.description,
+      primary_image_url: row.primary_image_url,
+      created_at: row.created_at,
+      instance_count: row.instance_count
+    }));
+
+    res.status(200).json(signs);
   } catch (error) {
+    console.error('API Error:', error);
     res.status(500).json({ error: String(error) });
   }
 }
