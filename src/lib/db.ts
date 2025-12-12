@@ -1,19 +1,13 @@
 import { createClient } from '@libsql/client';
 
-// Debug: log what we're getting
-console.log('DB URL:', import.meta.env.VITE_TURSO_DATABASE_URL);
-console.log('DB Token exists:', !!import.meta.env.VITE_TURSO_AUTH_TOKEN);
-
-// Convert libsql:// to https:// for browser compatibility
 const dbUrl = import.meta.env.VITE_TURSO_DATABASE_URL || '';
-const httpUrl = dbUrl.replace('libsql://', 'https://');
 
 export const db = createClient({
-  url: httpUrl,
+  url: dbUrl.replace('libsql://', 'https://'),
   authToken: import.meta.env.VITE_TURSO_AUTH_TOKEN || ''
 });
 
-// Initialize database schema
+// Initialize database schema (used by scripts only)
 export async function initDatabase() {
   await db.execute(`
     CREATE TABLE IF NOT EXISTS signs (
@@ -56,7 +50,6 @@ export async function initDatabase() {
     )
   `);
 
-  // Seed initial sources
   await db.execute(`
     INSERT OR IGNORE INTO sources (name, short_code, base_url, requires_login) VALUES
     ('Maya Hieroglyphic Database', 'mhd', 'https://www.mayadatabase.org/', 1),
@@ -64,6 +57,4 @@ export async function initDatabase() {
     ('Corpus of Maya Hieroglyphic Inscriptions', 'cmhi', 'https://peabody.harvard.edu/sites-online', 0),
     ('Roboflow Dataset', 'roboflow', 'https://universe.roboflow.com/maya-glyphs/', 0)
   `);
-
-  console.log('✅ Database initialized');
 }
