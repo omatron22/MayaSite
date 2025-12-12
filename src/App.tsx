@@ -3,7 +3,6 @@ import './App.css'
 import { Navbar } from './components/Navbar'
 import { SearchPage } from './pages/search'
 import { SignDetailPage } from './pages/signDetail'
-import { AdminPage } from './pages/admin'
 
 function App() {
   return (
@@ -14,7 +13,6 @@ function App() {
           <Routes>
             <Route path="/" element={<SearchPage />} />
             <Route path="/sign/:id" element={<SignDetailPage />} />
-            <Route path="/admin" element={<AdminPage />} />
             <Route path="/about" element={<AboutPage />} />
           </Routes>
         </main>
