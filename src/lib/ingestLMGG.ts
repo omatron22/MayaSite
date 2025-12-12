@@ -1,10 +1,14 @@
 import { db } from './db';
-import lmggHtml from './lmgg-concordance.html?raw';
+import lmggHtmlUrl from './lmgg-concordance.html?url';
 
 export async function ingestLMGGConcordance() {
-  console.log('📥 Parsing LMGG concordance...');
+  console.log('📥 Fetching LMGG concordance...');
   
   try {
+    // Fetch the HTML file
+    const response = await fetch(lmggHtmlUrl);
+    const lmggHtml = await response.text();
+    
     // Parse the HTML table
     const parser = new DOMParser();
     const doc = parser.parseFromString(lmggHtml, 'text/html');

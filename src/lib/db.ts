@@ -1,11 +1,14 @@
 import { createClient } from '@libsql/client';
 
+// Debug: log what we're getting (remove after testing)
+console.log('DB URL:', import.meta.env.VITE_TURSO_DATABASE_URL);
+console.log('DB Token exists:', !!import.meta.env.VITE_TURSO_AUTH_TOKEN);
+
 // Use environment variables (Vite uses import.meta.env)
 export const db = createClient({
   url: import.meta.env.VITE_TURSO_DATABASE_URL || '',
   authToken: import.meta.env.VITE_TURSO_AUTH_TOKEN || ''
 });
-
 
 // Initialize database schema
 export async function initDatabase() {
