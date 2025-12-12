@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .vercel
 .env.local
+
+# Dataset folders
+yax-1/
+*.coco.json
