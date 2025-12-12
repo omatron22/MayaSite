@@ -15,38 +15,41 @@ export function SearchPage() {
 
   useEffect(() => {
     fetchSigns();
-  }, []);
+  }, [query]);
 
   async function fetchSigns() {
     setLoading(true);
     try {
-      const result = await db.execute(`
-        SELECT 
-          s.*,
-          COUNT(si.id) as instance_count
-        FROM signs s
-        LEFT JOIN sign_instances si ON s.id = si.sign_id
-        GROUP BY s.id
-        ORDER BY s.bonn_id
-      `);
-      
-      setSigns(result.rows as any);
+      // Try API route first (production), fallback to direct DB (local dev)
+      if (import.meta.env.PROD) {
+        const response = await fetch(`/api/signs?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        setSigns(data);
+      } else {
+        const result = await db.execute({
+          sql: `
+            SELECT 
+              s.*,
+              COUNT(si.id) as instance_count
+            FROM signs s
+            LEFT JOIN sign_instances si ON s.id = si.sign_id
+            WHERE 
+              s.bonn_id LIKE ? OR
+              s.thompson_id LIKE ? OR
+              s.mhd_id LIKE ? OR
+              s.phonetic_value LIKE ?
+            GROUP BY s.id
+            ORDER BY s.bonn_id
+          `,
+          args: [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]
+        });
+        setSigns(result.rows as any);
+      }
     } catch (error) {
       console.error('Failed to fetch signs:', error);
     }
     setLoading(false);
   }
-
-  const filteredSigns = signs.filter(sign => {
-    if (!query) return true;
-    const searchLower = query.toLowerCase();
-    return (
-      sign.bonn_id?.toLowerCase().includes(searchLower) ||
-      sign.thompson_id?.toLowerCase().includes(searchLower) ||
-      sign.mhd_id?.toLowerCase().includes(searchLower) ||
-      sign.phonetic_value?.toLowerCase().includes(searchLower)
-    );
-  });
 
   return (
     <div className="search-page">
@@ -66,16 +69,16 @@ export function SearchPage() {
       ) : (
         <div className="results">
           <div className="results-count">
-            {filteredSigns.length} sign{filteredSigns.length !== 1 ? 's' : ''} found
+            {signs.length} sign{signs.length !== 1 ? 's' : ''} found
           </div>
           
           <div className="sign-grid">
-            {filteredSigns.map(sign => (
+            {signs.map(sign => (
               <SignCard key={sign.id} sign={sign} />
             ))}
           </div>
 
-          {filteredSigns.length === 0 && !loading && (
+          {signs.length === 0 && !loading && (
             <div className="no-results">
               No signs found. Try a different search term.
             </div>

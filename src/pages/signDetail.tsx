@@ -11,30 +11,41 @@ export function SignDetailPage() {
 
   useEffect(() => {
     if (id) {
-      fetchSignData(parseInt(id));
+      fetchSignData(id);
     }
   }, [id]);
 
-  async function fetchSignData(signId: number) {
+  async function fetchSignData(signId: string) {
     setLoading(true);
     try {
-      // Fetch sign details
-      const signResult = await db.execute({
-        sql: 'SELECT * FROM signs WHERE id = ?',
-        args: [signId]
-      });
-      
-      if (signResult.rows.length > 0) {
-        setSign(signResult.rows[0] as any);
-      }
+      // Try API route first (production), fallback to direct DB (local dev)
+      if (import.meta.env.PROD) {
+        const response = await fetch(`/api/sign/${signId}`);
+        const data = await response.json();
+        
+        if (data.sign) {
+          setSign(data.sign);
+        }
+        
+        setInstances(data.instances || []);
+      } else {
+        // Local dev - direct DB access
+        const signResult = await db.execute({
+          sql: 'SELECT * FROM signs WHERE id = ?',
+          args: [parseInt(signId)]
+        });
+        
+        if (signResult.rows.length > 0) {
+          setSign(signResult.rows[0] as any);
+        }
 
-      // Fetch instances
-      const instancesResult = await db.execute({
-        sql: 'SELECT * FROM sign_instances WHERE sign_id = ? ORDER BY created_at DESC',
-        args: [signId]
-      });
-      
-      setInstances(instancesResult.rows as any);
+        const instancesResult = await db.execute({
+          sql: 'SELECT * FROM sign_instances WHERE sign_id = ? ORDER BY created_at DESC',
+          args: [parseInt(signId)]
+        });
+        
+        setInstances(instancesResult.rows as any);
+      }
     } catch (error) {
       console.error('Failed to fetch sign:', error);
     }
