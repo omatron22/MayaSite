@@ -1,0 +1,323 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar */
+.navbar {
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+
+.logo:hover {
+  color: #646cff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-links a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #fff;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Search Page */
+.search-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.search-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.search-header p {
+  color: #888;
+  font-size: 1.1rem;
+}
+
+/* Search Bar */
+.search-bar {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #fff;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.search-input::placeholder {
+  color: #666;
+}
+
+/* Results */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.results-count {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.sign-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.sign-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: all 0.2s;
+}
+
+.sign-card:hover {
+  border-color: #646cff;
+  transform: translateY(-2px);
+}
+
+.sign-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.id-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.id-badge.bonn {
+  background: #1e40af;
+  color: #fff;
+}
+
+.id-badge.thompson {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.id-badge.mhd {
+  background: #059669;
+  color: #fff;
+}
+
+.phonetic {
+  font-size: 1.25rem;
+  color: #646cff;
+  font-style: italic;
+}
+
+.instance-count {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}
+
+/* Sign Detail Page */
+.sign-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.back-link {
+  color: #646cff;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.sign-header {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sign-ids-large {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.phonetic-large {
+  font-size: 2rem;
+  color: #646cff;
+  font-style: italic;
+}
+
+.description {
+  color: #bbb;
+  line-height: 1.6;
+}
+
+/* Instances Section */
+.instances-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.instances-section h2 {
+  font-size: 1.75rem;
+}
+
+.no-instances {
+  color: #888;
+  text-align: center;
+  padding: 2rem;
+}
+
+.instances-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.instance-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.instance-source {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.source-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.source-badge.mhd { background: #059669; color: #fff; }
+.source-badge.kerr { background: #dc2626; color: #fff; }
+.source-badge.cmhi { background: #ea580c; color: #fff; }
+.source-badge.roboflow { background: #8b5cf6; color: #fff; }
+
+.source-id {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.instance-location,
+.instance-date,
+.instance-artifact {
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.view-source {
+  color: #646cff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.view-source:hover {
+  text-decoration: underline;
+}
+
+/* About Page */
+.about-page {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.about-page h1 {
+  margin-bottom: 1.5rem;
+}
+
+.about-page p {
+  color: #bbb;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.page {
+  padding: 2rem;
+}
