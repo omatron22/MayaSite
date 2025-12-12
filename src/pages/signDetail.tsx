@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { db } from '../lib/db';
 import type { Sign, SignInstance } from '../types/database';
 
 export function SignDetailPage() {
@@ -18,21 +17,14 @@ export function SignDetailPage() {
   async function fetchSignData(signId: string) {
     setLoading(true);
     try {
-      // Fetch sign details
       const response = await fetch('/signs.json');
       const signs = await response.json();
       const foundSign = signs.find((s: any) => s.id === parseInt(signId));
       
       if (foundSign) {
         setSign(foundSign);
-        
-        // Fetch instances from database
-        const result = await db.execute({
-          sql: 'SELECT * FROM sign_instances WHERE sign_id = ? ORDER BY id',
-          args: [parseInt(signId)]
-        });
-        
-        setInstances(result.rows as any);
+        // Instances are already included in the sign object from export-signs.js
+        setInstances(foundSign.instances || []);
       }
     } catch (error) {
       console.error('Failed to fetch sign:', error);
@@ -78,9 +70,9 @@ export function SignDetailPage() {
         {instances.length === 0 ? (
           <p className="no-instances">No instances recorded yet.</p>
         ) : (
-          <div className="instance-gallery">
-            {instances.map((instance) => (
-              <div key={instance.id} className="instance-card-gallery">
+          <div className="instances-grid">
+            {instances.map((instance: any) => (
+              <div key={instance.id} className="instance-card">
                 {instance.image_url && (
                   <img 
                     src={instance.image_url} 

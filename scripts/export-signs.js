@@ -7,7 +7,7 @@ const db = createClient({
 });
 
 async function exportSigns() {
-  console.log('📤 Exporting signs...');
+  console.log('📤 Exporting signs with instances...');
   
   const result = await db.execute(`
     SELECT 
@@ -19,20 +19,46 @@ async function exportSigns() {
     ORDER BY s.bonn_id
   `);
 
-  const signs = result.rows.map(row => ({
-    id: Number(row.id),
-    bonn_id: row.bonn_id,
-    thompson_id: row.thompson_id,
-    mhd_id: row.mhd_id,
-    phonetic_value: row.phonetic_value,
-    description: row.description,
-    primary_image_url: row.primary_image_url,
-    created_at: row.created_at,
-    instance_count: Number(row.instance_count)
-  }));
+  const signs = [];
+  
+  for (const row of result.rows) {
+    const sign = {
+      id: Number(row.id),
+      bonn_id: row.bonn_id,
+      thompson_id: row.thompson_id,
+      mhd_id: row.mhd_id,
+      phonetic_value: row.phonetic_value,
+      description: row.description,
+      primary_image_url: row.primary_image_url,
+      created_at: row.created_at,
+      instance_count: Number(row.instance_count),
+      instances: []
+    };
+    
+    // Fetch instances for signs that have them
+    if (sign.instance_count > 0) {
+      const instancesResult = await db.execute({
+        sql: 'SELECT id, source_type, image_url, notes FROM sign_instances WHERE sign_id = ? ORDER BY id',
+        args: [sign.id]
+      });
+      
+      sign.instances = instancesResult.rows.map(i => ({
+        id: Number(i.id),
+        source_type: i.source_type,
+        image_url: i.image_url,
+        notes: i.notes
+      }));
+      
+      if (sign.instance_count % 10 === 0) {
+        console.log(`  Processed ${sign.bonn_id} with ${sign.instance_count} instances...`);
+      }
+    }
+    
+    signs.push(sign);
+  }
 
   fs.writeFileSync('public/signs.json', JSON.stringify(signs, null, 2));
-  console.log(`✅ Exported ${signs.length} signs to public/signs.json`);
+  console.log(`✅ Exported ${signs.length} signs with instances to public/signs.json`);
 }
 
 exportSigns();

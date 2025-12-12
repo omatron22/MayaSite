@@ -321,3 +321,24 @@
 .page {
   padding: 2rem;
 }
+/* Instance Gallery */
+.instance-image {
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.instance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.instance-meta {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
