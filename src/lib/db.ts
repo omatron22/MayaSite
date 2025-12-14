@@ -1,10 +1,33 @@
+// src/lib/db.ts
+
+// Minimal process declaration so TypeScript is happy when bundling for the browser
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 import { createClient } from '@libsql/client';
 
-const dbUrl = import.meta.env.VITE_TURSO_DATABASE_URL || '';
+// Use Vite env if present (browser), otherwise fall back to Node env (scripts)
+const viteEnv =
+  typeof import.meta !== 'undefined' && (import.meta as any).env
+    ? (import.meta as any).env
+    : {};
+
+const rawUrl =
+  (viteEnv as any).VITE_TURSO_DATABASE_URL ||
+  process.env.VITE_TURSO_DATABASE_URL ||
+  process.env.TURSO_DATABASE_URL ||
+  '';
+
+const authToken =
+  (viteEnv as any).VITE_TURSO_AUTH_TOKEN ||
+  process.env.VITE_TURSO_AUTH_TOKEN ||
+  process.env.TURSO_AUTH_TOKEN ||
+  '';
 
 export const db = createClient({
-  url: dbUrl.replace('libsql://', 'https://'),
-  authToken: import.meta.env.VITE_TURSO_AUTH_TOKEN || ''
+  url: rawUrl.replace('libsql://', 'https://'),
+  authToken
 });
 
 // Initialize database schema (used by scripts only)

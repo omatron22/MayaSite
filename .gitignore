@@ -23,7 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+.env
 .env.local
+.env.*.local
+data/
+
 
 # Dataset folders
 yax-1/

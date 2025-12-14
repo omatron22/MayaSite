@@ -71,27 +71,41 @@ export function SignDetailPage() {
           <p className="no-instances">No instances recorded yet.</p>
         ) : (
           <div className="instances-grid">
-            {instances.map((instance: any) => (
-              <div key={instance.id} className="instance-card">
-                {instance.image_url && (
-                  <img 
-                    src={instance.image_url} 
-                    alt={`Instance ${instance.id}`}
-                    className="instance-image"
-                  />
-                )}
-                <div className="instance-info">
-                  <span className={`source-badge ${instance.source_type}`}>
-                    {instance.source_type}
-                  </span>
-                  {instance.notes && (
-                    <span className="instance-meta">
-                      {JSON.parse(instance.notes).class_name}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+{instances.map((instance: any) => (
+  <div key={instance.id} className="instance-card">
+{instance.image_url &&
+  typeof instance.image_url === 'string' &&
+  (instance.image_url.startsWith('http://') ||
+    instance.image_url.startsWith('https://')) && (
+    <img
+      src={instance.image_url}
+      alt={`Instance ${instance.id}`}
+      className="instance-image"
+    />
+  )}
+
+    <div className="instance-info">
+      <span className={`source-badge ${instance.source_type}`}>
+        {instance.source_type}
+      </span>
+      {instance.notes && (
+        <span className="instance-meta">
+          {instance.source_type === 'roboflow'
+            ? (() => {
+                try {
+                  const data = JSON.parse(instance.notes);
+                  return data.class_name || 'roboflow instance';
+                } catch {
+                  return instance.notes;
+                }
+              })()
+            : instance.notes}
+        </span>
+      )}
+    </div>
+  </div>
+))}
+
           </div>
         )}
       </div>
