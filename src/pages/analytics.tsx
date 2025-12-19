@@ -144,7 +144,6 @@ export function AnalyticsPage() {
   const [dataSource, setDataSource] = useState<DataSource>('mhd');
   const [loading, setLoading] = useState(false);
   const [allData, setAllData] = useState<GlyphInstance[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedGlyph, setSelectedGlyph] = useState<GlyphInstance | null>(null);
@@ -272,7 +271,6 @@ export function AnalyticsPage() {
           `);
           
           const total = Number(countResult.rows[0].total);
-          setTotalCount(total);
           console.log(`📊 Total MHD instances: ${total.toLocaleString()}`);
 
           const batchSize = 20000;
