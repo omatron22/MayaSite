@@ -1,12 +1,30 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import './Navbar.css';
 
 export function Navbar() {
+  const location = useLocation();
+  
   return (
     <nav className="navbar">
-      <Link to="/" className="logo">Maya Database</Link>
-      <div className="nav-links">
-        <Link to="/">Search</Link>
-        <Link to="/about">About</Link>
+      <div className="navbar-content">
+        <Link to="/" className="navbar-logo">
+          Maya Database
+        </Link>
+        
+        <div className="navbar-links">
+          <Link 
+            to="/" 
+            className={`navbar-link ${location.pathname === '/' ? 'active' : ''}`}
+          >
+            Search
+          </Link>
+          <Link 
+            to="/about" 
+            className={`navbar-link ${location.pathname === '/about' ? 'active' : ''}`}
+          >
+            About
+          </Link>
+        </div>
       </div>
     </nav>
   );

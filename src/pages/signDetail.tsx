@@ -1,112 +1,251 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import type { Sign, SignInstance } from '../types/database';
+import { db } from '../lib/db';
+import './signDetail.css';
 
 export function SignDetailPage() {
-  const { id } = useParams<{ id: string }>();
-  const [sign, setSign] = useState<Sign | null>(null);
-  const [instances, setInstances] = useState<SignInstance[]>([]);
+  const { id } = useParams();
+  const [sign, setSign] = useState<any>(null);
+  const [roboflowInstances, setRoboflowInstances] = useState<any[]>([]);
+  const [graphemes, setGraphemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      fetchSignData(id);
-    }
+    if (id) loadSign();
   }, [id]);
 
-  async function fetchSignData(signId: string) {
+  async function loadSign() {
     setLoading(true);
     try {
-      const response = await fetch('/signs.json');
-      const signs = await response.json();
-      const foundSign = signs.find((s: any) => s.id === parseInt(signId));
+      // Get sign details
+      const signResult = await db.execute({
+        sql: 'SELECT * FROM catalog_signs WHERE id = ?',
+        args: [id!]
+      });
       
-      if (foundSign) {
-        setSign(foundSign);
-        // Instances are already included in the sign object from export-signs.js
-        setInstances(foundSign.instances || []);
+      if (signResult.rows.length > 0) {
+        setSign(signResult.rows[0]);
+        
+        // Get Roboflow instances
+        const roboflowResult = await db.execute({
+          sql: `
+            SELECT image_url, dataset_split, bbox_x, bbox_y, bbox_width, bbox_height
+            FROM roboflow_instances
+            WHERE catalog_sign_id = ?
+            ORDER BY dataset_split, id
+            LIMIT 24
+          `,
+          args: [id!]
+        });
+        setRoboflowInstances(roboflowResult.rows as any);
+        
+        // Get grapheme occurrences with block info
+        const graphemesResult = await db.execute({
+          sql: `
+            SELECT 
+              g.id,
+              g.grapheme_code,
+              g.location_summary,
+              g.artifact_code,
+              b.block_english,
+              b.block_maya1,
+              b.event_calendar,
+              b.site_origin,
+              b.image_url as block_image_url
+            FROM graphemes g
+            LEFT JOIN blocks b ON g.block_id = b.id
+            WHERE g.catalog_sign_id = ?
+            ORDER BY b.event_calendar DESC NULLS LAST
+            LIMIT 50
+          `,
+          args: [id!]
+        });
+        setGraphemes(graphemesResult.rows as any);
       }
     } catch (error) {
-      console.error('Failed to fetch sign:', error);
+      console.error('Failed to load sign:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   if (loading) {
-    return <div className="page loading">Loading sign...</div>;
+    return (
+      <div className="detail-loading">
+        <div className="spinner"></div>
+      </div>
+    );
   }
 
   if (!sign) {
     return (
-      <div className="page">
-        <h1>Sign not found</h1>
-        <Link to="/">← Back to search</Link>
+      <div className="detail-error">
+        <p>Sign not found</p>
+        <Link to="/" className="back-link">← Back to search</Link>
       </div>
     );
   }
 
   return (
-    <div className="sign-detail-page">
-      <Link to="/" className="back-link">← Back to search</Link>
-      
-      <div className="sign-header">
-        <h1>Sign Details</h1>
-        <div className="sign-ids-large">
-          {sign.bonn_id && <span className="id-badge bonn">Bonn: {sign.bonn_id}</span>}
-          {sign.thompson_id && <span className="id-badge thompson">Thompson: {sign.thompson_id}</span>}
-          {sign.mhd_id && <span className="id-badge mhd">MHD: {sign.mhd_id}</span>}
-        </div>
-        {sign.phonetic_value && (
-          <div className="phonetic-large">/{sign.phonetic_value}/</div>
-        )}
-        {sign.description && (
-          <p className="description">{sign.description}</p>
-        )}
-      </div>
-
-      <div className="instances-section">
-        <h2>Instances ({instances.length})</h2>
+    <div className="detail-page">
+      <div className="detail-container">
         
-        {instances.length === 0 ? (
-          <p className="no-instances">No instances recorded yet.</p>
-        ) : (
-          <div className="instances-grid">
-{instances.map((instance: any) => (
-  <div key={instance.id} className="instance-card">
-{instance.image_url &&
-  typeof instance.image_url === 'string' &&
-  (instance.image_url.startsWith('http://') ||
-    instance.image_url.startsWith('https://')) && (
-    <img
-      src={instance.image_url}
-      alt={`Instance ${instance.id}`}
-      className="instance-image"
-    />
-  )}
+        {/* Breadcrumb */}
+        <Link to="/" className="back-link">
+          ← Back to search
+        </Link>
 
-    <div className="instance-info">
-      <span className={`source-badge ${instance.source_type}`}>
-        {instance.source_type}
-      </span>
-      {instance.notes && (
-        <span className="instance-meta">
-          {instance.source_type === 'roboflow'
-            ? (() => {
-                try {
-                  const data = JSON.parse(instance.notes);
-                  return data.class_name || 'roboflow instance';
-                } catch {
-                  return instance.notes;
-                }
-              })()
-            : instance.notes}
-        </span>
-      )}
-    </div>
-  </div>
-))}
+        {/* Header */}
+        <div className="detail-header">
+          <div className="header-content">
+            {/* Primary Image */}
+            {sign.primary_image_url && (
+              <div className="primary-image">
+                <img 
+                  src={sign.primary_image_url} 
+                  alt={sign.mhd_code}
+                />
+              </div>
+            )}
+            
+            {/* Sign Info */}
+            <div className="sign-info">
+              <h1 className="sign-title">
+                {sign.mhd_code}
+                {sign.variant_code && (
+                  <span className="variant">({sign.variant_code})</span>
+                )}
+              </h1>
 
+              {/* Codes */}
+              <div className="code-badges">
+                {sign.thompson_code && (
+                  <span className="badge thompson">Thompson {sign.thompson_code}</span>
+                )}
+                {sign.zender_code && (
+                  <span className="badge zender">Zender {sign.zender_code}</span>
+                )}
+              </div>
+
+              {/* Linguistic Info */}
+              {sign.phonetic_value && (
+                <div className="info-row">
+                  <span className="label">Phonetic:</span>
+                  <span className="value phonetic">{sign.phonetic_value}</span>
+                </div>
+              )}
+
+              {sign.syllabic_value && (
+                <div className="info-row">
+                  <span className="label">Syllabic:</span>
+                  <span className="value">{sign.syllabic_value}</span>
+                </div>
+              )}
+
+              {sign.english_translation && (
+                <div className="info-row">
+                  <span className="label">Meaning:</span>
+                  <span className="value">"{sign.english_translation}"</span>
+                </div>
+              )}
+
+              {/* Stats */}
+              <div className="stats">
+                <div className="stat">
+                  <span className="stat-value">{roboflowInstances.length}</span>
+                  <span className="stat-label">Roboflow Examples</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-value">{graphemes.length}</span>
+                  <span className="stat-label">Corpus Occurrences</span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Roboflow Examples */}
+        {roboflowInstances.length > 0 && (
+          <section className="detail-section">
+            <h2>Annotated Training Examples</h2>
+            <p className="section-subtitle">Segmented instances from the Roboflow dataset</p>
+            
+            <div className="roboflow-grid">
+              {roboflowInstances.map((inst: any, idx: number) => (
+                <div key={idx} className="roboflow-card">
+                  <div className="roboflow-image">
+                    <img 
+                      src={inst.image_url} 
+                      alt={`Example ${idx + 1}`}
+                    />
+                  </div>
+                  <div className="roboflow-meta">
+                    <span className="split">{inst.dataset_split}</span>
+                    {inst.bbox_width && (
+                      <span className="dims">{Math.round(inst.bbox_width)}×{Math.round(inst.bbox_height)}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Corpus Occurrences */}
+        {graphemes.length > 0 && (
+          <section className="detail-section">
+            <h2>Corpus Occurrences</h2>
+            <p className="section-subtitle">Real-world usage from Maya inscriptions</p>
+            
+            <div className="graphemes-list">
+              {graphemes.slice(0, 20).map((g: any) => (
+                <div key={g.id} className="grapheme-card">
+                  {g.block_image_url && (
+                    <div className="grapheme-image">
+                      <img 
+                        src={g.block_image_url}
+                        alt="Block"
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="grapheme-content">
+                    <div className="grapheme-tags">
+                      <span className="tag artifact">{g.artifact_code || 'Unknown'}</span>
+                      {g.location_summary && (
+                        <span className="tag location">{g.location_summary}</span>
+                      )}
+                    </div>
+                    
+                    {g.block_maya1 && (
+                      <div className="grapheme-text">
+                        <span className="text-label">Maya:</span>
+                        <span>{g.block_maya1}</span>
+                      </div>
+                    )}
+                    
+                    {g.block_english && (
+                      <div className="grapheme-text">
+                        <span className="text-label">Translation:</span>
+                        <span className="translation-text">{g.block_english}</span>
+                      </div>
+                    )}
+                    
+                    <div className="grapheme-meta">
+                      {g.site_origin && <span>Site: {g.site_origin}</span>}
+                      {g.event_calendar && <span>Date: {g.event_calendar}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {graphemes.length > 20 && (
+                <p className="more-text">
+                  Showing 20 of {graphemes.length} occurrences
+                </p>
+              )}
+            </div>
+          </section>
         )}
       </div>
     </div>
