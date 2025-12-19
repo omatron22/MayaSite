@@ -294,3 +294,254 @@
     font-size: 18px;
   }
 }
+
+/* Enhanced Modal Sections */
+.temporal-section h3::before {
+  content: '📅 ';
+  margin-right: 8px;
+}
+
+.geographic-section h3::before {
+  content: '🌍 ';
+  margin-right: 8px;
+}
+
+.artifact-section h3::before {
+  content: '🏺 ';
+  margin-right: 8px;
+}
+
+.grapheme-section h3::before {
+  content: '✍️ ';
+  margin-right: 8px;
+}
+
+.context-section h3::before {
+  content: '📜 ';
+  margin-right: 8px;
+}
+
+.highlight-value {
+  color: #60a5fa !important;
+  font-weight: 600 !important;
+}
+
+.maya-value {
+  color: #fbbf24 !important;
+  font-weight: 500 !important;
+}
+
+.translation-value {
+  color: #a78bfa !important;
+  font-style: italic !important;
+}
+
+/* Catalog Codes Section */
+.catalog-codes-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.catalog-code-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.code-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 90px;
+}
+
+.code-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.code-badge.thompson {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.code-badge.zender {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.code-badge.kettunen {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.code-badge.gronemeyer {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.code-badge.mhd {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.code-variant {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Values Section */
+.values-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 16px 0;
+}
+
+.value-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.value-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.catalog-cvc {
+  font-size: 14px;
+  color: #34d399;
+  font-weight: 500;
+  font-family: 'Monaco', monospace;
+}
+
+/* Metadata Section */
+.metadata-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.metadata-item {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.metadata-item.full-width {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-label {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.meta-value {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.catalog-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.external-link-btn {
+  display: inline-block;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #93c5fd;
+  text-decoration: none;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.external-link-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #60a5fa;
+  transform: translateY(-1px);
+}
+
+/* Loading Spinner */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(96, 165, 250, 0.2);
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 968px) {
+  .catalog-codes-section {
+    padding: 12px;
+  }
+
+  .code-label,
+  .value-label,
+  .meta-label {
+    min-width: 80px;
+    font-size: 11px;
+  }
+
+  .code-badge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+}

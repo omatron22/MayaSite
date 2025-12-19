@@ -1,4 +1,4 @@
-// src/lib/db.ts
+// src/lib/db.ts (fix the cache cleanup section)
 import { createClient } from '@libsql/client';
 
 // Detect environment
@@ -41,10 +41,55 @@ if (!rawUrl || !authToken) {
   console.error('⚠️ Database credentials not found.');
 }
 
+// Create database client with connection pooling
 export const db = createClient({
   url: rawUrl.replace('libsql://', 'https://').trim(),
-  authToken: authToken.trim()
+  authToken: authToken.trim(),
+  // Add connection options for better performance
+  intMode: 'number' // Faster integer handling
 });
+
+// Query result cache for frequently accessed data
+const queryCache = new Map<string, { data: any; timestamp: number }>();
+const QUERY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+const MAX_QUERY_CACHE_SIZE = 100;
+
+// Cache-aware query wrapper
+export async function cachedQuery(cacheKey: string, queryFn: () => Promise<any>) {
+  const cached = queryCache.get(cacheKey);
+  const now = Date.now();
+  
+  if (cached && (now - cached.timestamp) < QUERY_CACHE_DURATION) {
+    return cached.data;
+  }
+  
+  const data = await queryFn();
+  queryCache.set(cacheKey, { data, timestamp: now });
+  
+  // Limit cache size - FIX HERE
+  if (queryCache.size > MAX_QUERY_CACHE_SIZE) {
+    const keysIterator = queryCache.keys();
+    const firstKey = keysIterator.next().value;
+    if (firstKey !== undefined) {
+      queryCache.delete(firstKey);
+    }
+  }
+  
+  return data;
+}
+
+// Clear cache utility
+export function clearQueryCache(pattern?: string) {
+  if (pattern) {
+    for (const key of queryCache.keys()) {
+      if (key.includes(pattern)) {
+        queryCache.delete(key);
+      }
+    }
+  } else {
+    queryCache.clear();
+  }
+}
 
 // Initialize database schema (used by scripts only)
 export async function initDatabase() {
@@ -72,6 +117,7 @@ export async function initDatabase() {
       technique TEXT,
       distribution TEXT,
       primary_image_url TEXT,
+      graphcode TEXT,
       notes TEXT,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
@@ -95,6 +141,8 @@ export async function initDatabase() {
       event_long_count TEXT,
       event_260_day TEXT,
       event_365_day TEXT,
+      region TEXT,
+      site_name TEXT,
       region_origin TEXT,
       site_origin TEXT,
       region_dest TEXT,
@@ -109,6 +157,7 @@ export async function initDatabase() {
       notes TEXT,
       block_image1_url TEXT,
       block_image2_url TEXT,
+      image_url TEXT,
       image_notes TEXT,
       sort_order INTEGER,
       created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -141,6 +190,7 @@ export async function initDatabase() {
       bounding_box TEXT,
       confidence REAL,
       source_image_id TEXT,
+      dataset_split TEXT,
       dataset_name TEXT DEFAULT 'yax-w4l6k',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (catalog_sign_id) REFERENCES catalog_signs(id)
@@ -167,10 +217,15 @@ export async function initDatabase() {
 
   console.log('Creating indexes...');
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_mhd ON catalog_signs(mhd_code)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_graphcode ON catalog_signs(graphcode)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_thompson ON catalog_signs(thompson_code)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_syllabic ON catalog_signs(syllabic_value)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_english ON catalog_signs(english_translation)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_wordclass ON catalog_signs(word_class)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_catalog_volume ON catalog_signs(volume)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_blocks_artifact ON blocks(artifact_code)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_blocks_region ON blocks(region)`);
+  await db.execute(`CREATE INDEX IF NOT EXISTS idx_blocks_calendar ON blocks(event_calendar)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_blocks_sort ON blocks(sort_order)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_graphemes_code ON graphemes(grapheme_code)`);
   await db.execute(`CREATE INDEX IF NOT EXISTS idx_graphemes_block ON graphemes(block_id)`);

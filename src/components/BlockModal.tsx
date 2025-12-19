@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+// src/components/BlockModal.tsx
+import { useEffect, useState, useCallback, useMemo, memo } from 'react';
 import { db } from '../lib/db';
 import './BlockModal.css';
 
@@ -9,16 +10,69 @@ interface BlockModalProps {
   onPrev?: () => void;
 }
 
+// Memoized Grapheme Item Component
+const GraphemeItem = memo(({ grapheme }: { grapheme: any }) => (
+  <div className="grapheme-item">
+    {grapheme.primary_image_url && (
+      <div className="grapheme-thumb">
+        <img src={grapheme.primary_image_url} alt={grapheme.graphcode} loading="lazy" />
+      </div>
+    )}
+    <div className="grapheme-info">
+      <div className="grapheme-code">{grapheme.graphcode || grapheme.grapheme_code}</div>
+      {grapheme.syllabic_value && (
+        <div className="grapheme-value">{grapheme.syllabic_value}</div>
+      )}
+      {grapheme.grapheme_english && grapheme.grapheme_english !== '_' && (
+        <div className="grapheme-translation">"{grapheme.grapheme_english}"</div>
+      )}
+    </div>
+  </div>
+));
+GraphemeItem.displayName = 'GraphemeItem';
+
 export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps) {
   const [block, setBlock] = useState<any>(null);
   const [graphemes, setGraphemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Prevent background scroll [web:37][web:40]
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    
+    // Calculate scrollbar width to prevent layout shift [web:37]
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    
+    document.body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, []);
+
+  // Keyboard navigation [web:31]
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight' && onNext) onNext();
+      if (e.key === 'ArrowLeft' && onPrev) onPrev();
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose, onNext, onPrev]);
+
+  // Load block data
   useEffect(() => {
     loadBlock();
   }, [blockId]);
 
-  async function loadBlock() {
+  const loadBlock = useCallback(async () => {
     setLoading(true);
     try {
       // Get block data
@@ -54,7 +108,25 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
     } finally {
       setLoading(false);
     }
-  }
+  }, [blockId]);
+
+  // Memoized helpers
+  const hasValue = useCallback((val: any) => val && val !== '_' && val !== '-', []);
+
+  const hasCalendarInfo = useMemo(
+    () => hasValue(block?.event_calendar) || hasValue(block?.event_long_count),
+    [block, hasValue]
+  );
+
+  const hasTextContent = useMemo(
+    () => hasValue(block?.block_maya1) || hasValue(block?.block_english),
+    [block, hasValue]
+  );
+
+  const hasNotes = useMemo(
+    () => block?.notes && block.notes !== '',
+    [block]
+  );
 
   if (loading) {
     return (
@@ -71,17 +143,17 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content block-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         
         <div className="modal-header">
           {onPrev && (
-            <button className="nav-btn" onClick={onPrev}>
+            <button className="nav-btn" onClick={onPrev} aria-label="Previous block">
               ← Previous
             </button>
           )}
           <h2>{block.mhd_block_id}</h2>
           {onNext && (
-            <button className="nav-btn" onClick={onNext}>
+            <button className="nav-btn" onClick={onNext} aria-label="Next block">
               Next →
             </button>
           )}
@@ -100,13 +172,13 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
                   <label>Artifact:</label>
                   <span>{block.artifact_code}</span>
                 </div>
-                {block.surface_page && (
+                {hasValue(block.surface_page) && (
                   <div className="info-item">
                     <label>Surface/Page:</label>
                     <span>{block.surface_page}</span>
                   </div>
                 )}
-                {block.orientation_frame && (
+                {hasValue(block.orientation_frame) && (
                   <div className="info-item">
                     <label>Frame:</label>
                     <span>{block.orientation_frame}</span>
@@ -115,46 +187,46 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
               </div>
             </section>
 
-            {(block.block_maya1 || block.block_english) && (
+            {hasTextContent && (
               <section className="info-section">
                 <h3>Text</h3>
                 <div className="block-text-content">
-                  {block.block_maya1 && block.block_maya1 !== '_' && (
+                  {hasValue(block.block_maya1) && (
                     <p className="maya-text">{block.block_maya1}</p>
                   )}
-                  {block.block_maya2 && block.block_maya2 !== '_' && (
+                  {hasValue(block.block_maya2) && (
                     <p className="maya-text-alt">{block.block_maya2}</p>
                   )}
-                  {block.block_english && block.block_english !== '_' && (
+                  {hasValue(block.block_english) && (
                     <p className="english-text">"{block.block_english}"</p>
                   )}
                 </div>
               </section>
             )}
 
-            {(block.event_calendar || block.event_long_count) && (
+            {hasCalendarInfo && (
               <section className="info-section">
                 <h3>Calendar Information</h3>
                 <div className="info-grid">
-                  {block.event_calendar && block.event_calendar !== '-' && (
+                  {hasValue(block.event_calendar) && (
                     <div className="info-item">
                       <label>Calendar:</label>
                       <span>{block.event_calendar}</span>
                     </div>
                   )}
-                  {block.event_long_count && block.event_long_count !== '-' && (
+                  {hasValue(block.event_long_count) && (
                     <div className="info-item">
                       <label>Long Count:</label>
                       <span>{block.event_long_count}</span>
                     </div>
                   )}
-                  {block.event_260_day && (
+                  {hasValue(block.event_260_day) && (
                     <div className="info-item">
                       <label>260-day:</label>
                       <span>{block.event_260_day}</span>
                     </div>
                   )}
-                  {block.event_365_day && (
+                  {hasValue(block.event_365_day) && (
                     <div className="info-item">
                       <label>365-day:</label>
                       <span>{block.event_365_day}</span>
@@ -164,7 +236,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
               </section>
             )}
 
-            {block.notes && block.notes !== '' && (
+            {hasNotes && (
               <section className="info-section">
                 <h3>Notes</h3>
                 <p className="notes-text">{block.notes}</p>
@@ -178,22 +250,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
                 <h3>Graphemes in this Block ({graphemes.length})</h3>
                 <div className="graphemes-grid">
                   {graphemes.map((g: any) => (
-                    <div key={g.id} className="grapheme-item">
-                      {g.primary_image_url && (
-                        <div className="grapheme-thumb">
-                          <img src={g.primary_image_url} alt={g.graphcode} />
-                        </div>
-                      )}
-                      <div className="grapheme-info">
-                        <div className="grapheme-code">{g.graphcode || g.grapheme_code}</div>
-                        {g.syllabic_value && (
-                          <div className="grapheme-value">{g.syllabic_value}</div>
-                        )}
-                        {g.grapheme_english && g.grapheme_english !== '_' && (
-                          <div className="grapheme-translation">"{g.grapheme_english}"</div>
-                        )}
-                      </div>
-                    </div>
+                    <GraphemeItem key={g.id} grapheme={g} />
                   ))}
                 </div>
               </section>

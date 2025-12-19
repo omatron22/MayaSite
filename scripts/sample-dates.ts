@@ -1,32 +1,19 @@
-import { createClient } from '@libsql/client';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
+import { db } from '../src/lib/db.ts';
 
-const db = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
-});
-
-async function check() {
-  const dates = await db.execute(`
-    SELECT 
-      mhd_block_id,
-      artifact_code,
-      event_calendar,
-      block_english
+async function main() {
+  const result = await db.execute(`
+    SELECT DISTINCT event_calendar 
     FROM blocks 
-    WHERE event_calendar IS NOT NULL AND event_calendar != ''
-    ORDER BY RANDOM()
-    LIMIT 10
+    WHERE event_calendar IS NOT NULL 
+      AND event_calendar != '-'
+      AND event_calendar != ''
+    LIMIT 50
   `);
   
-  console.log('Sample blocks with calendar dates:\n');
-  dates.rows.forEach(row => {
-    console.log(`${row.mhd_block_id} (${row.artifact_code})`);
-    console.log(`  Date: ${row.event_calendar}`);
-    console.log(`  Text: ${row.block_english}`);
-    console.log();
+  console.log('Sample date formats in your database:\n');
+  result.rows.forEach((row: any, i: number) => {
+    console.log(`${i+1}. ${row.event_calendar}`);
   });
 }
 
-check().catch(console.error);
+main().catch(console.error);
