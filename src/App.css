@@ -9,3 +9,134 @@
 .main-content {
   flex: 1;
 }
+
+/* Add to App.css */
+
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+  padding: 4rem 2rem;
+}
+
+.about-container {
+  max-width: 900px;
+  margin: 0 auto;
+  color: #e2e8f0;
+}
+
+.about-container h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.about-section {
+  margin-bottom: 3rem;
+}
+
+.about-section h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid #4a5568;
+  padding-bottom: 0.5rem;
+}
+
+.about-section p {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: #cbd5e0;
+  margin-bottom: 1rem;
+}
+
+.lead {
+  font-size: 1.25rem !important;
+  font-weight: 500;
+  color: #e2e8f0 !important;
+  line-height: 1.6;
+  margin-bottom: 2rem !important;
+}
+
+.feature-list,
+.catalog-list,
+.source-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.feature-list li,
+.catalog-list li {
+  padding: 0.75rem 0;
+  padding-left: 1.5rem;
+  position: relative;
+  color: #cbd5e0;
+  line-height: 1.6;
+}
+
+.feature-list li::before,
+.catalog-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #60a5fa;
+  font-weight: bold;
+}
+
+.source-list li {
+  background: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.source-list li strong {
+  color: #60a5fa;
+  font-size: 1.125rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stats-grid-about {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.stat-card-about {
+  background: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  line-height: 1.4;
+}
+
+.footer-section {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid #4a5568;
+}
+
+.attribution {
+  font-size: 0.9375rem !important;
+  color: #9ca3af !important;
+  text-align: center;
+  font-style: italic;
+}

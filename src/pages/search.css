@@ -176,10 +176,11 @@
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
-  justify-center;
+  justify-content: center;  /* Added 'content' here */
   overflow: hidden;
   padding: 0.5rem;
 }
+
 
 .sign-image img {
   max-width: 100%;
@@ -218,9 +219,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
+  -webkit-line-clamp: 2; /* Webkit prefix for older browsers */
   -webkit-box-orient: vertical;
 }
+
 
 .sign-counts {
   display: flex;
@@ -487,4 +490,299 @@
   gap: 1.5rem;
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+/* Pagination styles */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.pagination-info {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 3rem;
+  padding: 2rem 0;
+}
+
+.pagination-btn {
+  background: #2d3748;
+  color: #e1e8ed;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #3d4758;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.pagination-pages {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.pagination-page {
+  background: #2d3748;
+  color: #e1e8ed;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  min-width: 45px;
+  transition: all 0.2s;
+}
+
+.pagination-page:hover {
+  background: #3d4758;
+}
+
+.pagination-page.active {
+  background: #60a5fa;
+  color: white;
+  font-weight: bold;
+}
+
+.pagination-ellipsis {
+  color: #9ca3af;
+  padding: 0 0.5rem;
+}
+
+.word-class {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+
+/* Add these new filter styles to search.css */
+
+/* Filters Section */
+.filters-section {
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #374151;
+}
+
+.filters-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin: 0;
+}
+
+.clear-filters-btn {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.clear-filters-btn:hover {
+  background: #60a5fa;
+  color: white;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+/* Pill-style filter buttons */
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-pill {
+  padding: 0.5rem 1rem;
+  background: #374151;
+  color: #d1d5db;
+  border: 2px solid #4b5563;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  background: #4b5563;
+  border-color: #60a5fa;
+}
+
+.filter-pill.active {
+  background: #1e40af;
+  border-color: #3b82f6;
+  color: white;
+}
+
+/* Dropdown filters */
+.filter-select {
+  padding: 0.625rem 1rem;
+  background: #374151;
+  color: white;
+  border: 2px solid #4b5563;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5rem;
+  padding-right: 2.5rem;
+}
+
+.filter-select:hover {
+  border-color: #60a5fa;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Text input filters */
+.filter-input-text {
+  padding: 0.625rem 1rem;
+  background: #374151;
+  color: white;
+  border: 2px solid #4b5563;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.filter-input-text:hover {
+  border-color: #60a5fa;
+}
+
+.filter-input-text:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-input-text::placeholder {
+  color: #6b7280;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .clear-filters-btn {
+    width: 100%;
+  }
+}
+
+/* Update existing styles to match new design */
+.view-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  background: #1f2937;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.view-mode-toggle button {
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  color: #9ca3af;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.view-mode-toggle button:hover {
+  background: #374151;
+  color: #d1d5db;
+}
+
+.view-mode-toggle button.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.block-card.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.block-card.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
