@@ -1,8 +1,8 @@
+/* src/pages/signDetail.css - COMPLETE STYLES */
 .sign-detail-page {
   min-height: 100vh;
-  background: #0f1419;
-  color: #e1e8ed;
-  padding: 2rem;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  padding: 2rem 1.5rem;
 }
 
 .sign-detail-container {
@@ -10,37 +10,42 @@
   margin: 0 auto;
 }
 
+/* Back Link */
 .back-link {
   display: inline-block;
   color: #60a5fa;
   text-decoration: none;
+  font-weight: 600;
   margin-bottom: 2rem;
-  font-size: 0.95rem;
+  transition: color 0.2s;
 }
 
 .back-link:hover {
-  text-decoration: underline;
+  color: #93c5fd;
 }
 
+/* Header Section */
 .sign-header {
-  display: grid;
-  grid-template-columns: 300px 1fr;
+  display: flex;
   gap: 3rem;
   margin-bottom: 3rem;
   padding: 2rem;
-  background: #1a1f2e;
-  border-radius: 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 1rem;
 }
 
 .sign-image-large {
+  flex-shrink: 0;
   width: 300px;
   height: 300px;
-  background: white;
-  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  padding: 1.5rem;
 }
 
 .sign-image-large img {
@@ -50,105 +55,152 @@
 }
 
 .no-image-large {
-  font-size: 4rem;
-  color: #ccc;
+  color: #334155;
+}
+
+.sign-header-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .sign-header-info h1 {
   font-size: 3rem;
-  margin: 0 0 1rem 0;
-  color: #60a5fa;
+  color: white;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
 }
 
-.sign-codes {
+.sign-meta {
   display: flex;
-  gap: 1rem;
   flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.code-badge {
-  background: #2d3748;
+.meta-item {
   padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
 }
 
-.code-label {
-  color: #9ca3af;
+.meta-label {
+  color: #94a3b8;
   margin-right: 0.5rem;
+}
+
+.meta-value {
+  color: #e2e8f0;
+  font-weight: 600;
 }
 
 .sign-translation,
 .sign-phonetic,
 .sign-logographic,
-.sign-word-class,
-.sign-calendrical {
+.sign-word-class {
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
+  color: #cbd5e1;
 }
 
+.sign-phonetic {
+  color: #60a5fa;
+  font-style: italic;
+}
+
+.sign-translation strong,
+.sign-logographic strong,
+.sign-word-class strong {
+  color: #60a5fa;
+  margin-right: 0.5rem;
+}
+
+/* Tabs */
 .sign-tabs {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #2d3748;
+  border-bottom: 2px solid #334155;
 }
 
 .sign-tabs button {
-  background: none;
+  padding: 1rem 2rem;
+  background: transparent;
+  color: #94a3b8;
   border: none;
-  color: #9ca3af;
-  padding: 1rem 1.5rem;
+  border-bottom: 3px solid transparent;
   cursor: pointer;
   font-size: 1rem;
-  border-bottom: 3px solid transparent;
+  font-weight: 600;
   transition: all 0.2s;
+  margin-bottom: -2px;
 }
 
 .sign-tabs button:hover {
-  color: #e1e8ed;
+  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .sign-tabs button.active {
   color: #60a5fa;
-  border-bottom-color: #60a5fa;
+  border-bottom-color: #3b82f6;
 }
 
+/* Tab Content */
 .sign-content {
-  background: #1a1f2e;
-  border-radius: 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 1rem;
   padding: 2rem;
   min-height: 400px;
 }
 
+/* Info Tab */
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
 }
 
 .info-item {
   padding: 1rem;
-  background: #0f1419;
-  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
 }
 
 .info-item strong {
-  color: #9ca3af;
   display: block;
+  color: #60a5fa;
+  font-size: 0.875rem;
   margin-bottom: 0.5rem;
-  font-size: 0.85rem;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .info-notes {
   grid-column: 1 / -1;
-  padding: 1rem;
-  background: #0f1419;
-  border-radius: 8px;
+  padding: 1.5rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
 }
 
+.info-notes strong {
+  display: block;
+  color: #60a5fa;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.info-notes p {
+  color: #cbd5e1;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Instances Tab */
 .instances-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -156,19 +208,29 @@
 }
 
 .instance-card {
-  background: #0f1419;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #2d3748;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+
+.instance-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
 }
 
 .instance-image {
   width: 100%;
   height: 150px;
-  background: white;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
 }
 
 .instance-image img {
@@ -177,63 +239,155 @@
   object-fit: contain;
 }
 
-.instance-info {
-  padding: 1rem;
+.instance-code {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.75rem;
 }
 
 .maya-text {
-  font-style: italic;
-  color: #60a5fa;
+  color: #e2e8f0;
   margin-bottom: 0.5rem;
+  line-height: 1.4;
 }
 
 .english-text {
-  color: #e1e8ed;
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 0.875rem;
   margin-bottom: 0.75rem;
 }
 
 .instance-meta {
   display: flex;
   gap: 1rem;
-  font-size: 0.85rem;
-  color: #9ca3af;
+  font-size: 0.75rem;
+  color: #64748b;
+  flex-wrap: wrap;
 }
 
+/* Examples Tab */
 .examples-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .example-card {
-  background: white;
-  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
   overflow: hidden;
-  position: relative;
+  transition: all 0.2s;
+}
+
+.example-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
 }
 
 .example-card img {
   width: 100%;
   height: 200px;
-  object-fit: contain;
+  object-fit: cover;
+  background: #1e293b;
 }
 
 .confidence {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-align: center;
-  font-size: 0.85rem;
+  background: #1e293b;
 }
 
-.loading,
-.error {
+/* Empty States */
+.empty-message {
   text-align: center;
-  padding: 4rem;
-  font-size: 1.25rem;
-  color: #9ca3af;
+  color: #64748b;
+  font-size: 1.1rem;
+  padding: 3rem;
+}
+
+/* Loading & Error States */
+.sign-detail-loading,
+.sign-detail-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: white;
+  text-align: center;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #334155;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sign-header {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .sign-image-large {
+    width: 100%;
+    height: 250px;
+  }
+
+  .sign-header-info h1 {
+    font-size: 2rem;
+  }
+
+  .sign-tabs {
+    overflow-x: auto;
+  }
+
+  .sign-tabs button {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instances-grid,
+  .examples-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.example-info {
+  padding: 0.75rem;
+  background: #1e293b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dataset-split {
+  padding: 0.25rem 0.5rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 0.25rem;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }

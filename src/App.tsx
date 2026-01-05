@@ -1,14 +1,16 @@
-// src/App.tsx
+// src/App.tsx - FIXED
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { Navbar } from './components/Navbar';
 
-// Eager load search page (home page) [web:39][web:44]
+// Eager load search page (home page)
 import { SearchPage } from './pages/search';
 
-// Lazy load other routes [web:39][web:43][web:44]
-const SignDetailPage = lazy(() => import('./pages/signDetail').then(m => ({ default: m.SignDetailPage })));
+// ✅ EAGER LOAD SignDetailPage for debugging
+import { SignDetailPage } from './pages/signDetail';
+
+// Lazy load other routes
 const AnalyticsPage = lazy(() => import('./pages/analytics').then(m => ({ default: m.AnalyticsPage })));
 const StatsPage = lazy(() => import('./pages/stats').then(m => ({ default: m.StatsPage })));
 const AboutPage = lazy(() => import('./pages/about').then(m => ({ default: m.AboutPage })));
@@ -44,4 +46,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;  // ✅ FIXED - No parentheses!
