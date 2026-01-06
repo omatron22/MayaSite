@@ -763,3 +763,99 @@
     height: 150px;
   }
 }
+
+/* Optimized tooltip without images - FAST */
+.chart-tooltip-fast {
+  background: rgba(17, 24, 39, 0.98);
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  padding: 0.875rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  max-width: 240px;
+  pointer-events: none;
+}
+
+.tooltip-sign-large {
+  font-weight: 700;
+  color: #e5e7eb;
+  font-size: 1.125rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid #374151;
+  padding-bottom: 0.5rem;
+}
+
+.tooltip-info-fast {
+  font-size: 0.8125rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.tooltip-info-fast div {
+  margin: 0.25rem 0;
+}
+
+.tooltip-info-fast strong {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Better info note styling */
+.info-note {
+  margin-top: 1rem;
+  padding: 0.875rem 1rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  color: #93c5fd;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.info-note svg {
+  flex-shrink: 0;
+  color: #60a5fa;
+  margin-top: 0.125rem;
+}
+
+/* Performance optimization for chart */
+.chart-wrapper {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  will-change: transform;
+  contain: layout style paint;
+}
+
+/* Disable pointer events on non-interactive elements */
+.recharts-surface {
+  will-change: auto;
+}
+
+.recharts-layer {
+  pointer-events: none;
+}
+
+.recharts-scatter-symbol {
+  pointer-events: all;
+  cursor: pointer;
+  transition: none;
+}
+
+.recharts-scatter-symbol:hover {
+  opacity: 1;
+}
+
+/* Smooth hover on scatter dots */
+.recharts-scatter circle {
+  transition: r 0.15s ease;
+}
+
+.recharts-scatter circle:hover {
+  r: 6 !important;
+}
+

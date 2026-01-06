@@ -1,4 +1,4 @@
-// src/hooks/useSearchFilters.ts
+// src/hooks/useSearchFilters.ts - FIXED VERSION
 import { useState, useCallback } from 'react';
 
 export interface SearchFilters {
@@ -20,7 +20,7 @@ export interface SearchFilters {
   artifact: string;
   site: string;
   
-  // Sort
+  // Sort (not a filter!)
   sortBy: 'code' | 'frequency' | 'completeness';
 }
 
@@ -54,7 +54,11 @@ export function useSearchFilters() {
     setFilters(defaultFilters);
   }, []);
   
+  // Count active filters - EXCLUDE sortBy since it's not a filter
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
+    // Don't count sortBy as a filter
+    if (key === 'sortBy') return false;
+    
     if (typeof value === 'boolean') return value;
     if (typeof value === 'string') return value !== 'all' && value !== '';
     return false;

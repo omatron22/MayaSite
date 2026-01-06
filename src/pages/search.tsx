@@ -1,12 +1,12 @@
-// src/pages/search.tsx - OPTIMIZED VERSION
+// src/pages/search.tsx - COMPLETE CLEAN VERSION
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { GraphemeModal } from '../components/GraphemeModal';
 import { BlockModal } from '../components/BlockModal';
 import { SignCard } from '../components/search/SignCard';
 import { BlockCard } from '../components/search/BlockCard';
 import { GraphemeCard } from '../components/search/GraphemeCard';
 import { SearchFiltersComponent } from '../components/search/SearchFilters';
-import { SearchIcon } from '../components/search/icons';
 import { useSearchFilters } from '../hooks/useSearchFilters';
 import { useSearch } from '../hooks/useSearch';
 import './search.css';
@@ -43,6 +43,7 @@ export function SearchPage() {
 
   // Refs
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Computed values
   const totalPages = Math.ceil(totalResults / PAGE_SIZE);
@@ -76,13 +77,56 @@ export function SearchPage() {
     setPage(1);
   }, [debouncedQuery, viewMode, filters]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Focus search on '/'
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      
+      // Navigation shortcuts when modal is open
+      if (selectedGraphemeId || selectedBlockId) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (selectedGraphemeId) handlePrevGrapheme();
+          if (selectedBlockId) handlePrevBlock();
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (selectedGraphemeId) handleNextGrapheme();
+          if (selectedBlockId) handleNextBlock();
+        }
+        if (e.key === 'Escape') {
+          setSelectedGraphemeId(null);
+          setSelectedBlockId(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [selectedGraphemeId, selectedBlockId, selectedGraphemeIndex, selectedBlockIndex, results]);
+
   // Handlers
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   }, []);
 
+  const handleClearSearch = useCallback(() => {
+    setQuery('');
+    searchInputRef.current?.focus();
+  }, []);
+
   const handleExampleClick = useCallback((example: string) => {
     setQuery(example);
+    searchInputRef.current?.focus();
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    setPage(1);
   }, []);
 
   const handleGraphemeClick = useCallback((id: number, index: number) => {
@@ -130,57 +174,42 @@ export function SearchPage() {
   return (
     <div className="search-page">
       <div className="search-container">
-        {/* Hero */}
+        {/* Cleaner Hero */}
         <div className="hero-compact">
           <h1>Maya Hieroglyphic Database</h1>
-          <div className="stats-inline">
-            <span className="stat-item"><strong>3,141</strong> Signs</span>
-            <span className="stat-divider">•</span>
-            <span className="stat-item"><strong>208,000</strong> Blocks</span>
-            <span className="stat-divider">•</span>
-            <span className="stat-item"><strong>10,665</strong> ML Examples</span>
-          </div>
+          <p className="hero-subtitle">Search and explore 3,141 signs across 208,000 blocks</p>
         </div>
 
-        {/* Search */}
+        {/* Search Bar */}
         <div className="search-compact">
-          <div className="search-row">
-            <div className="search-input-wrapper">
-              <SearchIcon />
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search by code, syllabic value, translation, or artifact..."
-                value={query}
-                onChange={handleQueryChange}
-              />
-            </div>
-            
-            {/* View Mode Toggle */}
-            <div className="view-mode-toggle-compact">
+          <div className="search-input-wrapper">
+            <Search size={18} className="search-icon" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="search-input"
+              placeholder="Search by code, syllabic value, translation, or artifact..."
+              value={query}
+              onChange={handleQueryChange}
+            />
+            {query && (
               <button 
-                className={viewMode === 'signs' ? 'active' : ''} 
-                onClick={() => setViewMode('signs')}
+                className="clear-search-btn"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
               >
-                Signs
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
               </button>
-              <button 
-                className={viewMode === 'blocks' ? 'active' : ''} 
-                onClick={() => setViewMode('blocks')}
-              >
-                Blocks
-              </button>
-              <button 
-                className={viewMode === 'graphemes' ? 'active' : ''} 
-                onClick={() => setViewMode('graphemes')}
-              >
-                Graphemes
-              </button>
-            </div>
+            )}
+            <kbd className="search-kbd">/</kbd>
           </div>
 
           {/* Examples */}
           <div className="search-examples-compact">
+            <span className="examples-label">Try:</span>
             {EXAMPLES.map(ex => (
               <button 
                 key={ex} 
@@ -192,9 +221,10 @@ export function SearchPage() {
             ))}
           </div>
 
-          {/* Filters */}
+          {/* Filters with View Mode Inside */}
           <SearchFiltersComponent
             viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
             filters={filters}
             updateFilter={updateFilter}
             clearFilters={clearFilters}
@@ -208,19 +238,33 @@ export function SearchPage() {
         {loading && (
           <div className="loading">
             <div className="spinner"></div>
-            <p>Searching...</p>
+            <p>Searching database...</p>
           </div>
         )}
 
         {/* Empty State */}
         {!loading && results.length === 0 && (
           <div className="no-results">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
+            <div className="no-results-icon">
+              <Search size={48} />
+            </div>
             <p className="no-results-title">No {viewMode} found</p>
-            <p className="help-text">Try adjusting your search or filters</p>
+            <p className="help-text">
+              {query || activeFilterCount > 0
+                ? 'Try adjusting your search or filters'
+                : 'Enter a search term or select filters to get started'}
+            </p>
+            {(query || activeFilterCount > 0) && (
+              <button 
+                className="clear-all-btn"
+                onClick={() => {
+                  setQuery('');
+                  clearFilters();
+                }}
+              >
+                Clear all
+              </button>
+            )}
           </div>
         )}
 
@@ -228,9 +272,15 @@ export function SearchPage() {
         {!loading && results.length > 0 && (
           <>
             <div className="results-header-compact">
-              <span className="results-count">
+              <div className="results-count">
                 <strong>{totalResults.toLocaleString()}</strong> {viewMode}
-              </span>
+                {(query || activeFilterCount > 0) && (
+                  <span className="results-meta">
+                    {query && <span> matching "{query}"</span>}
+                    {activeFilterCount > 0 && <span> with {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}</span>}
+                  </span>
+                )}
+              </div>
               {totalPages > 1 && (
                 <span className="page-info">Page {page} of {totalPages}</span>
               )}
@@ -280,10 +330,8 @@ export function SearchPage() {
                   disabled={!hasPrevPage}
                   className="pagination-btn"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="15 18 9 12 15 6"/>
-                  </svg>
-                  Previous
+                  <ChevronLeft size={16} />
+                  <span>Previous</span>
                 </button>
                 
                 <div className="pagination-pages">
@@ -323,10 +371,8 @@ export function SearchPage() {
                   disabled={!hasNextPage}
                   className="pagination-btn"
                 >
-                  Next
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <polyline points="9 18 15 12 9 6"/>
-                  </svg>
+                  <span>Next</span>
+                  <ChevronRight size={16} />
                 </button>
               </div>
             )}

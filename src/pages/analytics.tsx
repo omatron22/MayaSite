@@ -1,7 +1,10 @@
-// src/pages/analytics.tsx - REDESIGNED & CLEANER
+// src/pages/analytics.tsx - OPTIMIZED WITH SMOOTH TIMELINE
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { db } from '../lib/db';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useLazyLoad } from '../hooks/useLazyLoad';
+import { LazyImage } from '../components/LazyImage';
+import { Info } from 'lucide-react';
 import './analytics.css';
 
 const REGION_COLORS = {
@@ -45,7 +48,7 @@ interface GlyphInstance {
   source: 'mhd' | 'roboflow';
 }
 
-// Memoized utility functions
+// Utility functions
 const parseLongCount = (longCount: string): number | null => {
   if (!longCount || longCount === '-') return null;
   
@@ -77,7 +80,7 @@ const getRegionYPosition = (region: string): number => {
   return positions[region] || 0;
 };
 
-// Memoized Glyph Card Component
+// Memoized Glyph Card Component with Lazy Image
 const GlyphCard = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item: GlyphInstance) => void }) => {
   const handleClick = useCallback(() => onClick(item), [item, onClick]);
   
@@ -86,7 +89,7 @@ const GlyphCard = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item
       className={`glyph-card ${item.source === 'roboflow' ? 'roboflow-card' : ''}`}
       onClick={handleClick}
     >
-      <img src={item.imageUrl} alt={item.sign} loading="lazy" />
+      <LazyImage src={item.imageUrl} alt={item.sign} width={65} height={65} />
       <div className="glyph-info">
         <div className="sign-name">{item.sign}</div>
         {item.year && <div className="year-small">{item.year} CE</div>}
@@ -96,7 +99,111 @@ const GlyphCard = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item
 });
 GlyphCard.displayName = 'GlyphCard';
 
-// Memoized Strip Item Component
+// Lazy-loaded Period Section
+const PeriodSection = memo(({ 
+  periodName, 
+  items, 
+  periodColor, 
+  onGlyphClick 
+}: { 
+  periodName: string;
+  items: GlyphInstance[];
+  periodColor: string;
+  onGlyphClick: (item: GlyphInstance) => void;
+}) => {
+  const {
+    visibleItems,
+    hasMore,
+    loaderRef,
+    isLoadingMore,
+    displayCount,
+    totalCount
+  } = useLazyLoad(items, 100, 50);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="period-section-compact">
+      <div className="period-header" style={{ borderLeftColor: periodColor }}>
+        <h3>{periodName}</h3>
+        <span className="count-badge-compact">
+          {displayCount.toLocaleString()} / {totalCount.toLocaleString()}
+        </span>
+      </div>
+      <div className="glyph-grid-compact">
+        {visibleItems.map((item) => (
+          <GlyphCard key={item.id} item={item} onClick={onGlyphClick} />
+        ))}
+      </div>
+      
+      {hasMore && (
+        <div ref={loaderRef} className="load-more-trigger">
+          {isLoadingMore ? (
+            <div className="loading-more">
+              <div className="spinner-small"></div>
+              <span>Loading more...</span>
+            </div>
+          ) : (
+            <div className="load-more-message">Scroll for more</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+});
+PeriodSection.displayName = 'PeriodSection';
+
+// Regional Strip with Lazy Loading
+const RegionalStrip = memo(({ 
+  regionName, 
+  items, 
+  onGlyphClick 
+}: { 
+  regionName: string;
+  items: GlyphInstance[];
+  onGlyphClick: (item: GlyphInstance) => void;
+}) => {
+  const {
+    visibleItems,
+    hasMore,
+    loaderRef,
+    displayCount,
+    totalCount
+  } = useLazyLoad(items, 50, 30);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="region-strip-compact">
+      <div className="strip-header-compact">
+        <div 
+          className="region-badge"
+          style={{ 
+            backgroundColor: REGION_COLORS[regionName as keyof typeof REGION_COLORS] || '#6b7280'
+          }}
+        >
+          {regionName}
+        </div>
+        <span className="strip-count">
+          {displayCount.toLocaleString()} / {totalCount.toLocaleString()}
+        </span>
+      </div>
+      <div className="strip-scroll-compact">
+        {visibleItems.map((item) => (
+          <StripItem key={item.id} item={item} onClick={onGlyphClick} />
+        ))}
+        {hasMore && (
+          <div ref={loaderRef} className="strip-loader">
+            <div className="spinner-small"></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
+RegionalStrip.displayName = 'RegionalStrip';
+
+// Strip Item with Lazy Image
 const StripItem = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item: GlyphInstance) => void }) => {
   const handleClick = useCallback(() => onClick(item), [item, onClick]);
   
@@ -105,7 +212,7 @@ const StripItem = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item
       className={`strip-item ${item.source === 'roboflow' ? 'roboflow-item' : ''}`}
       onClick={handleClick}
     >
-      <img src={item.imageUrl} alt={item.sign} loading="lazy" />
+      <LazyImage src={item.imageUrl} alt={item.sign} width={65} height={65} />
       <div className="strip-label">
         <div className="strip-sign">{item.sign}</div>
         {item.year && <div className="strip-year">{item.year}</div>}
@@ -115,29 +222,28 @@ const StripItem = memo(({ item, onClick }: { item: GlyphInstance; onClick: (item
 });
 StripItem.displayName = 'StripItem';
 
-// Memoized Custom Tooltip
-const CustomTooltip = memo(({ active, payload }: any) => {
+// OPTIMIZED Tooltip - No images for performance
+const OptimizedTooltip = memo(({ active, payload }: any) => {
   if (!active || !payload || !payload.length) return null;
   
   const d = payload[0].payload;
   return (
-    <div className="chart-tooltip">
+    <div className="chart-tooltip-fast">
       <div className={`tooltip-badge ${d.source}`}>
         {d.source === 'mhd' ? 'MHD' : 'Roboflow'}
       </div>
-      <img src={d.imageUrl} alt={d.sign} />
-      <div className="tooltip-sign">{d.sign}</div>
+      <div className="tooltip-sign-large">{d.sign}</div>
       {d.syllabic && <div className="tooltip-syllabic">{d.syllabic}</div>}
-      <div className="tooltip-info">
-        <div>Year: {d.year ? `~${d.year} CE` : 'Undated'}</div>
-        <div>LC: {d.longCount}</div>
-        <div>Site: {d.site}</div>
-        <div>Region: {d.region}</div>
+      <div className="tooltip-info-fast">
+        <div><strong>Year:</strong> {d.year ? `~${d.year} CE` : 'Undated'}</div>
+        <div><strong>Region:</strong> {d.region}</div>
+        <div><strong>Site:</strong> {d.site}</div>
+        {d.longCount !== 'N/A' && <div><strong>LC:</strong> {d.longCount}</div>}
       </div>
     </div>
   );
 });
-CustomTooltip.displayName = 'CustomTooltip';
+OptimizedTooltip.displayName = 'OptimizedTooltip';
 
 export function AnalyticsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('mosaic');
@@ -163,22 +269,27 @@ export function AnalyticsPage() {
     return filtered;
   }, [allData, selectedPeriod, selectedRegion]);
 
-  // Memoized timeline data with sampling
+  // OPTIMIZED timeline data - 2000 max for smooth performance
   const sampledTimelineData = useMemo(() => {
     const validData = filteredData.filter(d => d.year !== null);
-    if (validData.length <= 5000) return validData;
     
-    const sampleSize = 5000;
+    // If small dataset, show all
+    if (validData.length <= 2000) return validData;
+    
+    // Smart sampling: 2000 points distributed evenly across regions
+    const sampleSize = 2000;
     const samplesPerRegion = Math.floor(sampleSize / REGIONS.length);
     const sampled: GlyphInstance[] = [];
     
     REGIONS.forEach(region => {
       const regionData = validData.filter(d => d.region === region);
+      if (regionData.length === 0) return;
+      
+      // Take evenly distributed samples
       const step = Math.max(1, Math.floor(regionData.length / samplesPerRegion));
       
-      for (let i = 0; i < regionData.length; i += step) {
+      for (let i = 0; i < regionData.length && sampled.filter(d => d.region === region).length < samplesPerRegion; i += step) {
         sampled.push(regionData[i]);
-        if (sampled.filter(d => d.region === region).length >= samplesPerRegion) break;
       }
     });
     
@@ -225,29 +336,13 @@ export function AnalyticsPage() {
     []
   );
 
-  // Memoized callbacks
+  // Callbacks
   const handleGlyphClick = useCallback((glyph: GlyphInstance) => {
     setSelectedGlyph(glyph);
   }, []);
 
   const closeModal = useCallback(() => {
     setSelectedGlyph(null);
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode);
-  }, []);
-
-  const handleDataSourceChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setDataSource(e.target.value as DataSource);
-  }, []);
-
-  const handlePeriodChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPeriod(e.target.value);
-  }, []);
-
-  const handleRegionChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedRegion(e.target.value);
   }, []);
 
   // Data loading effect
@@ -363,17 +458,7 @@ export function AnalyticsPage() {
           return a.year - b.year;
         });
         
-        const validCount = allInstances.filter(d => d.year !== null).length;
-        const invalidCount = allInstances.length - validCount;
-        const mhdCount = allInstances.filter(d => d.source === 'mhd').length;
-        const roboflowCount = allInstances.filter(d => d.source === 'roboflow').length;
-        
         console.log(`✅ Loaded ${allInstances.length.toLocaleString()} total instances`);
-        console.log(`   - ${mhdCount.toLocaleString()} from MHD`);
-        console.log(`   - ${roboflowCount.toLocaleString()} from Roboflow`);
-        console.log(`   - ${validCount.toLocaleString()} with valid dates`);
-        console.log(`   - ${invalidCount.toLocaleString()} undated`);
-        
         setAllData(allInstances);
       } catch (err) {
         console.error('Error loading data:', err);
@@ -409,32 +494,32 @@ export function AnalyticsPage() {
           <div className="view-toggle-compact">
             <button 
               className={viewMode === 'timeline' ? 'active' : ''} 
-              onClick={() => handleViewModeChange('timeline')}
+              onClick={() => setViewMode('timeline')}
             >
               Timeline
             </button>
             <button 
               className={viewMode === 'mosaic' ? 'active' : ''} 
-              onClick={() => handleViewModeChange('mosaic')}
+              onClick={() => setViewMode('mosaic')}
             >
               Mosaic
             </button>
             <button 
               className={viewMode === 'regional' ? 'active' : ''} 
-              onClick={() => handleViewModeChange('regional')}
+              onClick={() => setViewMode('regional')}
             >
               Regional
             </button>
           </div>
 
           <div className="filters-row-compact">
-            <select className="filter-select-sm" value={dataSource} onChange={handleDataSourceChange}>
+            <select className="filter-select-sm" value={dataSource} onChange={(e) => setDataSource(e.target.value as DataSource)}>
               <option value="mhd">MHD</option>
               <option value="roboflow">Roboflow</option>
               <option value="both">Combined</option>
             </select>
             
-            <select className="filter-select-sm" value={selectedPeriod} onChange={handlePeriodChange}>
+            <select className="filter-select-sm" value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)}>
               <option value="all">All Periods</option>
               {TIME_PERIODS.map(p => (
                 <option key={p.name} value={p.name}>{p.name}</option>
@@ -444,7 +529,7 @@ export function AnalyticsPage() {
               )}
             </select>
             
-            <select className="filter-select-sm" value={selectedRegion} onChange={handleRegionChange}>
+            <select className="filter-select-sm" value={selectedRegion} onChange={(e) => setSelectedRegion(e.target.value)}>
               <option value="all">All Regions</option>
               {REGIONS.map(r => (
                 <option key={r} value={r}>{r}</option>
@@ -467,10 +552,9 @@ export function AnalyticsPage() {
           </div>
         )}
 
-        {/* TEMPORAL TIMELINE VIEW */}
+        {/* TIMELINE VIEW - OPTIMIZED FOR SMOOTH PERFORMANCE */}
         {!loading && viewMode === 'timeline' && (
           <div className="timeline-view">
-            {/* Compact Period Bar */}
             <div className="period-bar-compact">
               {displayPeriods.map((period) => (
                 <div 
@@ -489,8 +573,14 @@ export function AnalyticsPage() {
 
             <div className="chart-wrapper">
               <ResponsiveContainer width="100%" height={500}>
-                <ScatterChart margin={{ top: 10, right: 20, bottom: 60, left: 80 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                <ScatterChart 
+                  margin={{ top: 10, right: 20, bottom: 60, left: 80 }}
+                >
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke="#374151" 
+                    opacity={0.3} 
+                  />
                   
                   <XAxis 
                     type="number"
@@ -520,18 +610,28 @@ export function AnalyticsPage() {
                     width={75}
                   />
                   
-                  <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+                  <Tooltip 
+                    content={<OptimizedTooltip />} 
+                    cursor={{ strokeDasharray: '3 3' }}
+                    animationDuration={0}
+                  />
                   
                   <Scatter 
-                    data={sampledTimelineData.map(d => ({ ...d, y: getRegionYPosition(d.region) }))} 
+                    data={sampledTimelineData.map(d => ({ 
+                      ...d, 
+                      y: getRegionYPosition(d.region) 
+                    }))} 
                     fill="#8884d8"
                     onClick={(data: any) => handleGlyphClick(data)}
+                    isAnimationActive={false}
+                    shape="circle"
                   >
                     {sampledTimelineData.map((entry, index) => (
                       <Cell 
                         key={`cell-${index}`} 
                         fill={REGION_COLORS[entry.region as keyof typeof REGION_COLORS] || '#6b7280'}
                         opacity={0.7}
+                        r={4}
                       />
                     ))}
                   </Scatter>
@@ -539,7 +639,6 @@ export function AnalyticsPage() {
               </ResponsiveContainer>
             </div>
 
-            {/* Compact Legend */}
             <div className="legend-compact">
               {Object.entries(REGION_COLORS).map(([region, color]) => (
                 <div key={region} className="legend-item-compact">
@@ -549,15 +648,19 @@ export function AnalyticsPage() {
               ))}
             </div>
 
-            {stats.validDataCount > 5000 && (
+            {stats.validDataCount > 2000 && (
               <div className="info-note">
-                💡 Showing {sampledTimelineData.length.toLocaleString()} samples from {stats.validDataCount.toLocaleString()} dated instances
+                <Info size={16} />
+                <span>
+                  Showing {sampledTimelineData.length.toLocaleString()} representative samples 
+                  from {stats.validDataCount.toLocaleString()} dated instances for optimal performance
+                </span>
               </div>
             )}
           </div>
         )}
 
-        {/* PERIOD MOSAIC VIEW */}
+        {/* MOSAIC VIEW - OPTIMIZED WITH LAZY LOADING */}
         {!loading && viewMode === 'mosaic' && (
           <div className="mosaic-view">
             <div className="period-bar-compact">
@@ -577,54 +680,33 @@ export function AnalyticsPage() {
             </div>
 
             {Object.entries(groupedByPeriod).map(([periodName, items]) => {
-              if (items.length === 0) return null;
               const period = TIME_PERIODS.find(p => p.name === periodName);
               const periodColor = period?.color || (periodName === 'Roboflow Dataset' ? '#a78bfa' : '#6b7280');
               
               return (
-                <div key={periodName} className="period-section-compact">
-                  <div className="period-header" style={{ borderLeftColor: periodColor }}>
-                    <h3>{periodName}</h3>
-                    <span className="count-badge-compact">{items.length.toLocaleString()}</span>
-                  </div>
-                  <div className="glyph-grid-compact">
-                    {items.map((item) => (
-                      <GlyphCard key={item.id} item={item} onClick={handleGlyphClick} />
-                    ))}
-                  </div>
-                </div>
+                <PeriodSection
+                  key={periodName}
+                  periodName={periodName}
+                  items={items}
+                  periodColor={periodColor}
+                  onGlyphClick={handleGlyphClick}
+                />
               );
             })}
           </div>
         )}
 
-        {/* REGIONAL STRIPS VIEW */}
+        {/* REGIONAL VIEW - OPTIMIZED WITH LAZY LOADING */}
         {!loading && viewMode === 'regional' && (
           <div className="regional-view">
-            {Object.entries(groupedByRegion).map(([regionName, items]) => {
-              if (items.length === 0) return null;
-              
-              return (
-                <div key={regionName} className="region-strip-compact">
-                  <div className="strip-header-compact">
-                    <div 
-                      className="region-badge"
-                      style={{ 
-                        backgroundColor: REGION_COLORS[regionName as keyof typeof REGION_COLORS] || '#6b7280'
-                      }}
-                    >
-                      {regionName}
-                    </div>
-                    <span className="strip-count">{items.length.toLocaleString()}</span>
-                  </div>
-                  <div className="strip-scroll-compact">
-                    {items.map((item) => (
-                      <StripItem key={item.id} item={item} onClick={handleGlyphClick} />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+            {Object.entries(groupedByRegion).map(([regionName, items]) => (
+              <RegionalStrip
+                key={regionName}
+                regionName={regionName}
+                items={items}
+                onGlyphClick={handleGlyphClick}
+              />
+            ))}
           </div>
         )}
 
