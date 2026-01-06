@@ -1,6 +1,7 @@
-// src/pages/signDetail.tsx - WITH TABS
+// src/pages/signDetail.tsx - NO EMOJIS VERSION
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { FileText, Calendar, ChevronLeft } from 'lucide-react';
 import { db } from '../lib/db';
 import './signDetail.css';
 
@@ -50,15 +51,15 @@ export function SignDetailPage() {
             `,
             args: [signId]
           }),
-db.execute({
-  sql: `
-    SELECT id, image_url, confidence, dataset_split
-    FROM roboflow_instances
-    WHERE catalog_sign_id = ?
-    LIMIT 50
-  `,
-  args: [signId]
-})
+          db.execute({
+            sql: `
+              SELECT id, image_url, confidence, dataset_split
+              FROM roboflow_instances
+              WHERE catalog_sign_id = ?
+              LIMIT 50
+            `,
+            args: [signId]
+          })
         ]);
 
         if (signResult.rows.length > 0) {
@@ -95,7 +96,10 @@ db.execute({
         <div className="sign-detail-error">
           <h1>Error</h1>
           <p>{error || 'Sign not found'}</p>
-          <Link to="/" className="back-link">← Back to search</Link>
+          <Link to="/" className="back-link">
+            <ChevronLeft size={16} />
+            <span>Back to search</span>
+          </Link>
         </div>
       </div>
     );
@@ -106,7 +110,10 @@ db.execute({
   return (
     <div className="sign-detail-page">
       <div className="sign-detail-container">
-        <Link to="/" className="back-link">← Back to search</Link>
+        <Link to="/" className="back-link">
+          <ChevronLeft size={16} />
+          <span>Back to search</span>
+        </Link>
         
         {/* Header Section */}
         <div className="sign-header">
@@ -257,8 +264,18 @@ db.execute({
                         {g.block_maya1 && <div className="maya-text">{g.block_maya1}</div>}
                         {g.block_english && <div className="english-text">"{g.block_english}"</div>}
                         <div className="instance-meta">
-                          {g.artifact_code && <span>📜 {g.artifact_code}</span>}
-                          {g.event_calendar && <span>📅 {g.event_calendar}</span>}
+                          {g.artifact_code && (
+                            <span className="meta-badge">
+                              <FileText size={12} />
+                              {g.artifact_code}
+                            </span>
+                          )}
+                          {g.event_calendar && (
+                            <span className="meta-badge">
+                              <Calendar size={12} />
+                              {g.event_calendar}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -274,23 +291,23 @@ db.execute({
                 <p className="empty-message">No ML training examples available</p>
               ) : (
                 <div className="examples-grid">
-{roboflow.map((r: any) => (
-  <div key={r.id} className="example-card">
-    <img src={r.image_url} alt={`Training example ${r.id}`} loading="lazy" />
-    <div className="example-info">
-      {r.confidence && (
-        <div className="confidence">
-          {Math.round(r.confidence * 100)}% confidence
-        </div>
-      )}
-      {r.dataset_split && (
-        <div className="dataset-split">
-          {r.dataset_split}
-        </div>
-      )}
-    </div>
-  </div>
-))}
+                  {roboflow.map((r: any) => (
+                    <div key={r.id} className="example-card">
+                      <img src={r.image_url} alt={`Training example ${r.id}`} loading="lazy" />
+                      <div className="example-info">
+                        {r.confidence && (
+                          <div className="confidence">
+                            {Math.round(r.confidence * 100)}% confidence
+                          </div>
+                        )}
+                        {r.dataset_split && (
+                          <div className="dataset-split">
+                            {r.dataset_split}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

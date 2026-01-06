@@ -391,3 +391,43 @@
   font-weight: 600;
   text-transform: uppercase;
 }
+
+/* Add icon styling for meta badges */
+.instance-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.meta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.meta-badge svg {
+  flex-shrink: 0;
+  color: #60a5fa;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: #60a5fa;
+  font-size: 14px;
+  margin-bottom: 24px;
+  transition: all 0.2s;
+}
+
+.back-link:hover {
+  color: #93c5fd;
+  transform: translateX(-4px);
+}

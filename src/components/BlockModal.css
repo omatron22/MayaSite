@@ -126,3 +126,26 @@
     grid-template-columns: 1fr;
   }
 }
+/* Add to BlockModal.css */
+.block-modal .info-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.block-modal .info-section h3 svg {
+  color: #60a5fa;
+  flex-shrink: 0;
+}
+
+.block-modal .modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-modal .nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

@@ -1,6 +1,7 @@
 // src/components/GraphemeModal.tsx
 import { useEffect, useState, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
+import { Calendar, MapPin, Package, FileText, BookOpen, ExternalLink, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../lib/db';
 import './GraphemeModal.css';
 
@@ -35,7 +36,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
   const [grapheme, setGrapheme] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Prevent background scroll with layout shift prevention [web:37][web:40]
+  // Prevent background scroll with layout shift prevention
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
@@ -53,7 +54,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
     };
   }, []);
 
-  // Keyboard navigation [web:31]
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -202,12 +203,15 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content grapheme-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+          <X size={20} />
+        </button>
         
         <div className="modal-header">
           {onPrev && (
             <button className="nav-btn" onClick={onPrev} aria-label="Previous grapheme">
-              ← Previous
+              <ChevronLeft size={16} />
+              <span>Previous</span>
             </button>
           )}
           <h2>
@@ -215,7 +219,8 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
           </h2>
           {onNext && (
             <button className="nav-btn" onClick={onNext} aria-label="Next grapheme">
-              Next →
+              <span>Next</span>
+              <ChevronRight size={16} />
             </button>
           )}
         </div>
@@ -227,7 +232,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
             {/* TEMPORAL INFORMATION */}
             {hasTemporal && (
               <section className="info-section temporal-section">
-                <h3>📅 Temporal Information</h3>
+                <h3><Calendar size={16} /> Temporal Information</h3>
                 <div className="info-grid">
                   {hasValue(grapheme.event_calendar) && (
                     <div className="info-item">
@@ -248,7 +253,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
             {/* GEOGRAPHIC INFORMATION */}
             {hasGeographic && (
               <section className="info-section geographic-section">
-                <h3>🌍 Geographic Origin</h3>
+                <h3><MapPin size={16} /> Geographic Origin</h3>
                 <div className="info-grid">
                   {hasValue(grapheme.region) && (
                     <div className="info-item">
@@ -268,7 +273,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
 
             {/* ARTIFACT INFORMATION */}
             <section className="info-section artifact-section">
-              <h3>🏺 Artifact Details</h3>
+              <h3><Package size={16} /> Artifact Details</h3>
               <div className="info-grid">
                 <div className="info-item">
                   <label>Block ID:</label>
@@ -307,7 +312,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
 
             {/* GRAPHEME INSTANCE */}
             <section className="info-section grapheme-section">
-              <h3>✍️ Grapheme Instance</h3>
+              <h3><FileText size={16} /> Grapheme Instance</h3>
               <div className="info-grid">
                 <div className="info-item">
                   <label>Code:</label>
@@ -331,7 +336,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
             {/* BLOCK CONTEXT */}
             {hasBlockContext && (
               <section className="info-section context-section">
-                <h3>📜 Block Context</h3>
+                <h3><BookOpen size={16} /> Block Context</h3>
                 <div className="context-text">
                   {hasValue(grapheme.block_maya1) && (
                     <p className="maya-text">{grapheme.block_maya1}</p>
@@ -348,7 +353,7 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
           {grapheme.catalog_sign_id && (
             <div className="catalog-column">
               <section className="catalog-section">
-                <h3>📖 Catalog Sign Reference</h3>
+                <h3><BookOpen size={16} /> Catalog Sign Reference</h3>
                 
                 {grapheme.primary_image_url && (
                   <div className="catalog-image">
@@ -440,7 +445,8 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
                     className="catalog-link-btn"
                     onClick={onClose}
                   >
-                    View Full Catalog Entry →
+                    <span>View Full Catalog Entry</span>
+                    <ChevronRight size={16} />
                   </Link>
                   
                   {grapheme.mhd_block_id && (
@@ -450,7 +456,8 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
                       rel="noopener noreferrer"
                       className="external-link-btn"
                     >
-                      View on MHD ↗
+                      <span>View on MHD</span>
+                      <ExternalLink size={16} />
                     </a>
                   )}
                 </div>

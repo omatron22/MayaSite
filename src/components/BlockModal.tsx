@@ -1,5 +1,6 @@
 // src/components/BlockModal.tsx
 import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { FileText, Calendar, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { db } from '../lib/db';
 import './BlockModal.css';
 
@@ -36,12 +37,11 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
   const [graphemes, setGraphemes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Prevent background scroll [web:37][web:40]
+  // Prevent background scroll
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
     const originalPaddingRight = document.body.style.paddingRight;
     
-    // Calculate scrollbar width to prevent layout shift [web:37]
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     
     document.body.style.overflow = 'hidden';
@@ -55,7 +55,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
     };
   }, []);
 
-  // Keyboard navigation [web:31]
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -132,7 +132,10 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
     return (
       <div className="modal-overlay" onClick={onClose}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="loading">Loading...</div>
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <p>Loading block details...</p>
+          </div>
         </div>
       </div>
     );
@@ -143,18 +146,22 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content block-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">
+          <X size={20} />
+        </button>
         
         <div className="modal-header">
           {onPrev && (
             <button className="nav-btn" onClick={onPrev} aria-label="Previous block">
-              ← Previous
+              <ChevronLeft size={16} />
+              <span>Previous</span>
             </button>
           )}
           <h2>{block.mhd_block_id}</h2>
           {onNext && (
             <button className="nav-btn" onClick={onNext} aria-label="Next block">
-              Next →
+              <span>Next</span>
+              <ChevronRight size={16} />
             </button>
           )}
         </div>
@@ -162,7 +169,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
         <div className="modal-body">
           <div className="block-info-column">
             <section className="info-section">
-              <h3>Block Details</h3>
+              <h3><FileText size={16} /> Block Details</h3>
               <div className="info-grid">
                 <div className="info-item">
                   <label>Block ID:</label>
@@ -189,7 +196,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
 
             {hasTextContent && (
               <section className="info-section">
-                <h3>Text</h3>
+                <h3><FileText size={16} /> Text</h3>
                 <div className="block-text-content">
                   {hasValue(block.block_maya1) && (
                     <p className="maya-text">{block.block_maya1}</p>
@@ -206,7 +213,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
 
             {hasCalendarInfo && (
               <section className="info-section">
-                <h3>Calendar Information</h3>
+                <h3><Calendar size={16} /> Calendar Information</h3>
                 <div className="info-grid">
                   {hasValue(block.event_calendar) && (
                     <div className="info-item">
@@ -238,7 +245,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
 
             {hasNotes && (
               <section className="info-section">
-                <h3>Notes</h3>
+                <h3><FileText size={16} /> Notes</h3>
                 <p className="notes-text">{block.notes}</p>
               </section>
             )}
@@ -247,7 +254,7 @@ export function BlockModal({ blockId, onClose, onNext, onPrev }: BlockModalProps
           {graphemes.length > 0 && (
             <div className="graphemes-column">
               <section className="info-section">
-                <h3>Graphemes in this Block ({graphemes.length})</h3>
+                <h3><FileText size={16} /> Graphemes in this Block ({graphemes.length})</h3>
                 <div className="graphemes-grid">
                   {graphemes.map((g: any) => (
                     <GraphemeItem key={g.id} grapheme={g} />

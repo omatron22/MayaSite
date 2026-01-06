@@ -295,31 +295,54 @@
   }
 }
 
-/* Enhanced Modal Sections */
-.temporal-section h3::before {
-  content: '📅 ';
-  margin-right: 8px;
+.info-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.geographic-section h3::before {
-  content: '🌍 ';
-  margin-right: 8px;
+.info-section h3 svg {
+  color: #60a5fa;
+  flex-shrink: 0;
 }
 
-.artifact-section h3::before {
-  content: '🏺 ';
-  margin-right: 8px;
+.catalog-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.grapheme-section h3::before {
-  content: '✍️ ';
-  margin-right: 8px;
+.catalog-section h3 svg {
+  color: #60a5fa;
+  flex-shrink: 0;
 }
 
-.context-section h3::before {
-  content: '📜 ';
-  margin-right: 8px;
+.catalog-link-btn,
+.external-link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
+
+.modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 
 .highlight-value {
   color: #60a5fa !important;
