@@ -1,5 +1,5 @@
 // src/hooks/useVirtualScroll.ts
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 
 interface UseVirtualScrollOptions {
   itemCount: number;
