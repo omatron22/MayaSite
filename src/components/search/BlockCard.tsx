@@ -17,8 +17,13 @@ interface BlockCardProps {
   onClick: (id: number, index: number) => void;
 }
 
+// src/components/search/BlockCard.tsx - FIX THE EVENT HANDLER
+
 export const BlockCard = memo(({ block, index, onClick }: BlockCardProps) => {
-  const handleClick = useCallback(() => onClick(block.id, index), [block.id, index, onClick]);
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // IMPORTANT: Stop event from bubbling
+    onClick(block.id, index);
+  }, [block.id, index, onClick]);
   
   return (
     <div className="block-card clickable" onClick={handleClick}>
@@ -47,3 +52,4 @@ export const BlockCard = memo(({ block, index, onClick }: BlockCardProps) => {
 });
 
 BlockCard.displayName = 'BlockCard';
+

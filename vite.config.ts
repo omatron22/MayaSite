@@ -53,8 +53,8 @@ export default defineConfig({
     exclude: []
   },
   
-  // Esbuild options for console removal in production
+  // ONLY drop console in production builds, NOT in dev mode
   esbuild: {
-    drop: ['console', 'debugger'],
+    drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   }
 })

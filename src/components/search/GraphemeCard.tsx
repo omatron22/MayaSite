@@ -1,4 +1,5 @@
-// src/components/search/GraphemeCard.tsx
+// src/components/search/GraphemeCard.tsx - FIXED!
+
 import { memo, useCallback } from 'react';
 
 interface GraphemeCardProps {
@@ -19,8 +20,12 @@ interface GraphemeCardProps {
 }
 
 export const GraphemeCard = memo(({ grapheme, index, onClick }: GraphemeCardProps) => {
-  const handleClick = useCallback(() => onClick(grapheme.id, index), [grapheme.id, index, onClick]);
-  
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('🟣 CARD CLICKED:', grapheme.id, index);
+    onClick(grapheme.id, index);
+  }, [grapheme.id, index, onClick]);
+
   return (
     <div className="grapheme-card clickable" onClick={handleClick}>
       {grapheme.block_img && (

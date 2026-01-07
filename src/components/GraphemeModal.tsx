@@ -1,4 +1,4 @@
-// src/components/GraphemeModal.tsx
+// src/components/GraphemeModal.tsx - FIXED: removed non-existent columns
 import { useEffect, useState, useCallback, useMemo, memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Package, FileText, BookOpen, ExternalLink, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -87,9 +87,6 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
             b.surface_page,
             b.region,
             b.site_name,
-            b.technique as block_technique,
-            b.material,
-            b.artifact_type,
             cs.id as catalog_sign_id,
             cs.graphcode,
             cs.primary_image_url,
@@ -287,24 +284,6 @@ export function GraphemeModal({ graphemeId, onClose, onNext, onPrev }: GraphemeM
                   <div className="info-item">
                     <label>Surface/Page:</label>
                     <span>{grapheme.surface_page}</span>
-                  </div>
-                )}
-                {hasValue(grapheme.artifact_type) && (
-                  <div className="info-item">
-                    <label>Type:</label>
-                    <span>{grapheme.artifact_type}</span>
-                  </div>
-                )}
-                {hasValue(grapheme.material) && (
-                  <div className="info-item">
-                    <label>Material:</label>
-                    <span>{grapheme.material}</span>
-                  </div>
-                )}
-                {hasValue(grapheme.block_technique) && (
-                  <div className="info-item">
-                    <label>Technique:</label>
-                    <span>{grapheme.block_technique}</span>
                   </div>
                 )}
               </div>

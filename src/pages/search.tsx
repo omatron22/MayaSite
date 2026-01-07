@@ -1,4 +1,4 @@
-// src/pages/search.tsx - COMPLETE CLEAN VERSION
+// src/pages/search.tsx
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { GraphemeModal } from '../components/GraphemeModal';
@@ -10,6 +10,8 @@ import { SearchFiltersComponent } from '../components/search/SearchFilters';
 import { useSearchFilters } from '../hooks/useSearchFilters';
 import { useSearch } from '../hooks/useSearch';
 import './search.css';
+
+console.log('🚀🚀🚀 SEARCH PAGE MODULE LOADED 🚀🚀🚀');
 
 type ViewMode = 'signs' | 'blocks' | 'graphemes';
 
@@ -50,6 +52,26 @@ export function SearchPage() {
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
+  // DEBUG: Watch modal state changes
+  useEffect(() => {
+    console.log('🔴 Modal State Changed:', {
+      selectedGraphemeId,
+      selectedGraphemeIndex,
+      selectedBlockId,
+      selectedBlockIndex,
+      willRenderGraphemeModal: !!selectedGraphemeId,
+      willRenderBlockModal: !!selectedBlockId
+    });
+  }, [selectedGraphemeId, selectedGraphemeIndex, selectedBlockId, selectedBlockIndex]);
+  // 🟢 ADD THIS NEW USEEFFECT RIGHT HERE 🟢
+  useEffect(() => {
+    console.log('🟢 MODAL STATE:', { 
+      selectedGraphemeId, 
+      selectedGraphemeIndex,
+      shouldRenderModal: !!selectedGraphemeId 
+    });
+  }, [selectedGraphemeId, selectedGraphemeIndex]);
+  
   // Debounce query
   useEffect(() => {
     if (debounceTimeout.current) {
@@ -77,47 +99,32 @@ export function SearchPage() {
     setPage(1);
   }, [debouncedQuery, viewMode, filters]);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts - ONLY when modal is NOT open
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Focus search on '/'
-      if (e.key === '/' && !e.ctrlKey && !e.metaKey && document.activeElement?.tagName !== 'INPUT') {
+      if (
+        e.key === '/' && 
+        !e.ctrlKey && 
+        !e.metaKey && 
+        document.activeElement?.tagName !== 'INPUT' &&
+        !selectedGraphemeId &&
+        !selectedBlockId
+      ) {
         e.preventDefault();
         searchInputRef.current?.focus();
-      }
-      
-      // Navigation shortcuts when modal is open
-      if (selectedGraphemeId || selectedBlockId) {
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          if (selectedGraphemeId) handlePrevGrapheme();
-          if (selectedBlockId) handlePrevBlock();
-        }
-        if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          if (selectedGraphemeId) handleNextGrapheme();
-          if (selectedBlockId) handleNextBlock();
-        }
-        if (e.key === 'Escape') {
-          setSelectedGraphemeId(null);
-          setSelectedBlockId(null);
-        }
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [selectedGraphemeId, selectedBlockId, selectedGraphemeIndex, selectedBlockIndex, results]);
+  }, [selectedGraphemeId, selectedBlockId]);
 
   // Handlers
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   }, []);
 
-  const handleClearSearch = useCallback(() => {
-    setQuery('');
-    searchInputRef.current?.focus();
-  }, []);
+
 
   const handleExampleClick = useCallback((example: string) => {
     setQuery(example);
@@ -130,8 +137,10 @@ export function SearchPage() {
   }, []);
 
   const handleGraphemeClick = useCallback((id: number, index: number) => {
+    console.log('🔵 handleGraphemeClick called with:', { id, index });
     setSelectedGraphemeId(id);
     setSelectedGraphemeIndex(index);
+    console.log('🔵 State setters called - should trigger modal');
   }, []);
 
   const handleNextGrapheme = useCallback(() => {
@@ -151,6 +160,7 @@ export function SearchPage() {
   }, [selectedGraphemeIndex, results]);
 
   const handleBlockClick = useCallback((id: number, index: number) => {
+    console.log('🟢 handleBlockClick called with:', { id, index });
     setSelectedBlockId(id);
     setSelectedBlockIndex(index);
   }, []);
@@ -192,19 +202,6 @@ export function SearchPage() {
               value={query}
               onChange={handleQueryChange}
             />
-            {query && (
-              <button 
-                className="clear-search-btn"
-                onClick={handleClearSearch}
-                aria-label="Clear search"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-              </button>
-            )}
-            <kbd className="search-kbd">/</kbd>
           </div>
 
           {/* Examples */}
@@ -308,18 +305,29 @@ export function SearchPage() {
                 </div>
               )}
 
-              {viewMode === 'graphemes' && (
-                <div className="graphemes-list">
-                  {results.map((grapheme: any, index: number) => (
-                    <GraphemeCard 
-                      key={grapheme.id} 
-                      grapheme={grapheme} 
-                      index={index} 
-                      onClick={handleGraphemeClick} 
-                    />
-                  ))}
-                </div>
-              )}
+{viewMode === 'graphemes' && (
+  <div className="graphemes-list">
+    {results.map((grapheme: any, index: number) => {
+      // DEBUG: Log to verify handler exists
+      console.log('🟡 Rendering grapheme card:', {
+        id: grapheme.id,
+        index,
+        hasOnClick: typeof handleGraphemeClick === 'function'
+      });
+      
+      return (
+        <GraphemeCard 
+          key={grapheme.id} 
+          grapheme={grapheme} 
+          index={index} 
+          onClick={handleGraphemeClick} 
+        />
+      );
+    })}
+  </div>
+)}
+
+
             </div>
 
             {/* Pagination */}
@@ -384,7 +392,10 @@ export function SearchPage() {
       {selectedGraphemeId && (
         <GraphemeModal
           graphemeId={selectedGraphemeId}
-          onClose={() => setSelectedGraphemeId(null)}
+          onClose={() => {
+            console.log('🔴 GraphemeModal onClose called');
+            setSelectedGraphemeId(null);
+          }}
           onNext={selectedGraphemeIndex < results.length - 1 ? handleNextGrapheme : undefined}
           onPrev={selectedGraphemeIndex > 0 ? handlePrevGrapheme : undefined}
         />
@@ -393,7 +404,10 @@ export function SearchPage() {
       {selectedBlockId && (
         <BlockModal
           blockId={selectedBlockId}
-          onClose={() => setSelectedBlockId(null)}
+          onClose={() => {
+            console.log('🔴 BlockModal onClose called');
+            setSelectedBlockId(null);
+          }}
           onNext={selectedBlockIndex < results.length - 1 ? handleNextBlock : undefined}
           onPrev={selectedBlockIndex > 0 ? handlePrevBlock : undefined}
         />
