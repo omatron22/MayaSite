@@ -2,6 +2,7 @@
 
 export interface CatalogSign {
   id: number;
+  graphcode: string | null;
   mhd_code: string;
   mhd_code_sub: string | null;
   mhd_code_2003: string | null;
@@ -43,10 +44,8 @@ export interface Block {
   event_long_count: string | null;
   event_260_day: string | null;
   event_365_day: string | null;
-  region_origin: string | null;
-  site_origin: string | null;
-  region_dest: string | null;
-  site_dest: string | null;
+  region: string | null;
+  site_name: string | null;
   person_code: string | null;
   scribe: string | null;
   material: string | null;
@@ -78,12 +77,14 @@ export interface Grapheme {
 export interface RoboflowInstance {
   id: number;
   catalog_sign_id: number | null;
-  class_name: string;
   image_url: string;
-  bounding_box: string | null;
+  bbox_x: number | null;
+  bbox_y: number | null;
+  bbox_width: number | null;
+  bbox_height: number | null;
+  segmentation_mask: string | null;
   confidence: number | null;
-  source_image_id: string | null;
-  dataset_name: string;
+  dataset_split: string | null;
   created_at: string;
 }
 
@@ -93,18 +94,4 @@ export interface Source {
   short_code: string;
   base_url: string;
   requires_login: boolean;
-}
-
-// Helper types for search/filters
-export interface CatalogSearchResult extends CatalogSign {
-  grapheme_count?: number;
-  roboflow_count?: number;
-}
-
-export interface SearchFilters {
-  query: string;
-  source_type?: string;
-  artifact_code?: string;
-  location?: string;
-  word_class?: string;
 }

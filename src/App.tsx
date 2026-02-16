@@ -1,26 +1,25 @@
-// src/App.tsx - FIXED
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 
 // Eager load search page (home page)
 import { SearchPage } from './pages/search';
 
-// ✅ EAGER LOAD SignDetailPage for debugging
-import { SignDetailPage } from './pages/signDetail';
-
 // Lazy load other routes
-const AnalyticsPage = lazy(() => import('./pages/analytics').then(m => ({ default: m.AnalyticsPage })));
-const StatsPage = lazy(() => import('./pages/stats').then(m => ({ default: m.StatsPage })));
+const SignDetailPage = lazy(() => import('./pages/signDetail').then(m => ({ default: m.SignDetailPage })));
+const BlockDetailPage = lazy(() => import('./pages/blockDetail').then(m => ({ default: m.BlockDetailPage })));
+const GraphemeDetailPage = lazy(() => import('./pages/graphemeDetail').then(m => ({ default: m.GraphemeDetailPage })));
+const ResearchPage = lazy(() => import('./pages/research').then(m => ({ default: m.ResearchPage })));
 const AboutPage = lazy(() => import('./pages/about').then(m => ({ default: m.AboutPage })));
+const ToolsPage = lazy(() => import('./pages/tools').then(m => ({ default: m.ToolsPage })));
+const ScannerPage = lazy(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
+const MapPage = lazy(() => import('./pages/map').then(m => ({ default: m.MapPage })));
 
-// Loading fallback component
 function PageLoader() {
   return (
-    <div className="page-loader">
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
       <div className="loading-spinner"></div>
-      <p>Loading...</p>
+      <p className="text-gray-500">Loading...</p>
     </div>
   );
 }
@@ -28,15 +27,21 @@ function PageLoader() {
 function App() {
   return (
     <BrowserRouter>
-      <div className="app">
+      <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
-        <main className="main-content">
+        <main className="flex-1">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<SearchPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/stats" element={<StatsPage />} />
+              <Route path="/block/:id" element={<BlockDetailPage />} />
+              <Route path="/grapheme/:id" element={<GraphemeDetailPage />} />
+              <Route path="/research" element={<ResearchPage />} />
+              <Route path="/tools" element={<ToolsPage />}>
+                <Route index element={<Navigate to="scanner" replace />} />
+                <Route path="scanner" element={<ScannerPage />} />
+                <Route path="map" element={<MapPage />} />
+              </Route>
               <Route path="/about" element={<AboutPage />} />
             </Routes>
           </Suspense>
@@ -46,4 +51,4 @@ function App() {
   );
 }
 
-export default App;  // ✅ FIXED - No parentheses!
+export default App;
