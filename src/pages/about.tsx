@@ -4,7 +4,7 @@ const DATA_SOURCES = [
   { title: 'Maya Hieroglyphic Database (MHD)', desc: '2,765 catalog signs, 85,600 glyph blocks, and 208,000 grapheme instances with images, dates, and translations', url: 'https://mayadatabase.org' },
   { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM (Bonn), Thompson, and CMGG mappings scraped from all three concordance pages', url: 'https://mayaglyphs.org/LMGGC.html' },
   { title: 'Roboflow ML Dataset', desc: '5,887 annotated glyph instances across 389 categories for computer vision training', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-  { title: 'Cross-Reference Codes (via MHD)', desc: 'Thompson (59%), Zender/Bonn (27%), Kettunen (35%), and Gronemeyer (29%) codes embedded in MHD catalog entries', url: null },
+  { title: 'Cross-Reference Codes (via MHD + LMGG)', desc: 'Thompson (85%), Zender/Bonn (51%), Kettunen (35%), and Gronemeyer (29%) codes from MHD catalog entries enriched with LMGG concordance data', url: null },
 ];
 
 const RESEARCH_RESOURCES = [
@@ -63,10 +63,10 @@ export function AboutPage() {
             </p>
             <div className="flex flex-wrap gap-2">
               {[
-                'Thompson (59%)',
+                'Thompson (85%)',
                 'Kettunen (35%)',
                 'Gronemeyer (29%)',
-                'Zender / Bonn (27%)',
+                'Zender / Bonn (51%)',
                 'MHD 2003',
                 'TWKM (via LMGG)',
                 'CMGG (via LMGG)',
@@ -117,9 +117,9 @@ export function AboutPage() {
           <section>
             <h2 className="text-base font-semibold text-gray-900 mb-3">Known Limitations</h2>
             <ul className="text-gray-600 text-sm leading-relaxed list-disc pl-5 flex flex-col gap-1">
-              <li>Site/region data covers ~38 major sites (~4% of artifact codes). Unmapped artifacts show no geographic info.</li>
+              <li>Site/region mapping covers 93% of blocks across ~80 archaeological sites. The remaining 7% are smaller or less well-documented sites.</li>
               <li>MHD data was scraped in early 2022 and may be missing records added since then.</li>
-              <li>ClassicMayan.org (Bonn), Kerr Database, and Harvard CMHI are not yet directly integrated.</li>
+              <li>ClassicMayan.org (Bonn), Kerr Database, and Harvard CMHI are not yet directly integrated as primary sources.</li>
             </ul>
           </section>
 
