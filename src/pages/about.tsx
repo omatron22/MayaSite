@@ -4,6 +4,8 @@ const DATA_SOURCES = [
   { title: 'Maya Hieroglyphic Database (MHD)', desc: '2,765 catalog signs, 85,600 glyph blocks, and 208,000 grapheme instances with images, dates, and translations', url: 'https://mayadatabase.org' },
   { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM (Bonn), Thompson, and CMGG mappings scraped from all three concordance pages', url: 'https://mayaglyphs.org/LMGGC.html' },
   { title: 'Roboflow ML Dataset', desc: '5,887 annotated glyph instances across 389 categories for computer vision training', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
+  { title: 'Kerr Maya Vase Database', desc: '~1,500 vessel rollout photographs with K-numbers, iconographic descriptions, and high-resolution images', url: 'https://research.mayavase.com/kerrmaya.html' },
+  { title: 'Harvard CMHI', desc: '1,042 images (425 line drawings, 498 photographs) from 17 Maya sites in the Corpus of Maya Hieroglyphic Inscriptions', url: 'https://peabody.harvard.edu/cmhi' },
   { title: 'Cross-Reference Codes (via MHD + LMGG)', desc: 'Thompson (85%), Zender/Bonn (51%), Kettunen (35%), and Gronemeyer (29%) codes from MHD catalog entries enriched with LMGG concordance data', url: null },
 ];
 
@@ -46,6 +48,8 @@ export function AboutPage() {
                 { num: '85,600', label: 'Glyph blocks from inscriptions' },
                 { num: '208K', label: 'Grapheme instances in context' },
                 { num: '5,887', label: 'ML annotated examples' },
+                { num: '~1,500', label: 'Kerr vessel photographs' },
+                { num: '1,042', label: 'CMHI images & drawings' },
               ].map((f) => (
                 <div key={f.num + f.label} className="border border-gray-200 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-gray-900 mb-1">{f.num}</div>
@@ -119,7 +123,7 @@ export function AboutPage() {
             <ul className="text-gray-600 text-sm leading-relaxed list-disc pl-5 flex flex-col gap-1">
               <li>Site/region mapping covers 93% of blocks across ~80 archaeological sites. The remaining 7% are smaller or less well-documented sites.</li>
               <li>MHD data was scraped in early 2022 and may be missing records added since then.</li>
-              <li>ClassicMayan.org (Bonn), Kerr Database, and Harvard CMHI are not yet directly integrated as primary sources.</li>
+              <li>ClassicMayan.org (Bonn) sign catalog is not yet directly integrated (their web interface requires JavaScript; we have 51% Bonn coverage via LMGG concordance).</li>
             </ul>
           </section>
 

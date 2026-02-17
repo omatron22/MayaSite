@@ -171,6 +171,9 @@ export interface StatsResponse {
   totalBlocks: number;
   totalGraphemes: number;
   totalRoboflow: number;
+  totalKerr: number;
+  totalCmhiDrawings: number;
+  totalCmhiPhotos: number;
   graphemesLinkedToCatalog: number;
   blocksWithDates: number;
   blocksWithTranslations: number;

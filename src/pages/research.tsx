@@ -152,11 +152,17 @@ export function ResearchPage() {
         {!loading && stats && (
           <>
             {/* Stat cards */}
-            <div className="grid grid-cols-4 max-md:grid-cols-2 gap-4 mb-6">
-              <StatCard value={stats.totalSigns.toLocaleString()} label="Signs" meta={`${imageCoverage}% with images`} />
-              <StatCard value={stats.totalBlocks.toLocaleString()} label="Blocks" meta={`${datesCoverage}% dated`} />
+            <div className="grid grid-cols-4 max-lg:grid-cols-3 max-md:grid-cols-2 gap-4 mb-6">
+              <StatCard value={stats.totalSigns.toLocaleString()} label="Catalog Signs" meta={`${imageCoverage}% with images`} />
+              <StatCard value={stats.totalBlocks.toLocaleString()} label="Glyph Blocks" meta={`${datesCoverage}% dated`} />
               <StatCard value={stats.totalGraphemes.toLocaleString()} label="Graphemes" meta={`${catalogLinkage}% linked`} />
               <StatCard value={stats.totalRoboflow.toLocaleString()} label="ML Annotations" />
+              {stats.totalKerr > 0 && (
+                <StatCard value={stats.totalKerr.toLocaleString()} label="Kerr Vessels" meta="Rollout photos" />
+              )}
+              {stats.totalCmhiDrawings > 0 && (
+                <StatCard value={`${stats.totalCmhiDrawings}+${stats.totalCmhiPhotos}`} label="CMHI Images" meta="Drawings + photos" />
+              )}
             </div>
 
             {/* Filters */}

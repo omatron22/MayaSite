@@ -7,6 +7,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    // Kerr and CMHI tables may not exist yet — use safe queries
+    const safeCount = async (sql: string) => {
+      try {
+        const r = await db.execute(sql);
+        return Number(r.rows[0]?.count ?? 0);
+      } catch { return 0; }
+    };
+
     const [
       signsResult,
       imagesResult,
@@ -67,6 +75,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `),
     ]);
 
+    const [kerrCount, cmhiDrawings, cmhiPhotos] = await Promise.all([
+      safeCount('SELECT COUNT(*) as count FROM kerr_vessels'),
+      safeCount("SELECT COUNT(*) as count FROM cmhi_images WHERE image_type = 'drawing'"),
+      safeCount("SELECT COUNT(*) as count FROM cmhi_images WHERE image_type = 'photo'"),
+    ]);
+
     const signsByRegion: Record<string, number> = {};
     regionResult.rows.forEach((row) => {
       signsByRegion[String(row.region)] = Number(row.count);
@@ -84,6 +98,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       totalBlocks: Number(blocksResult.rows[0].count),
       totalGraphemes: Number(graphemesResult.rows[0].count),
       totalRoboflow: Number(roboflowResult.rows[0].count),
+      totalKerr: kerrCount,
+      totalCmhiDrawings: cmhiDrawings,
+      totalCmhiPhotos: cmhiPhotos,
       graphemesLinkedToCatalog: Number(linkedResult.rows[0].count),
       blocksWithDates: Number(datesResult.rows[0].count),
       blocksWithTranslations: Number(translationsResult.rows[0].count),

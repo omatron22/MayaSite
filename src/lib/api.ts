@@ -216,4 +216,64 @@ export function lookupSigns(codes: string[], signal?: AbortSignal): Promise<Sign
   return fetchJson<SignLookupResponse>(`/api/signs/lookup?codes=${codes.join(',')}`, signal);
 }
 
+// Kerr vessels
+export interface KerrSearchParams {
+  q?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface KerrResponse {
+  results: Array<{
+    id: number;
+    k_number: string;
+    k_num: number;
+    description: string | null;
+    image_url: string;
+    still_url: string | null;
+  }>;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export function fetchKerr(params: KerrSearchParams, signal?: AbortSignal): Promise<KerrResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.q) searchParams.set('q', params.q);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
+  return fetchJson<KerrResponse>(`/api/kerr?${searchParams}`, signal);
+}
+
+// CMHI images
+export interface CmhiResponse {
+  images: Array<{
+    id: number;
+    site_name: string;
+    site_code: string;
+    image_url: string;
+    filename: string;
+    image_type: string;
+    monument_type: string | null;
+    monument_number: string | null;
+  }>;
+  sites: Array<{
+    site_name: string;
+    site_code: string;
+    image_type: string;
+    count: number;
+  }>;
+}
+
+export function fetchCmhi(
+  params: { site?: string; type?: string; monument?: string },
+  signal?: AbortSignal,
+): Promise<CmhiResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.site) searchParams.set('site', params.site);
+  if (params.type) searchParams.set('type', params.type);
+  if (params.monument) searchParams.set('monument', params.monument);
+  return fetchJson<CmhiResponse>(`/api/cmhi?${searchParams}`, signal);
+}
+
 export { ApiError };

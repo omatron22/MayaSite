@@ -107,6 +107,32 @@ async function main() {
     CREATE INDEX IF NOT EXISTS idx_graphemes_catalog ON graphemes(catalog_sign_id);
     CREATE INDEX IF NOT EXISTS idx_graphemes_code ON graphemes(grapheme_code);
     CREATE INDEX IF NOT EXISTS idx_roboflow_catalog ON roboflow_instances(catalog_sign_id);
+
+    CREATE TABLE IF NOT EXISTS kerr_vessels (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      k_number TEXT NOT NULL UNIQUE,
+      k_num INTEGER NOT NULL,
+      description TEXT,
+      image_url TEXT NOT NULL,
+      still_url TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS cmhi_images (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      site_name TEXT NOT NULL,
+      site_code TEXT NOT NULL,
+      image_url TEXT NOT NULL,
+      filename TEXT NOT NULL,
+      image_type TEXT NOT NULL,
+      monument_type TEXT,
+      monument_number TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_kerr_knum ON kerr_vessels(k_num);
+    CREATE INDEX IF NOT EXISTS idx_cmhi_site ON cmhi_images(site_code);
+    CREATE INDEX IF NOT EXISTS idx_cmhi_type ON cmhi_images(image_type);
   `);
 
   console.log('Database schema ready!');
