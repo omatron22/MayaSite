@@ -27,7 +27,7 @@ export function MapPage() {
   const localSites = useMemo(() => getAllUniqueSites(), []);
 
   useEffect(() => {
-    fetch('/api/map/sites')
+    fetch('/api/meta?type=sites')
       .then(r => r.json())
       .then(data => setApiSites(data.sites || []))
       .catch(err => setError(err instanceof Error ? err.message : 'Failed to load map data'))

@@ -90,7 +90,7 @@ export function fetchGrapheme(id: number, signal?: AbortSignal): Promise<Graphem
 
 // Stats
 export function fetchStats(signal?: AbortSignal): Promise<StatsResponse> {
-  return fetchJson<StatsResponse>('/api/stats', signal);
+  return fetchJson<StatsResponse>('/api/meta?type=stats', signal);
 }
 
 // Analytics
@@ -193,7 +193,7 @@ export function fetchConcordance(params: ConcordanceApiParams, signal?: AbortSig
   if (params.hasZender) searchParams.set('hasZender', 'true');
   if (params.hasKettunen) searchParams.set('hasKettunen', 'true');
   if (params.hasGronemeyer) searchParams.set('hasGronemeyer', 'true');
-  return fetchJson<ConcordanceResponse>(`/api/concordance?${searchParams}`, signal);
+  return fetchJson<ConcordanceResponse>(`/api/search?mode=concordance&${searchParams}`, signal);
 }
 
 // Inference
@@ -242,7 +242,7 @@ export function fetchKerr(params: KerrSearchParams, signal?: AbortSignal): Promi
   if (params.q) searchParams.set('q', params.q);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
-  return fetchJson<KerrResponse>(`/api/kerr?${searchParams}`, signal);
+  return fetchJson<KerrResponse>(`/api/collections?source=kerr&${searchParams}`, signal);
 }
 
 // CMHI images
@@ -273,7 +273,7 @@ export function fetchCmhi(
   if (params.site) searchParams.set('site', params.site);
   if (params.type) searchParams.set('type', params.type);
   if (params.monument) searchParams.set('monument', params.monument);
-  return fetchJson<CmhiResponse>(`/api/cmhi?${searchParams}`, signal);
+  return fetchJson<CmhiResponse>(`/api/collections?source=cmhi&${searchParams}`, signal);
 }
 
 export { ApiError };
