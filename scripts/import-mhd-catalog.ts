@@ -1,6 +1,7 @@
 // scripts/import-mhd-catalog.ts
 // Run with: npx tsx scripts/import-mhd-catalog.ts
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: '.env.local' });
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -71,19 +72,20 @@ async function main() {
     inserts.push({
       sql: `
         INSERT INTO catalog_signs (
-          mhd_code, mhd_code_sub, mhd_code_2003,
+          mhd_code, mhd_code_sub, mhd_code_2003, graphcode,
           thompson_code, thompson_variant, zender_code,
           kettunen_code, kettunen_1999, gronemeyer_code,
           logographic_value, logographic_cvc, syllabic_value,
           english_translation, word_class, calendrical_name,
           picture_description, volume, technique, distribution,
           primary_image_url, notes
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       args: [
         String(row.codeid),  // Use codeid as unique mhd_code
         row.newcodesub || null,  // Store display code
         row.code2003 || null,
+        row.graphcode || null,
         row.tno || null,
         row.mtno || null,
         row.zno || null,

@@ -1,6 +1,7 @@
 // scripts/init-database.ts
 // Creates the database schema. Run with: npx tsx scripts/init-database.ts
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: '.env.local' });
 import { db } from '../api/lib/db.ts';
 
 async function main() {
@@ -95,11 +96,16 @@ async function main() {
       created_at TEXT DEFAULT (datetime('now'))
     );
 
+    CREATE INDEX IF NOT EXISTS idx_catalog_mhd_code ON catalog_signs(mhd_code);
+    CREATE INDEX IF NOT EXISTS idx_catalog_graphcode ON catalog_signs(graphcode);
     CREATE INDEX IF NOT EXISTS idx_blocks_artifact ON blocks(artifact_code);
     CREATE INDEX IF NOT EXISTS idx_blocks_region ON blocks(region);
     CREATE INDEX IF NOT EXISTS idx_blocks_site ON blocks(site_name);
+    CREATE INDEX IF NOT EXISTS idx_blocks_sort ON blocks(artifact_code, sort_order);
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_blocks_mhd_id ON blocks(mhd_block_id);
     CREATE INDEX IF NOT EXISTS idx_graphemes_block ON graphemes(block_id);
     CREATE INDEX IF NOT EXISTS idx_graphemes_catalog ON graphemes(catalog_sign_id);
+    CREATE INDEX IF NOT EXISTS idx_graphemes_code ON graphemes(grapheme_code);
     CREATE INDEX IF NOT EXISTS idx_roboflow_catalog ON roboflow_instances(catalog_sign_id);
   `);
 

@@ -1,7 +1,8 @@
 // scripts/import-roboflow-instances.ts
 // Imports Roboflow COCO annotations into the database.
 // Run with: npx tsx scripts/import-roboflow-instances.ts
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: '.env.local' });
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
