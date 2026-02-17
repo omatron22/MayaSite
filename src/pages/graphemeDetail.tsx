@@ -55,6 +55,7 @@ export function GraphemeDetailPage() {
       hasValue(grapheme.zender_code) && { label: 'Zender', code: grapheme.zender_code! },
       hasValue(grapheme.kettunen_code) && { label: 'Kettunen', code: grapheme.kettunen_code! },
       hasValue(grapheme.gronemeyer_code) && { label: 'Gronemeyer', code: grapheme.gronemeyer_code! },
+      grapheme.bonn_sign_number && { label: 'Bonn', code: String(grapheme.bonn_sign_number) },
       hasValue(grapheme.mhd_code_2003) && { label: 'MHD 2003', code: grapheme.mhd_code_2003! },
     ].filter((v): v is CatalogCodeData => Boolean(v));
   }, [grapheme, hasValue]);

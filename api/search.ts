@@ -96,10 +96,11 @@ async function searchSigns(
       thompson_code LIKE ? OR
       syllabic_value LIKE ? OR
       english_translation LIKE ? OR
-      logographic_value LIKE ?
+      logographic_value LIKE ? OR
+      CAST(bonn_sign_number AS TEXT) LIKE ?
     )`);
     const qParam = `%${query}%`;
-    params.push(qParam, qParam, qParam, qParam, qParam, qParam);
+    params.push(qParam, qParam, qParam, qParam, qParam, qParam, qParam);
   }
 
   if (filters.volume && filters.volume !== 'all') {

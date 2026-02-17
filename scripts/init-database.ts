@@ -34,6 +34,9 @@ async function main() {
       notes TEXT,
       cmgg_code TEXT,
       pronunciation TEXT,
+      bonn_sign_number INTEGER,
+      bonn_confidence INTEGER,
+      bonn_image_url TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
 

@@ -141,6 +141,9 @@ export function SignDetailPage() {
               {sign.kettunen_code && (
                 <span className="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">{sign.kettunen_code}</span>
               )}
+              {sign.bonn_sign_number && (
+                <span className="bg-blue-50 text-blue-700 text-xs font-mono px-2 py-1 rounded">Bonn {sign.bonn_sign_number}</span>
+              )}
             </div>
             {(sign.zender_code || sign.mhd_code || roboflow.length > 0) && (
               <div className="flex flex-wrap gap-3 mb-4">
@@ -211,6 +214,12 @@ export function SignDetailPage() {
                 <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
                   <span className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">Calendrical</span>
                   <span className="text-gray-900 text-sm">{sign.calendrical_name}</span>
+                </div>
+              )}
+              {sign.bonn_sign_number && (
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <span className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">Bonn/TWKM</span>
+                  <span className="text-gray-900 text-sm">Sign {sign.bonn_sign_number}{sign.bonn_confidence != null ? ` (confidence ${sign.bonn_confidence})` : ''}</span>
                 </div>
               )}
               {sign.notes && (

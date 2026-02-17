@@ -7,13 +7,14 @@ const DATA_SOURCES = [
   { title: 'Kerr Maya Vase Database', desc: '1,879 vessel rollout photographs with K-numbers, iconographic descriptions, and high-resolution images', url: 'https://research.mayavase.com/kerrmaya.html' },
   { title: 'Harvard CMHI', desc: '1,042 images (425 line drawings, 498 photographs) from 17 Maya sites in the Corpus of Maya Hieroglyphic Inscriptions', url: 'https://peabody.harvard.edu/cmhi' },
   { title: 'Peabody Museum Site Codes', desc: '200+ archaeological site codes mapped to coordinates across 4 regions, covering 100% of all blocks in the database', url: 'https://peabody.harvard.edu/maya-site-codes' },
-  { title: 'Cross-Reference Codes (via MHD + LMGG)', desc: 'Thompson (85%), Zender/Bonn (51%), Kettunen (36%), Gronemeyer (29%), and CMGG (22%) codes enriched with LMGG concordance data', url: null },
+  { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs with 1,565 graph variants, 728 decipherments with confidence levels, Thompson concordance, and sign images from the Bonn sign catalog (CC BY 4.0)', url: 'https://classicmayan.org' },
+  { title: 'Cross-Reference Codes (via MHD + LMGG + Bonn)', desc: 'Thompson (86%), Zender/Bonn (61%), Kettunen (36%), Gronemeyer (29%), and CMGG (22%) codes enriched with LMGG concordance and Bonn catalog data', url: null },
 ];
 
 const RESEARCH_RESOURCES = [
   { title: 'Introduction to Maya Hieroglyphs', desc: 'Comprehensive introduction for students and researchers', url: 'https://www.mesoweb.com/resources/handbook/IMH2020.pdf' },
   { title: 'Visual Catalog of Maya Hieroglyphs', desc: 'Tokovinine\'s illustrated reference catalog', url: 'https://www.mesoweb.com/resources/catalog/Tokovinine_Catalog.pdf' },
-  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive online sign catalog with phonetic values (Bonn/TWKM)', url: 'https://classicmayan.org' },
+  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive online sign catalog with phonetic values, concordances across 11 catalog systems (Bonn/TWKM)', url: 'https://classicmayan.org' },
   { title: 'Updated Maya-English Vocabulary', desc: 'Comprehensive vocabulary list for decipherment', url: 'https://www.mesoweb.com/resources/vocabulary/Vocabulary-2009.01.pdf' },
 ];
 
@@ -40,7 +41,7 @@ export function AboutPage() {
             <h2 className="text-base font-semibold text-gray-900 mb-3">Our Solution</h2>
             <p className="text-gray-600 text-sm leading-relaxed mb-4">
               We've unified data from the Maya Hieroglyphic Database (MHD), the LMGG concordance tables,
-              and machine learning datasets into a single searchable interface.
+              the ClassicMayan.org Bonn sign catalog, and machine learning datasets into a single searchable interface.
             </p>
 
             <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
@@ -68,13 +69,14 @@ export function AboutPage() {
             </p>
             <div className="flex flex-wrap gap-2">
               {[
-                'Thompson (85%)',
-                'Zender / Bonn (51%)',
+                'Thompson (86%)',
+                'Zender / Bonn (61%)',
                 'Kettunen (36%)',
                 'Gronemeyer (29%)',
                 'CMGG (22%)',
+                'Bonn sign images (50%)',
                 'MHD 2003',
-                'TWKM (via LMGG)',
+                'TWKM (via LMGG + Bonn)',
               ].map((tag) => (
                 <span key={tag} className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                   {tag}
@@ -125,7 +127,7 @@ export function AboutPage() {
               <li>Site/region mapping covers 100% of blocks across 200+ archaeological sites using Peabody Museum CMHI site codes.</li>
               <li>81% of graphemes are linked to catalog signs. The remaining 19% are unidentified glyphs (code "000"), uncertain readings (marked with "?"), or numerals with no catalog entry.</li>
               <li>MHD data was scraped in early 2022 and may be missing records added since then.</li>
-              <li>ClassicMayan.org (Bonn) sign catalog is not directly integrated (their web interface requires JavaScript; we have 51% Bonn coverage via LMGG concordance).</li>
+              <li>ClassicMayan.org (Bonn) catalog is now integrated: 737/1,075 Bonn signs matched to our catalog (50% of 2,765 MHD entries). Unmatched Bonn signs are mostly newer entries (1500+ series) not present in MHD.</li>
             </ul>
           </section>
 

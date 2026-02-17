@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from './lib/db';
 
-const VALID_SORT_COLUMNS = ['mhd_code', 'graphcode', 'thompson_code', 'zender_code', 'kettunen_code', 'gronemeyer_code', 'syllabic_value', 'english_translation'];
+const VALID_SORT_COLUMNS = ['mhd_code', 'graphcode', 'thompson_code', 'zender_code', 'kettunen_code', 'gronemeyer_code', 'syllabic_value', 'english_translation', 'bonn_sign_number'];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -22,9 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const args: (string | number)[] = [];
 
   if (q) {
-    conditions.push(`(mhd_code LIKE ? OR graphcode LIKE ? OR thompson_code LIKE ? OR zender_code LIKE ? OR kettunen_code LIKE ? OR gronemeyer_code LIKE ? OR syllabic_value LIKE ? OR english_translation LIKE ?)`);
+    conditions.push(`(mhd_code LIKE ? OR graphcode LIKE ? OR thompson_code LIKE ? OR zender_code LIKE ? OR kettunen_code LIKE ? OR gronemeyer_code LIKE ? OR syllabic_value LIKE ? OR english_translation LIKE ? OR CAST(bonn_sign_number AS TEXT) LIKE ?)`);
     const like = `%${q}%`;
-    args.push(like, like, like, like, like, like, like, like);
+    args.push(like, like, like, like, like, like, like, like, like);
   }
 
   if (hasThompson) conditions.push('thompson_code IS NOT NULL');
@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const [dataResult, countResult] = await Promise.all([
       db.execute({
-        sql: `SELECT id, mhd_code, graphcode, primary_image_url, thompson_code, zender_code, kettunen_code, gronemeyer_code, syllabic_value, english_translation
+        sql: `SELECT id, mhd_code, graphcode, primary_image_url, thompson_code, zender_code, kettunen_code, gronemeyer_code, syllabic_value, english_translation, bonn_sign_number
               FROM catalog_signs ${where}
               ORDER BY ${sortBy} ${sortDir}
               LIMIT ? OFFSET ?`,

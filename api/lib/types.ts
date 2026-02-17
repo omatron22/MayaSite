@@ -162,6 +162,9 @@ export interface GraphemeDetailResponse {
   sign_technique: string | null;
   distribution: string | null;
   picture_description: string | null;
+  bonn_sign_number: number | null;
+  bonn_confidence: number | null;
+  bonn_image_url: string | null;
 }
 
 // Stats
@@ -221,6 +224,7 @@ export interface ConcordanceRow {
   gronemeyer_code: string | null;
   syllabic_value: string | null;
   english_translation: string | null;
+  bonn_sign_number: number | null;
 }
 
 export interface ConcordanceResponse {

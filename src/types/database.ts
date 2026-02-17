@@ -24,6 +24,9 @@ export interface CatalogSign {
   distribution: string | null;
   primary_image_url: string | null;
   notes: string | null;
+  bonn_sign_number: number | null;
+  bonn_confidence: number | null;
+  bonn_image_url: string | null;
   created_at: string;
 }
 

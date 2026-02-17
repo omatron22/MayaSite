@@ -45,7 +45,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           cs.word_class,
           cs.technique as sign_technique,
           cs.distribution,
-          cs.picture_description
+          cs.picture_description,
+          cs.bonn_sign_number,
+          cs.bonn_confidence,
+          cs.bonn_image_url
         FROM graphemes g
         LEFT JOIN blocks b ON g.block_id = b.id
         LEFT JOIN catalog_signs cs ON g.catalog_sign_id = cs.id

@@ -13,7 +13,7 @@ import { exportSearch, fetchConcordance } from '../lib/api';
 import type { SignSearchResult, BlockSearchResult, GraphemeSearchResult, ConcordanceRow } from '../../api/lib/types';
 
 type ViewMode = 'signs' | 'blocks' | 'graphemes' | 'concordance';
-type SortCol = 'mhd_code' | 'graphcode' | 'thompson_code' | 'zender_code' | 'kettunen_code' | 'gronemeyer_code' | 'syllabic_value' | 'english_translation';
+type SortCol = 'mhd_code' | 'graphcode' | 'thompson_code' | 'zender_code' | 'kettunen_code' | 'gronemeyer_code' | 'syllabic_value' | 'english_translation' | 'bonn_sign_number';
 type SortDir = 'asc' | 'desc';
 
 const EXAMPLES = ['001', 'T585', 'ba', 'jaguar', 'Palenque'];
@@ -28,6 +28,7 @@ const CONCORDANCE_COLUMNS: { key: SortCol; label: string }[] = [
   { key: 'zender_code', label: 'Zender (Bonn)' },
   { key: 'kettunen_code', label: 'Kettunen' },
   { key: 'gronemeyer_code', label: 'Gronemeyer' },
+  { key: 'bonn_sign_number', label: 'Bonn' },
   { key: 'syllabic_value', label: 'Syllabic' },
   { key: 'english_translation', label: 'English' },
 ];
@@ -336,9 +337,9 @@ export function SearchPage() {
                 </thead>
                 <tbody>
                   {concordanceLoading ? (
-                    <tr><td colSpan={9} className="text-center py-16 text-gray-400"><div className="loading-spinner mx-auto"></div></td></tr>
+                    <tr><td colSpan={10} className="text-center py-16 text-gray-400"><div className="loading-spinner mx-auto"></div></td></tr>
                   ) : concordanceRows.length === 0 ? (
-                    <tr><td colSpan={9} className="text-center py-16 text-gray-400">No results found</td></tr>
+                    <tr><td colSpan={10} className="text-center py-16 text-gray-400">No results found</td></tr>
                   ) : (
                     concordanceRows.map(row => (
                       <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -359,6 +360,7 @@ export function SearchPage() {
                         <td className="px-3 py-2 text-gray-700">{row.zender_code || '--'}</td>
                         <td className="px-3 py-2 text-gray-700">{row.kettunen_code || '--'}</td>
                         <td className="px-3 py-2 text-gray-700">{row.gronemeyer_code || '--'}</td>
+                        <td className="px-3 py-2 text-gray-700">{row.bonn_sign_number || '--'}</td>
                         <td className="px-3 py-2 text-blue-600 italic">{row.syllabic_value || '--'}</td>
                         <td className="px-3 py-2 text-gray-700 max-w-[200px] truncate">{row.english_translation || '--'}</td>
                       </tr>
