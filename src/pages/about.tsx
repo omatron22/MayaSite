@@ -1,12 +1,13 @@
 import { ExternalLink } from 'lucide-react';
 
 const DATA_SOURCES = [
-  { title: 'Maya Hieroglyphic Database (MHD)', desc: '2,765 catalog signs, 85,600 glyph blocks, and 208,000 grapheme instances with images, dates, and translations', url: 'https://mayadatabase.org' },
-  { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM (Bonn), Thompson, and CMGG mappings scraped from all three concordance pages', url: 'https://mayaglyphs.org/LMGGC.html' },
-  { title: 'Roboflow ML Dataset', desc: '5,887 annotated glyph instances across 389 categories for computer vision training', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-  { title: 'Kerr Maya Vase Database', desc: '~1,500 vessel rollout photographs with K-numbers, iconographic descriptions, and high-resolution images', url: 'https://research.mayavase.com/kerrmaya.html' },
+  { title: 'Maya Hieroglyphic Database (MHD)', desc: '2,765 catalog signs, 85,600 glyph blocks, and 206,934 grapheme instances with images, dates, and translations', url: 'https://mayadatabase.org' },
+  { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM (Bonn), Thompson, CMGG mappings, pronunciations, and translations from all three concordance pages', url: 'https://mayaglyphs.org/LMGGC.html' },
+  { title: 'Roboflow ML Dataset', desc: '5,701 annotated glyph instances linked to catalog signs for computer vision training', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
+  { title: 'Kerr Maya Vase Database', desc: '1,879 vessel rollout photographs with K-numbers, iconographic descriptions, and high-resolution images', url: 'https://research.mayavase.com/kerrmaya.html' },
   { title: 'Harvard CMHI', desc: '1,042 images (425 line drawings, 498 photographs) from 17 Maya sites in the Corpus of Maya Hieroglyphic Inscriptions', url: 'https://peabody.harvard.edu/cmhi' },
-  { title: 'Cross-Reference Codes (via MHD + LMGG)', desc: 'Thompson (85%), Zender/Bonn (51%), Kettunen (35%), and Gronemeyer (29%) codes from MHD catalog entries enriched with LMGG concordance data', url: null },
+  { title: 'Peabody Museum Site Codes', desc: '200+ archaeological site codes mapped to coordinates across 4 regions, covering 100% of all blocks in the database', url: 'https://peabody.harvard.edu/maya-site-codes' },
+  { title: 'Cross-Reference Codes (via MHD + LMGG)', desc: 'Thompson (85%), Zender/Bonn (51%), Kettunen (36%), Gronemeyer (29%), and CMGG (22%) codes enriched with LMGG concordance data', url: null },
 ];
 
 const RESEARCH_RESOURCES = [
@@ -46,9 +47,9 @@ export function AboutPage() {
               {[
                 { num: '2,765', label: 'Catalog signs from MHD' },
                 { num: '85,600', label: 'Glyph blocks from inscriptions' },
-                { num: '208K', label: 'Grapheme instances in context' },
-                { num: '5,887', label: 'ML annotated examples' },
-                { num: '~1,500', label: 'Kerr vessel photographs' },
+                { num: '207K', label: 'Grapheme instances in context' },
+                { num: '5,701', label: 'ML annotated examples' },
+                { num: '1,879', label: 'Kerr vessel photographs' },
                 { num: '1,042', label: 'CMHI images & drawings' },
               ].map((f) => (
                 <div key={f.num + f.label} className="border border-gray-200 rounded-lg p-4 text-center">
@@ -68,12 +69,12 @@ export function AboutPage() {
             <div className="flex flex-wrap gap-2">
               {[
                 'Thompson (85%)',
-                'Kettunen (35%)',
-                'Gronemeyer (29%)',
                 'Zender / Bonn (51%)',
+                'Kettunen (36%)',
+                'Gronemeyer (29%)',
+                'CMGG (22%)',
                 'MHD 2003',
                 'TWKM (via LMGG)',
-                'CMGG (via LMGG)',
               ].map((tag) => (
                 <span key={tag} className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                   {tag}
@@ -121,9 +122,10 @@ export function AboutPage() {
           <section>
             <h2 className="text-base font-semibold text-gray-900 mb-3">Known Limitations</h2>
             <ul className="text-gray-600 text-sm leading-relaxed list-disc pl-5 flex flex-col gap-1">
-              <li>Site/region mapping covers 93% of blocks across ~80 archaeological sites. The remaining 7% are smaller or less well-documented sites.</li>
+              <li>Site/region mapping covers 100% of blocks across 200+ archaeological sites using Peabody Museum CMHI site codes.</li>
+              <li>81% of graphemes are linked to catalog signs. The remaining 19% are unidentified glyphs (code "000"), uncertain readings (marked with "?"), or numerals with no catalog entry.</li>
               <li>MHD data was scraped in early 2022 and may be missing records added since then.</li>
-              <li>ClassicMayan.org (Bonn) sign catalog is not yet directly integrated (their web interface requires JavaScript; we have 51% Bonn coverage via LMGG concordance).</li>
+              <li>ClassicMayan.org (Bonn) sign catalog is not directly integrated (their web interface requires JavaScript; we have 51% Bonn coverage via LMGG concordance).</li>
             </ul>
           </section>
 

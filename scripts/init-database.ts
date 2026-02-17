@@ -32,6 +32,8 @@ async function main() {
       distribution TEXT,
       primary_image_url TEXT,
       notes TEXT,
+      cmgg_code TEXT,
+      pronunciation TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
 
