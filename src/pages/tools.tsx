@@ -12,6 +12,8 @@ export function ToolsPage() {
         <div className="flex gap-1 border-b border-gray-200 pt-4">
           <NavLink to="/tools/scanner" className={linkClass}>Scanner</NavLink>
           <NavLink to="/tools/map" className={linkClass}>Map</NavLink>
+          <NavLink to="/tools/kerr" className={linkClass}>Kerr Vases</NavLink>
+          <NavLink to="/tools/cmhi" className={linkClass}>CMHI</NavLink>
         </div>
       </div>
       <Outlet />

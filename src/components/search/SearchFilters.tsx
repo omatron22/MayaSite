@@ -168,7 +168,6 @@ export function SearchFiltersComponent({
                   <option value="Central">Central (Peten)</option>
                   <option value="Usmacinta">Usmacinta</option>
                   <option value="South">South</option>
-                  <option value="West">West</option>
                 </select>
                 <input type="text" className={inputClass} placeholder="Artifact code (e.g., PAL)" value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} />
                 <input type="text" className={inputClass} placeholder="Site name" value={filters.site} onChange={(e) => updateFilter('site', e.target.value)} />
@@ -191,7 +190,6 @@ export function SearchFiltersComponent({
                   <option value="Central">Central (Peten)</option>
                   <option value="Usmacinta">Usmacinta</option>
                   <option value="South">South</option>
-                  <option value="West">West</option>
                 </select>
                 <input type="text" className={inputClass} placeholder="Artifact code" value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} />
                 <input type="text" className={inputClass} placeholder="Site name" value={filters.site} onChange={(e) => updateFilter('site', e.target.value)} />

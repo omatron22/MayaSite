@@ -79,10 +79,21 @@ export function SearchPage() {
   const [concordanceRows, setConcordanceRows] = useState<ConcordanceRow[]>([]);
   const [concordanceTotal, setConcordanceTotal] = useState(0);
   const [concordancePage, setConcordancePage] = useState(1);
-  const [concordanceSortBy, setConcordanceSortBy] = useState<SortCol>('mhd_code');
-  const [concordanceSortDir, setConcordanceSortDir] = useState<SortDir>('asc');
-  const [concordanceFilters, setConcordanceFilters] = useState<Record<string, boolean>>({});
+  const [concordanceSortBy, setConcordanceSortBy] = useState<SortCol>(() => {
+    const csort = searchParams.get('csort');
+    return csort && ['mhd_code', 'graphcode', 'thompson_code', 'zender_code', 'kettunen_code', 'gronemeyer_code', 'syllabic_value', 'english_translation', 'bonn_sign_number'].includes(csort)
+      ? csort as SortCol : 'mhd_code';
+  });
+  const [concordanceSortDir, setConcordanceSortDir] = useState<SortDir>(() => searchParams.get('cdir') === 'desc' ? 'desc' : 'asc');
+  const [concordanceFilters, setConcordanceFilters] = useState<Record<string, boolean>>(() => {
+    const f: Record<string, boolean> = {};
+    for (const key of ['hasThompson', 'hasZender', 'hasKettunen', 'hasGronemeyer']) {
+      if (searchParams.get(key) === '1') f[key] = true;
+    }
+    return f;
+  });
   const [concordanceLoading, setConcordanceLoading] = useState(false);
+  const [concordanceError, setConcordanceError] = useState<string | null>(null);
 
   const initialFilterOverrides = useRef(parseFiltersFromURL(searchParams)).current;
   const { filters, updateFilter, clearFilters, activeFilterCount } = useSearchFilters(initialFilterOverrides);
@@ -125,6 +136,7 @@ export function SearchPage() {
     if (viewMode !== 'concordance') return;
 
     setConcordanceLoading(true);
+    setConcordanceError(null);
     const controller = new AbortController();
 
     fetchConcordance({
@@ -138,6 +150,7 @@ export function SearchPage() {
       })
       .catch(err => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
+        setConcordanceError(err instanceof Error ? err.message : 'Failed to load concordance data');
       })
       .finally(() => setConcordanceLoading(false));
 
@@ -149,7 +162,16 @@ export function SearchPage() {
     const params = new URLSearchParams();
     if (debouncedQuery) params.set('q', debouncedQuery);
     if (viewMode !== 'signs') params.set('mode', viewMode);
-    if (page > 1) params.set('page', String(page));
+    if (viewMode === 'concordance') {
+      if (concordancePage > 1) params.set('page', String(concordancePage));
+      if (concordanceSortBy !== 'mhd_code') params.set('csort', concordanceSortBy);
+      if (concordanceSortDir !== 'asc') params.set('cdir', concordanceSortDir);
+      for (const [key, val] of Object.entries(concordanceFilters)) {
+        if (val) params.set(key, '1');
+      }
+    } else if (page > 1) {
+      params.set('page', String(page));
+    }
     if (filters.hasImage) params.set('hasImage', '1');
     if (filters.hasRoboflow) params.set('hasRoboflow', '1');
     if (filters.hasDate) params.set('hasDate', '1');
@@ -164,7 +186,7 @@ export function SearchPage() {
     if (filters.site) params.set('site', filters.site);
     if (filters.sortBy !== 'code') params.set('sort', filters.sortBy);
     setSearchParams(params, { replace: true });
-  }, [debouncedQuery, viewMode, page, filters, setSearchParams]);
+  }, [debouncedQuery, viewMode, page, filters, concordancePage, concordanceSortBy, concordanceSortDir, concordanceFilters, setSearchParams]);
 
   // "/" keyboard shortcut
   useEffect(() => {
@@ -228,7 +250,7 @@ export function SearchPage() {
   };
 
   return (
-    <div className="bg-white p-4">
+    <div className="p-6 max-md:p-4">
       <div className="max-w-[1400px] mx-auto">
         {/* Search */}
         <div className="flex flex-col gap-3 mb-6 max-w-[1100px] mx-auto">
@@ -270,10 +292,10 @@ export function SearchPage() {
         </div>
 
         {/* Error */}
-        {error && viewMode !== 'concordance' && (
+        {(error || concordanceError) && (
           <div className="text-center py-8 text-red-600">
-            <p className="mb-4">{error}</p>
-            <button className="px-4 py-2 border border-red-200 text-red-600 rounded-md text-sm font-medium hover:bg-red-50" onClick={() => search()}>Retry</button>
+            <p className="mb-4">{error || concordanceError}</p>
+            <button className="px-4 py-2 border border-red-200 text-red-600 rounded-md text-sm font-medium hover:bg-red-50" onClick={() => viewMode === 'concordance' ? setConcordanceError(null) : search()}>Retry</button>
           </div>
         )}
 
@@ -345,7 +367,7 @@ export function SearchPage() {
                       <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                         <td className="px-3 py-2">
                           {row.primary_image_url ? (
-                            <img src={row.primary_image_url} alt="" className="w-8 h-8 object-contain bg-gray-50 rounded border border-gray-200" />
+                            <img src={row.primary_image_url} alt="" width={32} height={32} className="w-8 h-8 object-contain bg-gray-50 rounded border border-gray-200" />
                           ) : (
                             <div className="w-8 h-8 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-gray-300 text-xs">--</div>
                           )}

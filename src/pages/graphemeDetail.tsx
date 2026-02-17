@@ -76,7 +76,7 @@ export function GraphemeDetailPage() {
       <div className="bg-white p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <p className="text-gray-600 mb-4">{error || 'Grapheme not found'}</p>
-          <Link to="/" className="text-blue-600 text-sm hover:underline">Back to search</Link>
+          <Link to="/" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
         </div>
       </div>
     );
@@ -132,7 +132,11 @@ export function GraphemeDetailPage() {
                 <Package size={14} className="text-gray-400" /> Artifact
               </h3>
               <div className="flex flex-col">
-                {infoRow('Block ID', <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{grapheme.mhd_block_id || 'N/A'}</span>)}
+                {infoRow('Block ID', grapheme.block_id ? (
+                  <Link to={`/block/${grapheme.block_id}`} className="font-mono text-xs bg-gray-100 text-blue-600 px-2 py-0.5 rounded no-underline hover:underline">{grapheme.mhd_block_id || 'N/A'}</Link>
+                ) : (
+                  <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">{grapheme.mhd_block_id || 'N/A'}</span>
+                ))}
                 {infoRow('Artifact Code', grapheme.artifact_code || 'N/A')}
                 {hasValue(grapheme.surface_page) && infoRow('Surface/Page', grapheme.surface_page)}
               </div>
@@ -171,7 +175,7 @@ export function GraphemeDetailPage() {
 
                 {grapheme.primary_image_url && (
                   <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg flex items-center justify-center min-h-[160px] mb-4">
-                    <img src={grapheme.primary_image_url} alt={grapheme.graphcode || ''} loading="lazy" className="max-w-full max-h-[240px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                    <img src={grapheme.primary_image_url} alt={grapheme.graphcode || 'Catalog sign'} loading="lazy" width={200} height={200} className="max-w-full max-h-[240px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                   </div>
                 )}
 

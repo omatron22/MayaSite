@@ -23,7 +23,7 @@ export const GraphemeCard = memo(({ grapheme }: GraphemeCardProps) => (
   >
     {grapheme.block_img && (
       <div className="shrink-0 w-16 h-16 bg-gray-50 rounded border border-gray-200 overflow-hidden flex items-center justify-center p-1">
-        <img src={grapheme.block_img} alt="Block" loading="lazy" className="w-full h-full object-contain pointer-events-none" onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }} />
+        <img src={grapheme.block_img} alt={grapheme.grapheme_code} loading="lazy" width={64} height={64} className="w-full h-full object-contain pointer-events-none" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
       </div>
     )}
     <div className="flex-1 min-w-0">

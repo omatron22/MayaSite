@@ -37,7 +37,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const isExport = exportMode === 'true';
     const pageNum = isExport ? 1 : Math.max(1, parseInt(page));
-    const pageSizeNum = isExport ? 10000 : Math.min(100, Math.max(1, parseInt(pageSize)));
+    const pageSizeNum = isExport ? 5000 : Math.min(100, Math.max(1, parseInt(pageSize)));
     const offset = (pageNum - 1) * pageSizeNum;
     const query = (q || '').trim();
 

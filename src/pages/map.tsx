@@ -28,7 +28,10 @@ export function MapPage() {
 
   useEffect(() => {
     fetch('/api/meta?type=sites')
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(data => setApiSites(data.sites || []))
       .catch(err => setError(err instanceof Error ? err.message : 'Failed to load map data'))
       .finally(() => setLoading(false));

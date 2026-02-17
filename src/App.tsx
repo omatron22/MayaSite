@@ -14,6 +14,8 @@ const AboutPage = lazy(() => import('./pages/about').then(m => ({ default: m.Abo
 const ToolsPage = lazy(() => import('./pages/tools').then(m => ({ default: m.ToolsPage })));
 const ScannerPage = lazy(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
 const MapPage = lazy(() => import('./pages/map').then(m => ({ default: m.MapPage })));
+const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
+const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 
 function PageLoader() {
   return (
@@ -41,6 +43,8 @@ function App() {
                 <Route index element={<Navigate to="scanner" replace />} />
                 <Route path="scanner" element={<ScannerPage />} />
                 <Route path="map" element={<MapPage />} />
+                <Route path="kerr" element={<KerrPage />} />
+                <Route path="cmhi" element={<CmhiPage />} />
               </Route>
               <Route path="/about" element={<AboutPage />} />
             </Routes>

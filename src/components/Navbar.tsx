@@ -14,7 +14,9 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
+    if (path === '/') {
+      return location.pathname === '/' || /^\/(sign|block|grapheme)\//.test(location.pathname);
+    }
     return location.pathname.startsWith(path);
   };
 

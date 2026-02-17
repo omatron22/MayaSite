@@ -23,7 +23,7 @@ function RoboflowCard({ instance: r }: { instance: SignRoboflowInstance }) {
             const img = e.target as HTMLImageElement;
             setNatSize({ w: img.naturalWidth, h: img.naturalHeight });
           }}
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
         />
         {hasBbox && natSize && (
           <div
@@ -88,9 +88,8 @@ export function SignDetailPage() {
     return (
       <div className="bg-white p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <h1 className="text-xl font-bold text-gray-900 mb-4">Error</h1>
-          <p className="text-gray-500 mb-4">{error || 'Sign not found'}</p>
-          <Link to="/" className="text-blue-600 text-sm hover:underline no-underline">Back to search</Link>
+          <p className="text-gray-600 mb-4">{error || 'Sign not found'}</p>
+          <Link to="/" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
         </div>
       </div>
     );
@@ -121,7 +120,7 @@ export function SignDetailPage() {
         <div className="flex gap-10 max-md:flex-col max-md:gap-6 mb-8 pb-8 border-b border-gray-200">
           <div className="shrink-0 w-[250px] h-[250px] max-md:w-full max-md:h-[200px] bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center p-6">
             {sign.primary_image_url ? (
-              <img src={sign.primary_image_url} alt={displayCode} className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <img src={sign.primary_image_url} alt={displayCode} loading="lazy" width={200} height={200} className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
             ) : (
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gray-300">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
@@ -238,12 +237,19 @@ export function SignDetailPage() {
               <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] max-md:grid-cols-1 gap-4">
                 {graphemes.map((g) => (
                   <div key={g.id} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    {g.block_img && (
+                    {g.block_img && g.block_id && (
+                      <Link to={`/block/${g.block_id}`} className="block w-full h-[120px] bg-white border border-gray-200 rounded flex items-center justify-center mb-3 p-2 no-underline">
+                        <img src={g.block_img} alt={g.grapheme_code} loading="lazy" width={120} height={120} className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                      </Link>
+                    )}
+                    {g.block_img && !g.block_id && (
                       <div className="w-full h-[120px] bg-white border border-gray-200 rounded flex items-center justify-center mb-3 p-2">
-                        <img src={g.block_img} alt="Block" loading="lazy" className="max-w-full max-h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                        <img src={g.block_img} alt={g.grapheme_code} loading="lazy" width={120} height={120} className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                       </div>
                     )}
-                    <div className="text-sm font-semibold text-gray-900 mb-2">{g.grapheme_code}</div>
+                    <div className="text-sm font-semibold mb-2">
+                      <Link to={`/grapheme/${g.id}`} className="text-blue-600 no-underline hover:underline">{g.grapheme_code}</Link>
+                    </div>
                     {g.block_maya1 && <div className="text-sm text-gray-700 mb-1">{g.block_maya1}</div>}
                     {g.block_english && <div className="text-xs text-gray-500 italic mb-2">&quot;{g.block_english}&quot;</div>}
                     <div className="flex gap-2 flex-wrap mt-1">

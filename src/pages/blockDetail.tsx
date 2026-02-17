@@ -9,7 +9,7 @@ const GraphemeItem = memo(({ grapheme }: { grapheme: BlockGrapheme }) => (
   <div className="flex gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
     {grapheme.primary_image_url && (
       <div className="w-[50px] h-[50px] bg-white rounded border border-gray-200 flex items-center justify-center shrink-0 p-1">
-        <img src={grapheme.primary_image_url} alt={grapheme.graphcode || grapheme.grapheme_code} loading="lazy" className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }} />
+        <img src={grapheme.primary_image_url} alt={grapheme.graphcode || grapheme.grapheme_code} loading="lazy" width={50} height={50} className="max-w-full max-h-full object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
       </div>
     )}
     <div className="flex flex-col gap-0.5 justify-center flex-1">
@@ -55,7 +55,7 @@ export function BlockDetailPage() {
     return () => controller.abort();
   }, [id]);
 
-  const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-', []);
+  const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasCalendarInfo = useMemo(() => hasValue(block?.event_calendar) || hasValue(block?.event_long_count), [block, hasValue]);
   const hasTextContent = useMemo(() => hasValue(block?.block_maya1) || hasValue(block?.block_english), [block, hasValue]);
   const hasNotes = useMemo(() => block?.notes && block.notes !== '', [block]);
@@ -76,7 +76,8 @@ export function BlockDetailPage() {
       <div className="bg-white p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <p className="text-gray-600 mb-4">{error || 'Block not found'}</p>
-          <Link to="/" className="text-blue-600 text-sm hover:underline">Back to search</Link>
+
+          <Link to="/" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
         </div>
       </div>
     );
@@ -107,8 +108,9 @@ export function BlockDetailPage() {
               <img
                 src={block.block_image1_url || block.block_image2_url || ''}
                 alt={block.mhd_block_id}
+                loading="lazy"
                 className="max-h-[300px] object-contain"
-                onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }}
+                onError={(e) => { e.currentTarget.style.display = 'none'; }}
               />
             </div>
           </div>

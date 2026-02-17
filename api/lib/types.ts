@@ -81,6 +81,7 @@ export interface SignDetailResponse {
 
 export interface SignGrapheme {
   id: number;
+  block_id: number | null;
   grapheme_code: string;
   block_english: string | null;
   block_maya1: string | null;

@@ -22,7 +22,7 @@ export const BlockCard = memo(({ block }: BlockCardProps) => (
   >
     {block.block_img && (
       <div className="shrink-0 w-20 h-20 max-md:w-full max-md:h-32 bg-gray-50 rounded border border-gray-200 overflow-hidden flex items-center justify-center p-1">
-        <img src={block.block_img} alt={block.block_id} loading="lazy" className="w-full h-full object-contain pointer-events-none" onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }} />
+        <img src={block.block_img} alt={block.block_id} loading="lazy" width={80} height={80} className="w-full h-full object-contain pointer-events-none" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
       </div>
     )}
     <div className="flex-1 min-w-0">

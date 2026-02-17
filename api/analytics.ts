@@ -73,6 +73,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           AND b.event_long_count != '-'
           AND cs.graphcode IS NOT NULL
           AND cs.primary_image_url IS NOT NULL
+        ORDER BY RANDOM()
+        LIMIT 5000
       `);
 
       for (const row of mhdResult.rows) {

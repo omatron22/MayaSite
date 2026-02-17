@@ -23,6 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sql: `
           SELECT
             g.id,
+            g.block_id,
             g.grapheme_code,
             b.block_english,
             b.block_maya1,
