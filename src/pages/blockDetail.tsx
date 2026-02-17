@@ -101,6 +101,19 @@ export function BlockDetailPage() {
 
         <h1 className="text-2xl font-bold text-gray-900 mb-6">{block.mhd_block_id}</h1>
 
+        {(block.block_image1_url || block.block_image2_url) && (
+          <div className="mb-6 flex justify-center">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 inline-flex">
+              <img
+                src={block.block_image1_url || block.block_image2_url || ''}
+                alt={block.mhd_block_id}
+                className="max-h-[300px] object-contain"
+                onError={(e) => { e.currentTarget.parentElement!.style.display = 'none'; }}
+              />
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-[1.2fr_1fr] max-md:grid-cols-1 gap-6">
           <div className="flex flex-col gap-4">
             <section className="border border-gray-200 p-4 rounded-lg">

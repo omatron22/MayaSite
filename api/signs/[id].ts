@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             b.block_maya1,
             b.artifact_code,
             b.event_calendar,
-            b.block_image1_url as block_img
+            COALESCE(b.block_image1_url, b.block_image2_url) as block_img
           FROM graphemes g
           LEFT JOIN blocks b ON g.block_id = b.id
           WHERE g.catalog_sign_id = ?

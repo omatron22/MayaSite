@@ -220,7 +220,7 @@ async function searchBlocks(
         block_maya1,
         block_english,
         event_calendar,
-        block_image1_url as block_img,
+        COALESCE(block_image1_url, block_image2_url) as block_img,
         region,
         site_name
       FROM blocks
@@ -303,7 +303,7 @@ async function searchGraphemes(
         b.block_maya1,
         b.block_english,
         b.event_calendar,
-        b.block_image1_url as block_img,
+        COALESCE(b.block_image1_url, b.block_image2_url) as block_img,
         b.region,
         b.site_name,
         cs.mhd_code_sub,
