@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from './lib/db';
-import type { SearchParams, SearchResponse, SignSearchResult, BlockSearchResult, GraphemeSearchResult } from './lib/types';
+import { db } from './lib/db.js';
+import type { SearchParams, SearchResponse, SignSearchResult, BlockSearchResult, GraphemeSearchResult } from './lib/types.js';
 
 const VALID_SORT_COLUMNS = ['mhd_code', 'graphcode', 'thompson_code', 'zender_code', 'kettunen_code', 'gronemeyer_code', 'syllabic_value', 'english_translation', 'bonn_sign_number'];
 

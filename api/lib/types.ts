@@ -1,4 +1,4 @@
-import type { CatalogSign, Block } from '../../src/types/database';
+import type { CatalogSign, Block } from '../../src/types/database.js';
 
 // Search
 export type ViewMode = 'signs' | 'blocks' | 'graphemes';

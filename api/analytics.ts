@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { db } from './lib/db';
-import type { AnalyticsDataSource, AnalyticsInstance } from './lib/types';
+import { db } from './lib/db.js';
+import type { AnalyticsDataSource, AnalyticsInstance } from './lib/types.js';
 
 const TIME_PERIODS = [
   { name: 'Early Preclassic', start: -2000, end: -1000 },
