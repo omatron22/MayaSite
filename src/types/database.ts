@@ -27,6 +27,10 @@ export interface CatalogSign {
   bonn_sign_number: number | null;
   bonn_confidence: number | null;
   bonn_image_url: string | null;
+  variant_code: string | null;
+  phonetic_value: string | null;
+  base_thompson_number: number | null;
+  former_mhd_code: string | null;
   created_at: string;
 }
 
@@ -60,6 +64,10 @@ export interface Block {
   block_image1_url: string | null;
   block_image2_url: string | null;
   image_notes: string | null;
+  image_url: string | null;
+  site_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
   sort_order: number | null;
   created_at: string;
 }
