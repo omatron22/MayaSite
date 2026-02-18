@@ -11,6 +11,8 @@ interface MapSite {
   blockCount: number;
   artifactCount: number;
   artifactCodes: string;
+  lat: number | null;
+  lng: number | null;
 }
 
 const CENTER: [number, number] = [17.5, -89.5];
@@ -39,16 +41,30 @@ export function MapPage() {
 
   const markers = useMemo(() => {
     const merged: Array<Site & { blockCount: number; artifactCount: number; artifactCodes: string }> = [];
+    const seen = new Set<string>();
 
     for (const apiSite of apiSites) {
       const local = localSites.get(apiSite.name);
-      if (local) {
-        merged.push({ ...local, blockCount: apiSite.blockCount, artifactCount: apiSite.artifactCount, artifactCodes: apiSite.artifactCodes });
+      // Prefer client-side coords, fall back to DB coords
+      const lat = local?.lat ?? apiSite.lat;
+      const lng = local?.lng ?? apiSite.lng;
+      if (lat != null && lng != null) {
+        seen.add(apiSite.name);
+        merged.push({
+          name: apiSite.name,
+          lat,
+          lng,
+          region: (local?.region || apiSite.region) as Site['region'],
+          country: local?.country,
+          blockCount: apiSite.blockCount,
+          artifactCount: apiSite.artifactCount,
+          artifactCodes: apiSite.artifactCodes,
+        });
       }
     }
 
     for (const [name, site] of localSites) {
-      if (!merged.some(m => m.name === name)) {
+      if (!seen.has(name)) {
         merged.push({ ...site, blockCount: 0, artifactCount: 0, artifactCodes: '' });
       }
     }

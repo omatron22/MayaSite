@@ -182,6 +182,10 @@ export interface StatsResponse {
   blocksWithDates: number;
   blocksWithTranslations: number;
   thompsonCoverage: number;
+  zenderCoverage: number;
+  kettunenCoverage: number;
+  gronemeyerCoverage: number;
+  bonnImageCoverage: number;
   signsByRegion: Record<string, number>;
   topSites: Array<{ site: string; count: number }>;
 }

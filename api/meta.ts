@@ -87,10 +87,14 @@ async function handleStats(_req: VercelRequest, res: VercelResponse) {
       `),
     ]);
 
-    const [kerrCount, cmhiDrawings, cmhiPhotos] = await Promise.all([
+    const [kerrCount, cmhiDrawings, cmhiPhotos, zenderCount, kettunenCount, gronCount, bonnCount] = await Promise.all([
       safeCount('SELECT COUNT(*) as count FROM kerr_vessels'),
       safeCount("SELECT COUNT(*) as count FROM cmhi_images WHERE image_type = 'drawing'"),
       safeCount("SELECT COUNT(*) as count FROM cmhi_images WHERE image_type = 'photo'"),
+      safeCount("SELECT COUNT(*) as count FROM catalog_signs WHERE zender_code IS NOT NULL AND zender_code != ''"),
+      safeCount("SELECT COUNT(*) as count FROM catalog_signs WHERE kettunen_code IS NOT NULL AND kettunen_code != ''"),
+      safeCount("SELECT COUNT(*) as count FROM catalog_signs WHERE gronemeyer_code IS NOT NULL AND gronemeyer_code != ''"),
+      safeCount("SELECT COUNT(*) as count FROM catalog_signs WHERE bonn_image_url IS NOT NULL AND bonn_image_url != ''"),
     ]);
 
     const signsByRegion: Record<string, number> = {};
@@ -117,6 +121,10 @@ async function handleStats(_req: VercelRequest, res: VercelResponse) {
       blocksWithDates: Number(datesResult.rows[0].count),
       blocksWithTranslations: Number(translationsResult.rows[0].count),
       thompsonCoverage: Number(thompsonResult.rows[0].count),
+      zenderCoverage: zenderCount,
+      kettunenCoverage: kettunenCount,
+      gronemeyerCoverage: gronCount,
+      bonnImageCoverage: bonnCount,
       signsByRegion,
       topSites,
     });
@@ -134,7 +142,9 @@ async function handleSites(_req: VercelRequest, res: VercelResponse) {
         region,
         COUNT(*) as block_count,
         COUNT(DISTINCT artifact_code) as artifact_count,
-        GROUP_CONCAT(DISTINCT artifact_code) as artifact_codes
+        GROUP_CONCAT(DISTINCT artifact_code) as artifact_codes,
+        AVG(CASE WHEN latitude IS NOT NULL THEN latitude END) as avg_lat,
+        AVG(CASE WHEN longitude IS NOT NULL THEN longitude END) as avg_lng
       FROM blocks
       WHERE site_name IS NOT NULL AND site_name != ''
       GROUP BY site_name, region
@@ -147,6 +157,8 @@ async function handleSites(_req: VercelRequest, res: VercelResponse) {
       blockCount: Number(row.block_count),
       artifactCount: Number(row.artifact_count),
       artifactCodes: String(row.artifact_codes || ''),
+      lat: row.avg_lat != null ? Number(row.avg_lat) : null,
+      lng: row.avg_lng != null ? Number(row.avg_lng) : null,
     }));
 
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');

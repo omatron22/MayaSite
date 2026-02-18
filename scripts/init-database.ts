@@ -37,6 +37,10 @@ async function main() {
       bonn_sign_number INTEGER,
       bonn_confidence INTEGER,
       bonn_image_url TEXT,
+      variant_code TEXT,
+      phonetic_value TEXT,
+      base_thompson_number INTEGER,
+      former_mhd_code TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
 
@@ -70,6 +74,10 @@ async function main() {
       block_image1_url TEXT,
       block_image2_url TEXT,
       image_notes TEXT,
+      image_url TEXT,
+      site_code TEXT,
+      latitude REAL,
+      longitude REAL,
       sort_order INTEGER,
       created_at TEXT DEFAULT (datetime('now'))
     );
