@@ -77,7 +77,7 @@ export function BlockDetailPage() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <p className="text-gray-600 mb-4">{error || 'Block not found'}</p>
 
-          <Link to="/" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
+          <Link to="/search" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
         </div>
       </div>
     );
@@ -95,7 +95,7 @@ export function BlockDetailPage() {
   return (
     <div className="bg-white p-6 max-md:p-4">
       <div className="max-w-[1100px] mx-auto">
-        <Link to="/" className="inline-flex items-center gap-1 text-blue-600 no-underline text-sm mb-6 hover:underline">
+        <Link to="/search" className="inline-flex items-center gap-1 text-blue-600 no-underline text-sm mb-6 hover:underline">
           <ChevronLeft size={14} />
           Back to search
         </Link>

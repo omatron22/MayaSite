@@ -2,8 +2,11 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 
-// Eager load search page (home page)
-import { SearchPage } from './pages/search';
+// Eager load home page
+import { HomePage } from './pages/home';
+
+// Lazy load search and other routes
+const SearchPage = lazy(() => import('./pages/search').then(m => ({ default: m.SearchPage })));
 
 // Lazy load other routes
 const SignDetailPage = lazy(() => import('./pages/signDetail').then(m => ({ default: m.SignDetailPage })));
@@ -34,7 +37,8 @@ function App() {
         <main className="flex-1">
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<SearchPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/search" element={<SearchPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
               <Route path="/block/:id" element={<BlockDetailPage />} />
               <Route path="/grapheme/:id" element={<GraphemeDetailPage />} />

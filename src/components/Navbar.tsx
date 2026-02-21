@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 const links = [
-  { path: '/', label: 'Search' },
+  { path: '/search', label: 'Search' },
   { path: '/research', label: 'Research' },
   { path: '/tools', label: 'Tools' },
   { path: '/about', label: 'About' },
@@ -14,8 +14,8 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/' || /^\/(sign|block|grapheme)\//.test(location.pathname);
+    if (path === '/search') {
+      return location.pathname === '/search' || /^\/(sign|block|grapheme)\//.test(location.pathname);
     }
     return location.pathname.startsWith(path);
   };
