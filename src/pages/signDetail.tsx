@@ -130,8 +130,8 @@ export function SignDetailPage() {
         setSign(data.sign);
         setGraphemes(data.graphemes);
         setRoboflow(data.roboflow);
-        setCrossRefs((data as { crossRefs?: CrossRef[] }).crossRefs || []);
-        setGraphVariants((data as { graphs?: GraphVariant[] }).graphs || []);
+        setCrossRefs((data as unknown as { crossRefs?: CrossRef[] }).crossRefs || []);
+        setGraphVariants((data as unknown as { graphs?: GraphVariant[] }).graphs || []);
       })
       .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load sign'); })
       .finally(() => setLoading(false));

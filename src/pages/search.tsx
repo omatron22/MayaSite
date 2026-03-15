@@ -97,7 +97,7 @@ export function SearchPage() {
   const [concordanceError, setConcordanceError] = useState<string | null>(null);
   // New concordance state
   const [newConcordanceRows, setNewConcordanceRows] = useState<NewConcordanceRow[]>([]);
-  const [newConcordanceTotal, setNewConcordanceTotal] = useState(0);
+  const [, setNewConcordanceTotal] = useState(0);
   const [catalogFilter, setCatalogFilter] = useState(() => searchParams.get('catalog') || '');
   const [useNewConcordance, setUseNewConcordance] = useState(() => searchParams.get('cversion') !== 'legacy');
 

@@ -432,14 +432,14 @@ export function BlockDetailPage() {
                     Object date (obj–)
                   </div>
                   <div className="py-2">
-                    {(block as Record<string, unknown>).object_date_start ? (
+                    {(block as unknown as Record<string, unknown>).object_date_start ? (
                       <>
-                        <DateRow label="Long Count" value={(block as Record<string, unknown>).object_date_lc as string | null} />
-                        <DateRow label="260-day" value={(block as Record<string, unknown>).object_date_260 as string | null} />
-                        <DateRow label="365-day" value={(block as Record<string, unknown>).object_date_365 as string | null} />
-                        <DateRow label="Gregorian" value={(block as Record<string, unknown>).object_date_start as string | null} />
-                        {(block as Record<string, unknown>).object_date_end && (
-                          <DateRow label="End date" value={(block as Record<string, unknown>).object_date_end as string | null} />
+                        <DateRow label="Long Count" value={(block as unknown as Record<string, unknown>).object_date_lc as string | null} />
+                        <DateRow label="260-day" value={(block as unknown as Record<string, unknown>).object_date_260 as string | null} />
+                        <DateRow label="365-day" value={(block as unknown as Record<string, unknown>).object_date_365 as string | null} />
+                        <DateRow label="Gregorian" value={(block as unknown as Record<string, unknown>).object_date_start as string | null} />
+                        {(block as unknown as Record<string, unknown>).object_date_end && (
+                          <DateRow label="End date" value={(block as unknown as Record<string, unknown>).object_date_end as string | null} />
                         )}
                       </>
                     ) : (
@@ -448,7 +448,7 @@ export function BlockDetailPage() {
                   </div>
                 </div>
               </div>
-              {!(block as Record<string, unknown>).object_date_start && (
+              {!(block as unknown as Record<string, unknown>).object_date_start && (
                 <p className="text-xs text-gray-400 italic mt-3">
                   Object dates (when the monument was made) are only available for artifacts documented in the TWKM corpus.
                 </p>
