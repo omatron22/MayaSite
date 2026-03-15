@@ -446,7 +446,7 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
       }),
     ]);
 
-    const total = (countResult.rows[0] as { total: number }).total;
+    const total = Number(countResult.rows[0].total);
 
     // Fetch cross-references for the returned entries
     const entryIds = dataResult.rows.map(r => String(r.entry_id));
@@ -545,7 +545,7 @@ async function handleLegacyConcordance(req: VercelRequest, res: VercelResponse) 
       }),
     ]);
 
-    const total = (countResult.rows[0] as { total: number }).total;
+    const total = Number(countResult.rows[0].total);
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({

@@ -65,18 +65,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (block.artifact_code && block.coordinate) {
       try {
         const [prevResult, nextResult] = await Promise.all([
-          db.execute({
-            sql: `SELECT id, coordinate FROM blocks
+          db.execute(
+            `SELECT id, coordinate FROM blocks
                   WHERE artifact_code = ? AND coordinate < ? AND coordinate IS NOT NULL AND coordinate != ''
                   ORDER BY coordinate DESC LIMIT 1`,
-            args: [block.artifact_code, block.coordinate],
-          }),
-          db.execute({
-            sql: `SELECT id, coordinate FROM blocks
+            [block.artifact_code as string, block.coordinate as string],
+          ),
+          db.execute(
+            `SELECT id, coordinate FROM blocks
                   WHERE artifact_code = ? AND coordinate > ? AND coordinate IS NOT NULL AND coordinate != ''
                   ORDER BY coordinate ASC LIMIT 1`,
-            args: [block.artifact_code, block.coordinate],
-          }),
+            [block.artifact_code as string, block.coordinate as string],
+          ),
         ]);
         if (prevResult.rows.length > 0) prevBlock = { id: Number(prevResult.rows[0].id), coordinate: String(prevResult.rows[0].coordinate) };
         if (nextResult.rows.length > 0) nextBlock = { id: Number(nextResult.rows[0].id), coordinate: String(nextResult.rows[0].coordinate) };

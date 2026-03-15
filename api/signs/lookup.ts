@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const signs: Record<string, { id: number; display_code: string; primary_image_url: string | null }> = {};
 
     for (const row of result.rows) {
-      const r = row as { id: number; mhd_code: string; mhd_code_sub: string | null; graphcode: string | null; primary_image_url: string | null };
+      const r = row as unknown as { id: number; mhd_code: string; mhd_code_sub: string | null; graphcode: string | null; primary_image_url: string | null };
       const displayCode = r.mhd_code_sub || r.graphcode || r.mhd_code;
       // Map all matching code variants to this sign
       for (const code of codes) {
