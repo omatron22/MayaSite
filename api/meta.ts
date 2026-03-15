@@ -107,6 +107,51 @@ async function handleStats(_req: VercelRequest, res: VercelResponse) {
       count: Number(row.count),
     }));
 
+    // Concordance stats (safe — tables may not exist)
+    let concordanceStats: Record<string, unknown> = {};
+    try {
+      const [entriesByCatalog, totalLinks, totalSlots, totalGraphs, correspondenceTypes, parentStats, slotCertainty, blocksWithGregorian] = await Promise.all([
+        db.execute(`SELECT catalog, COUNT(*) as count FROM catalog_entries GROUP BY catalog ORDER BY count DESC`),
+        db.execute(`SELECT COUNT(*) as count FROM concordance_links`),
+        db.execute(`SELECT COUNT(*) as count FROM block_sign_slots`),
+        db.execute(`SELECT COUNT(*) as count FROM graphs`),
+        db.execute(`SELECT correspondence, COUNT(*) as count FROM concordance_links GROUP BY correspondence ORDER BY count DESC`),
+        db.execute(`
+          SELECT
+            SUM(CASE WHEN parent_entry IS NOT NULL THEN 1 ELSE 0 END) as variants,
+            SUM(CASE WHEN parent_entry IS NULL THEN 1 ELSE 0 END) as parents
+          FROM catalog_entries WHERE catalog = 'MHD'
+        `),
+        db.execute(`SELECT certainty, COUNT(*) as count FROM block_sign_slots GROUP BY certainty ORDER BY count DESC`),
+        db.execute(`SELECT COUNT(*) as count FROM blocks WHERE event_gregorian IS NOT NULL AND event_gregorian != ''`),
+      ]);
+      const entriesPerCatalog: Record<string, number> = {};
+      for (const row of entriesByCatalog.rows) {
+        entriesPerCatalog[String(row.catalog)] = Number(row.count);
+      }
+      const correspondenceBreakdown: Record<string, number> = {};
+      for (const row of correspondenceTypes.rows) {
+        correspondenceBreakdown[String(row.correspondence)] = Number(row.count);
+      }
+      const slotCertaintyBreakdown: Record<string, number> = {};
+      for (const row of slotCertainty.rows) {
+        slotCertaintyBreakdown[String(row.certainty)] = Number(row.count);
+      }
+      concordanceStats = {
+        entriesPerCatalog,
+        totalConcordanceLinks: Number(totalLinks.rows[0].count),
+        totalBlockSignSlots: Number(totalSlots.rows[0].count),
+        totalGraphs: Number(totalGraphs.rows[0].count),
+        correspondenceBreakdown,
+        mhdVariants: Number(parentStats.rows[0].variants),
+        mhdParents: Number(parentStats.rows[0].parents),
+        slotCertaintyBreakdown,
+        blocksWithGregorian: Number(blocksWithGregorian.rows[0].count),
+      };
+    } catch {
+      // Tables don't exist yet
+    }
+
     res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=300');
     return res.status(200).json({
       totalSigns: Number(signsResult.rows[0].count),
@@ -127,6 +172,7 @@ async function handleStats(_req: VercelRequest, res: VercelResponse) {
       bonnImageCoverage: bonnCount,
       signsByRegion,
       topSites,
+      ...concordanceStats,
     });
   } catch (err) {
     console.error('Stats error:', err);

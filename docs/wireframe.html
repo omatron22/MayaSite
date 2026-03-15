@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maya Database — UI Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --stone: #f2efe8;
+    --dust: #e4e0d6;
+    --trace: #c8c2b2;
+    --faint: #f8f6f1;
+    --link: #2a5c8f;
+    --link-light: #e8f0f8;
+    --red: #b34040;
+    --red-light: #faf0f0;
+    --green: #2a6644;
+    --green-light: #edf5f1;
+    --amber: #8a5a00;
+    --amber-light: #fdf5e6;
+    --serif: 'Libre Baskerville', Georgia, serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: #eceae4;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── LAYOUT ── */
+  .page-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #888;
+    padding: 24px 32px 8px;
+    border-bottom: 1px solid var(--trace);
+    background: #dddbd4;
+  }
+
+  .wireframe-section {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px 60px;
+  }
+
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--trace);
+  }
+
+  /* ── CARD SHELL ── */
+  .card {
+    background: var(--stone);
+    border: 1px solid var(--trace);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* ── NAV BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--trace);
+    background: var(--faint);
+  }
+  .topbar-brand { font-family: var(--serif); font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+  .topbar-nav { display: flex; gap: 24px; }
+  .topbar-nav a { font-size: 13px; color: var(--link); text-decoration: none; }
+  .topbar-nav a.active { color: var(--ink); font-weight: 500; border-bottom: 1.5px solid var(--ink); }
+  .breadcrumb { font-size: 12px; color: #888; padding: 10px 24px; border-bottom: 1px solid var(--dust); background: var(--faint); }
+  .breadcrumb a { color: var(--link); text-decoration: none; }
+
+  /* ── SIGN PAGE ── */
+  .sign-hero {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--dust);
+  }
+  .sign-image-panel {
+    background: white;
+    border-right: 1px solid var(--dust);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    gap: 16px;
+  }
+  .sign-glyph-placeholder {
+    width: 160px;
+    height: 100px;
+    background: var(--faint);
+    border: 1.5px dashed var(--trace);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--trace);
+    letter-spacing: .05em;
+  }
+  .sign-glyph-idealized {
+    width: 160px;
+    height: 100px;
+    background: #f5f3ee;
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* hand-drawn SVG glyph approximation */
+  .sign-glyph-idealized svg { width: 110px; height: 70px; }
+  .image-caption { font-family: var(--mono); font-size: 10px; color: #888; text-align: center; }
+
+  .sign-meta {
+    padding: 28px 32px;
+  }
+  .sign-title {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    margin-bottom: 6px;
+  }
+  .sign-reading {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 16px;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid;
+  }
+  .tag-system  { background: #eef2f8; border-color: #b8cae0; color: #2a5c8f; }
+  .tag-pos     { background: var(--faint); border-color: var(--trace); color: #555; }
+  .tag-certain { background: var(--green-light); border-color: #b0d4c0; color: var(--green); }
+  .tag-uncertain { background: var(--amber-light); border-color: #e0c880; color: var(--amber); }
+
+  .ext-links { display: flex; gap: 12px; margin-bottom: 20px; }
+  .ext-link {
+    font-size: 12px;
+    color: var(--link);
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid #b8cae0;
+    border-radius: 3px;
+    background: var(--link-light);
+  }
+  .ext-link::after { content: ' ↗'; font-size: 10px; }
+
+  .sign-confidence {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .confidence-bar { display: flex; gap: 2px; }
+  .confidence-pip {
+    width: 10px; height: 10px; border-radius: 2px;
+    background: var(--dust);
+  }
+  .confidence-pip.filled { background: var(--green); }
+  .confidence-pip.filled.uncertain { background: var(--amber); }
+
+  /* ── TABS ── */
+  .tabs { display: flex; border-bottom: 1px solid var(--dust); padding: 0 24px; background: var(--faint); }
+  .tab {
+    font-size: 13px;
+    padding: 12px 16px 10px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    color: #666;
+    margin-bottom: -1px;
+  }
+  .tab.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 500; }
+  .tab-count { font-family: var(--mono); font-size: 11px; color: #888; margin-left: 4px; }
+
+  /* ── TAB CONTENT ── */
+  .tab-content { padding: 24px; }
+
+  /* ── CONCORDANCE TABLE ── */
+  .concordance-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .concordance-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #888;
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--faint);
+    border-bottom: 1px solid var(--dust);
+  }
+  .concordance-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--dust);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  .concordance-table tr:last-child td { border-bottom: none; }
+  .concordance-table tr:hover td { background: #f8f6f1; }
+
+  .catalog-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: var(--dust);
+    color: #555;
+    white-space: nowrap;
+  }
+  .catalog-badge.twkm { background: #e8f0fb; color: #2a5c8f; }
+  .catalog-badge.mhd  { background: #f0f8ee; color: #2a6644; }
+  .catalog-badge.thompson { background: #f5f0e8; color: #7a5520; }
+  .catalog-badge.cmgg { background: #f8f0f8; color: #6a3a6a; }
+
+  .corr-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 2px;
+  }
+  .corr-exact { background: var(--green-light); color: var(--green); }
+  .corr-approx { background: var(--amber-light); color: var(--amber); }
+  .corr-disputed { background: var(--red-light); color: var(--red); }
+
+  .code-cell { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .reading-cell { font-family: var(--serif); font-style: italic; }
+  .null-cell { color: #bbb; font-family: var(--mono); font-size: 11px; }
+
+  /* ── VARIANTS GRID ── */
+  .variants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .variant-card {
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    padding: 12px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .variant-card:hover { border-color: var(--trace); }
+  .variant-img {
+    width: 80px; height: 52px;
+    background: var(--faint);
+    border: 1px dashed var(--trace);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 9px; color: #bbb;
+  }
+  .variant-code { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+  .variant-type { font-size: 11px; color: #888; }
+
+  /* ── ATTESTATIONS ── */
+  .attestation-list { display: flex; flex-direction: column; gap: 10px; }
+  .attestation-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    background: white;
+    font-size: 13px;
+  }
+  .attestation-row:hover { border-color: var(--trace); }
+  .att-img {
+    width: 70px; height: 45px;
+    background: var(--faint);
+    border: 1px dashed var(--trace);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 9px; color: #bbb;
+  }
+  .att-block-id { font-family: var(--mono); font-size: 11px; color: var(--link); }
+  .att-reading { font-family: var(--serif); font-style: italic; font-size: 13px; }
+  .att-site { font-size: 12px; color: #555; }
+  .att-date { font-family: var(--mono); font-size: 11px; color: #777; }
+  .att-context { font-size: 11px; color: #888; }
+
+  /* ─────────────────────────────────────────────
+     BLOCK PAGE
+  ───────────────────────────────────────────── */
+  .block-hero {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--dust);
+  }
+  .block-image-panel {
+    background: white;
+    border-right: 1px solid var(--dust);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 12px;
+  }
+  .block-img-placeholder {
+    width: 200px; height: 160px;
+    background: var(--faint);
+    border: 1.5px dashed var(--trace);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 10px; color: var(--trace);
+    letter-spacing: .05em;
+  }
+  .block-title {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: .02em;
+    margin-bottom: 4px;
+  }
+  .block-subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .block-meta-grid {
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .meta-group { display: flex; flex-direction: column; gap: 12px; }
+  .meta-group-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #888;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--dust);
+  }
+  .meta-row { display: flex; gap: 0; font-size: 13px; }
+  .meta-label { color: #888; min-width: 130px; flex-shrink: 0; }
+  .meta-value { color: var(--ink); font-weight: 400; }
+  .meta-value a { color: var(--link); text-decoration: none; }
+  .meta-value.mono { font-family: var(--mono); font-size: 12px; }
+  .meta-value.unknown { color: #bbb; font-family: var(--mono); font-size: 11px; }
+
+  /* ── DATE COMPARISON ── */
+  .date-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .date-col {
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .date-col-header {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    background: var(--faint);
+    border-bottom: 1px solid var(--dust);
+    color: #666;
+  }
+  .date-col-header.event { background: #f0f0fa; color: #4a4a9a; }
+  .date-col-header.object { background: #f0f8f0; color: #2a6644; }
+  .date-rows { padding: 8px 0; }
+  .date-row {
+    display: flex;
+    padding: 5px 12px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .date-row:hover { background: var(--faint); }
+  .date-key { color: #888; min-width: 80px; font-family: var(--mono); font-size: 11px; }
+  .date-val { color: var(--ink); }
+  .date-val.unknown { color: #bbb; font-family: var(--mono); font-size: 11px; }
+
+  /* ── SIGN SEQUENCE ── */
+  .sign-sequence {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px;
+    background: white;
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    flex-wrap: wrap;
+  }
+  .seq-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .seq-slot-img {
+    width: 52px; height: 36px;
+    background: var(--faint);
+    border: 1px dashed var(--trace);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 8px; color: #bbb;
+  }
+  .seq-slot-img.active {
+    border: 2px solid var(--link);
+    background: var(--link-light);
+  }
+  .seq-slot-img.uncertain {
+    border-color: #e0c880;
+    background: var(--amber-light);
+  }
+  .seq-slot-code { font-family: var(--mono); font-size: 10px; color: var(--link); }
+  .seq-slot-code.uncertain { color: var(--amber); }
+  .seq-arrow { color: var(--trace); font-size: 16px; align-self: center; margin-top: -12px; }
+
+  /* ── TRANSCRIPTION PANEL ── */
+  .transcription-panel {
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .transcription-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    border-bottom: 1px solid var(--dust);
+  }
+  .transcription-row:last-child { border-bottom: none; }
+  .transcription-key {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #888;
+    padding: 10px 12px;
+    background: var(--faint);
+    border-right: 1px solid var(--dust);
+    display: flex;
+    align-items: center;
+  }
+  .transcription-val {
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .transcription-val.logosyll { font-family: var(--mono); font-size: 12px; letter-spacing: .03em; }
+  .transcription-val.gloss { font-family: var(--serif); font-style: italic; color: #444; }
+
+  /* ── GRAPHEMES PANEL ── */
+  .graphemes-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .grapheme-row {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    background: white;
+  }
+  .grapheme-row:hover { border-color: var(--trace); }
+  .grapheme-thumb {
+    width: 44px; height: 32px;
+    background: var(--faint);
+    border: 1px dashed var(--trace);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; color: #bbb; font-family: var(--mono);
+  }
+  .grapheme-info { display: flex; flex-direction: column; gap: 2px; }
+  .grapheme-code { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--link); }
+  .grapheme-reading { font-family: var(--serif); font-style: italic; font-size: 13px; }
+  .grapheme-pos { font-size: 11px; color: #888; }
+  .grapheme-position-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--dust);
+    color: #666;
+  }
+  .grapheme-position-badge.uncertain {
+    background: var(--amber-light);
+    color: var(--amber);
+  }
+
+  /* ── PEOPLE PANEL ── */
+  .people-list { display: flex; flex-direction: column; gap: 8px; }
+  .person-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--dust);
+    border-radius: 3px;
+    background: white;
+    font-size: 13px;
+  }
+  .person-icon {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--dust);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #888;
+  }
+  .person-name { font-weight: 500; flex: 1; }
+  .person-role {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--dust);
+    color: #666;
+  }
+
+  /* ── SEMANTIC TAGS ── */
+  .semantic-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sem-tag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    background: #eef2f8;
+    border: 1px solid #b8cae0;
+    color: #2a5c8f;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+  }
+
+  /* ── DIVIDERS / MISC ── */
+  hr.section-rule { border: none; border-top: 1px solid var(--dust); margin: 20px 0; }
+  .note-inline { font-size: 12px; color: #888; font-style: italic; margin-top: 4px; }
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .full-width { grid-column: 1 / -1; }
+
+  .annotated-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .annotation-pill {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: #ffe9b0;
+    border: 1px solid #e0c060;
+    color: #7a5800;
+    letter-spacing: .05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-label">wireframe 1 of 2 — sign entry</div>
+
+<!-- ══════════════════════════════════════════
+     SIGN PAGE: 1B7 / T0150bc / "Bone Throne"
+════════════════════════════════════════════ -->
+<div class="wireframe-section">
+  <div class="section-title">Page type: Sign Entry</div>
+
+  <div class="card">
+
+    <!-- top nav -->
+    <div class="topbar">
+      <div class="topbar-brand">Maya Database</div>
+      <div class="topbar-nav">
+        <a href="#" class="active">Search</a>
+        <a href="#">Research</a>
+        <a href="#">Tools</a>
+        <a href="#">About</a>
+      </div>
+    </div>
+    <div class="breadcrumb">
+      <a href="#">Search</a> › Signs › <strong>1B7 / T0150bc</strong>
+    </div>
+
+    <!-- hero: image + primary meta -->
+    <div class="sign-hero">
+
+      <div class="sign-image-panel">
+        <div class="sign-glyph-idealized">
+          <!-- Simplified SVG approximation of "bone throne" glyph -->
+          <svg viewBox="0 0 110 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="10" width="98" height="50" rx="6" stroke="#333" stroke-width="2.5" fill="none"/>
+            <rect x="18" y="20" width="22" height="30" rx="3" stroke="#333" stroke-width="2" fill="none"/>
+            <rect x="44" y="20" width="22" height="30" rx="3" stroke="#333" stroke-width="2" fill="none"/>
+            <rect x="70" y="20" width="22" height="30" rx="3" stroke="#333" stroke-width="2" fill="none"/>
+            <line x1="18" y1="35" x2="40" y2="35" stroke="#333" stroke-width="1.5"/>
+            <line x1="44" y1="35" x2="66" y2="35" stroke="#333" stroke-width="1.5"/>
+            <line x1="70" y1="35" x2="92" y2="35" stroke="#333" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="image-caption">Idealized grapheme · T150bc·st</div>
+        <div class="image-caption" style="color:#aaa">Drawn: Christian Prager / TWKM</div>
+      </div>
+
+      <div class="sign-meta">
+        <div class="sign-title">1B7</div>
+        <div class="sign-reading">NOUN &nbsp;·&nbsp; <em style="font-family:var(--serif)">"Bone Throne"</em></div>
+
+        <div class="tag-row">
+          <span class="tag tag-system">MHD: 1B7</span>
+          <span class="tag tag-system">TWKM: 0150</span>
+          <span class="tag tag-system">Thompson: T150bc</span>
+          <span class="tag tag-system">CMGG: "BT"</span>
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-pos">NOUN</span>
+          <span class="tag tag-pos">Elongated · single element · bundle</span>
+        </div>
+
+        <div class="ext-links">
+          <a href="#" class="ext-link">ClassicMayan.org</a>
+          <a href="#" class="ext-link">MHD</a>
+          <a href="#" class="ext-link">mayaglyphs.org</a>
+        </div>
+
+        <div class="sign-confidence">
+          <span>Decipherment confidence:</span>
+          <div class="confidence-bar">
+            <div class="confidence-pip filled"></div>
+            <div class="confidence-pip filled"></div>
+            <div class="confidence-pip filled uncertain"></div>
+            <div class="confidence-pip"></div>
+            <div class="confidence-pip"></div>
+            <div class="confidence-pip"></div>
+            <div class="confidence-pip"></div>
+            <div class="confidence-pip"></div>
+          </div>
+          <span style="font-family:var(--mono);font-size:11px;color:#888">Level 3 / 8</span>
+        </div>
+        <div class="note-inline">No pronunciation assigned in TWKM or MHD. English gloss "bone throne" from CMGG.</div>
+      </div>
+
+    </div><!-- /sign-hero -->
+
+    <!-- tabs -->
+    <div class="tabs">
+      <div class="tab active">Concordance <span class="tab-count">4 systems</span></div>
+      <div class="tab">Variants <span class="tab-count">2</span></div>
+      <div class="tab">Attestations <span class="tab-count">22</span></div>
+      <div class="tab">Information</div>
+    </div>
+
+    <!-- TAB: CONCORDANCE -->
+    <div class="tab-content">
+
+      <div class="annotated-label">
+        <div class="section-header" style="margin-bottom:0">Cross-catalog identifiers</div>
+        <span class="annotation-pill">≈ = approximate correspondence</span>
+      </div>
+
+      <table class="concordance-table">
+        <thead>
+          <tr>
+            <th>Catalog</th>
+            <th>Code</th>
+            <th>Reading</th>
+            <th>Gloss</th>
+            <th>Part of speech</th>
+            <th>Confidence</th>
+            <th>Correspondence</th>
+            <th>Asserted by</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="catalog-badge mhd">MHD</span></td>
+            <td class="code-cell">1B7</td>
+            <td class="null-cell">— none —</td>
+            <td class="null-cell">— none —</td>
+            <td><span class="tag tag-pos" style="font-size:11px">NOUN</span></td>
+            <td class="null-cell">—</td>
+            <td><span class="corr-badge corr-approx">≈ approximate</span></td>
+            <td style="font-size:11px;color:#888">mayaglyphs.org</td>
+          </tr>
+          <tr>
+            <td><span class="catalog-badge twkm">TWKM</span></td>
+            <td class="code-cell">0150</td>
+            <td class="null-cell">— none —</td>
+            <td class="null-cell">— none —</td>
+            <td><span class="tag tag-pos" style="font-size:11px">NOUN</span></td>
+            <td class="null-cell">—</td>
+            <td><span class="corr-badge corr-approx">≈ approximate</span></td>
+            <td style="font-size:11px;color:#888">mayaglyphs.org</td>
+          </tr>
+          <tr>
+            <td><span class="catalog-badge thompson">Thompson</span></td>
+            <td class="code-cell">T150bc</td>
+            <td class="null-cell">— none —</td>
+            <td style="font-family:var(--serif);font-style:italic">"bone throne"</td>
+            <td class="null-cell">—</td>
+            <td class="null-cell">—</td>
+            <td><span class="corr-badge corr-exact">= exact</span></td>
+            <td style="font-size:11px;color:#888">TWKM concordance</td>
+          </tr>
+          <tr>
+            <td><span class="catalog-badge cmgg">CMGG</span></td>
+            <td class="code-cell">"BT"</td>
+            <td class="null-cell">— none —</td>
+            <td style="font-family:var(--serif);font-style:italic">"bone throne"</td>
+            <td class="null-cell">—</td>
+            <td class="null-cell">—</td>
+            <td><span class="corr-badge corr-exact">= exact</span></td>
+            <td style="font-size:11px;color:#888">mayaglyphs.org</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note-inline">
+        MHD code 1B7 and TWKM code 0150 are only approximately aligned — they may not map 1:1 across all contexts. Variants 1B7.1 and 1B7.2 both map ≈ T150bc.
+      </div>
+
+    </div><!-- /tab concordance -->
+
+  </div><!-- /card -->
+</div><!-- /wireframe-section 1 -->
+
+
+<!-- ══════════════════════════════════════════
+     SIGN PAGE — VARIANTS TAB (shown separately for clarity)
+════════════════════════════════════════════ -->
+<div class="wireframe-section">
+  <div class="section-title">Sign Entry — Variants tab (same page, different tab)</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab">Concordance <span class="tab-count">4 systems</span></div>
+      <div class="tab active">Variants <span class="tab-count">2</span></div>
+      <div class="tab">Attestations <span class="tab-count">22</span></div>
+      <div class="tab">Information</div>
+    </div>
+    <div class="tab-content">
+      <div class="section-header">Graph variants — TWKM two-letter suffix system</div>
+      <div class="variants-grid">
+        <div class="variant-card">
+          <div class="variant-img">image</div>
+          <div class="variant-code">1B7.1 <span style="color:#888;font-weight:400">· 150st</span></div>
+          <div class="variant-type">Standard form</div>
+          <div style="font-size:11px;color:#aaa;font-family:var(--mono)">≈ T150bc</div>
+        </div>
+        <div class="variant-card">
+          <div class="variant-img">image</div>
+          <div class="variant-code">1B7.2 <span style="color:#888;font-weight:400">· 150st</span></div>
+          <div class="variant-type">Standard form (alt)</div>
+          <div style="font-size:11px;color:#aaa;font-family:var(--mono)">≈ T150bc</div>
+        </div>
+        <div class="variant-card" style="border-style:dashed;background:var(--faint)">
+          <div class="variant-img" style="border:none;background:none;color:#bbb;font-size:11px">+ add</div>
+          <div class="variant-code" style="color:#bbb">New variant</div>
+          <div class="variant-type" style="color:#ccc">from corpus</div>
+        </div>
+      </div>
+      <div class="note-inline">Variant codes follow Prager & Gronemeyer (2018). "st" = standard form. Additional suffixes (bt, tt, fh, hc…) documented when attested.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SIGN PAGE — ATTESTATIONS TAB
+════════════════════════════════════════════ -->
+<div class="wireframe-section">
+  <div class="section-title">Sign Entry — Attestations tab</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab">Concordance <span class="tab-count">4 systems</span></div>
+      <div class="tab">Variants <span class="tab-count">2</span></div>
+      <div class="tab active">Attestations <span class="tab-count">22</span></div>
+      <div class="tab">Information</div>
+    </div>
+    <div class="tab-content">
+      <div class="section-header">Known instances in corpus — linked to glyph block records</div>
+      <div class="attestation-list">
+
+        <div class="attestation-row">
+          <div class="att-img">img</div>
+          <div>
+            <div class="att-block-id">PNGSt12-7208800</div>
+            <div class="att-context">initial series/period ending</div>
+          </div>
+          <div class="att-reading">?? sutz'? aj _<br><span style="font-size:11px;color:#888">"Throne Bat, he of _"</span></div>
+          <div class="att-site">Palenque · PNGSt12<br><span style="color:#aaa;font-size:11px">Structure O13, west</span></div>
+          <div class="att-date">obj: 09.18.05.00.00<br>04 Ajaw · 13 Keh</div>
+        </div>
+
+        <div class="attestation-row">
+          <div class="att-img">img</div>
+          <div>
+            <div class="att-block-id">AGTSt05-XXXXX</div>
+            <div class="att-context">period ending</div>
+          </div>
+          <div class="att-reading">?? _<br><span style="font-size:11px;color:#888">"?? _"</span></div>
+          <div class="att-site">Aguateca · AGTSt05</div>
+          <div class="att-date">—</div>
+        </div>
+
+        <div class="attestation-row">
+          <div class="att-img">img</div>
+          <div>
+            <div class="att-block-id">CPNSt12-XXXXX</div>
+            <div class="att-context">initial series/period ending</div>
+          </div>
+          <div class="att-reading">_ ?? _<br><span style="font-size:11px;color:#888">"_ throne? _"</span></div>
+          <div class="att-site">Copan · CPNSt12</div>
+          <div class="att-date">—</div>
+        </div>
+
+        <div style="text-align:center;padding:12px;font-size:12px;color:#aaa;font-family:var(--mono)">
+          + 19 more attestations
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     DIVIDER
+════════════════════════════════════════════ -->
+<div class="page-label" style="margin-top:40px">wireframe 2 of 2 — glyph block entry</div>
+
+
+<!-- ══════════════════════════════════════════
+     BLOCK PAGE: PNGSt12-7208800
+════════════════════════════════════════════ -->
+<div class="wireframe-section">
+  <div class="section-title">Page type: Glyph Block Entry</div>
+
+  <div class="card">
+
+    <div class="topbar">
+      <div class="topbar-brand">Maya Database</div>
+      <div class="topbar-nav">
+        <a href="#" class="active">Search</a>
+        <a href="#">Research</a>
+        <a href="#">Tools</a>
+        <a href="#">About</a>
+      </div>
+    </div>
+    <div class="breadcrumb">
+      <a href="#">Search</a> › Blocks ›
+      <a href="#">PNGSt12</a> ›
+      <strong>PNGSt12-7208800</strong>
+      &nbsp;&nbsp;
+      <span style="color:#bbb">◀</span>
+      <span style="font-family:var(--mono);font-size:11px;color:#aaa;margin:0 6px">D09</span>
+      <span style="color:#bbb">▶</span>
+    </div>
+
+    <!-- hero -->
+    <div class="block-hero">
+
+      <div class="block-image-panel">
+        <div class="block-img-placeholder">block drawing</div>
+        <div class="image-caption">PNGSt12-7208800 · coordinate D09</div>
+        <div class="ext-links" style="margin-top:8px">
+          <a href="#" class="ext-link" style="font-size:11px">MHD record</a>
+          <a href="#" class="ext-link" style="font-size:11px">More images</a>
+        </div>
+      </div>
+
+      <div class="block-meta-grid">
+
+        <!-- LEFT COL: location + provenance -->
+        <div class="meta-group">
+          <div class="meta-group-title">Location &amp; Object</div>
+
+          <div class="meta-row">
+            <span class="meta-label">Block ID</span>
+            <span class="meta-value mono">PNGSt12-7208800</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Coordinate</span>
+            <span class="meta-value mono">D09</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Artifact</span>
+            <span class="meta-value"><a href="#">PNGSt12</a> — Stela 12</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Site</span>
+            <span class="meta-value"><a href="#">Palenque (PNG)</a></span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Region</span>
+            <span class="meta-value">Western Lowlands</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Surface</span>
+            <span class="meta-value">Structure O13</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Frame</span>
+            <span class="meta-value">west</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Medium</span>
+            <span class="meta-value">carved · stone</span>
+          </div>
+        </div>
+
+        <!-- RIGHT COL: scribes + semantic -->
+        <div class="meta-group">
+          <div class="meta-group-title">Attribution &amp; Semantic Context</div>
+
+          <div class="meta-row">
+            <span class="meta-label">Scribe(s)</span>
+            <span class="meta-value">
+              <a href="#">Juunat Omotz</a>,
+              <a href="#">Bik'il</a>,
+              <span style="color:#888">?? Chahk (of …)</span>
+            </span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Semantic</span>
+            <span class="meta-value">
+              <span class="sem-tag">personal name</span>
+              <span class="sem-tag">site title</span>
+              <span class="sem-tag">agentive</span>
+            </span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Calendar type</span>
+            <span class="meta-value">initial series / period ending</span>
+          </div>
+          <div class="meta-row" style="margin-top:4px">
+            <span class="meta-label">MHD source ID</span>
+            <span class="meta-value mono" style="color:#aaa">7208800</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /block-hero -->
+
+    <!-- tabs -->
+    <div class="tabs">
+      <div class="tab active">Transcription</div>
+      <div class="tab">Dates</div>
+      <div class="tab">Signs <span class="tab-count">6</span></div>
+      <div class="tab">People <span class="tab-count">3</span></div>
+    </div>
+
+    <!-- TAB: TRANSCRIPTION -->
+    <div class="tab-content">
+
+      <div class="section-header">Full block transcription</div>
+      <div class="transcription-panel">
+        <div class="transcription-row">
+          <div class="transcription-key">Logosyll.</div>
+          <div class="transcription-val logosyll">?? sutz'? _ aj _ _</div>
+        </div>
+        <div class="transcription-row">
+          <div class="transcription-key">Hyphen</div>
+          <div class="transcription-val logosyll">?? sutz'? _ aj _ _</div>
+        </div>
+        <div class="transcription-row">
+          <div class="transcription-key">Transcr. 1</div>
+          <div class="transcription-val logosyll">?? suutz'? aj _</div>
+        </div>
+        <div class="transcription-row">
+          <div class="transcription-key">Transcr. 2</div>
+          <div class="transcription-val logosyll">?? suutz'? aj _</div>
+        </div>
+        <div class="transcription-row">
+          <div class="transcription-key">English</div>
+          <div class="transcription-val gloss">"Throne Bat", he of _</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /card -->
+</div>
+
+
+<!-- DATES TAB -->
+<div class="wireframe-section">
+  <div class="section-title">Glyph Block — Dates tab (same page)</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab">Transcription</div>
+      <div class="tab active">Dates</div>
+      <div class="tab">Signs <span class="tab-count">6</span></div>
+      <div class="tab">People <span class="tab-count">3</span></div>
+    </div>
+    <div class="tab-content">
+
+      <div class="section-header">Two date contexts — event date vs. object date</div>
+      <div class="note-inline" style="margin-bottom:16px">
+        <strong>Object date</strong> = when the monument was dedicated or made.
+        <strong>Event date</strong> = the historical event described in this block.
+        These may differ significantly.
+      </div>
+
+      <div class="date-columns">
+        <div class="date-col">
+          <div class="date-col-header event">Event date (ev–)</div>
+          <div class="date-rows">
+            <div class="date-row">
+              <span class="date-key">Calendar type</span>
+              <span class="date-val unknown">—</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">Long Count</span>
+              <span class="date-val unknown">??</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">260-day</span>
+              <span class="date-val unknown">??</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">365-day</span>
+              <span class="date-val unknown">??</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">Gregorian</span>
+              <span class="date-val unknown">??</span>
+            </div>
+          </div>
+        </div>
+        <div class="date-col">
+          <div class="date-col-header object">Object date (obj–)</div>
+          <div class="date-rows">
+            <div class="date-row">
+              <span class="date-key">Calendar type</span>
+              <span class="date-val">initial series / period ending</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">Long Count</span>
+              <span class="date-val">09.18.05.00.00</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">260-day</span>
+              <span class="date-val">04 Ajaw</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">365-day</span>
+              <span class="date-val">13 Keh</span>
+            </div>
+            <div class="date-row">
+              <span class="date-key">Gregorian</span>
+              <span class="date-val">0795/09/16</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- SIGNS TAB -->
+<div class="wireframe-section">
+  <div class="section-title">Glyph Block — Signs tab (same page)</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab">Transcription</div>
+      <div class="tab">Dates</div>
+      <div class="tab active">Signs <span class="tab-count">6</span></div>
+      <div class="tab">People <span class="tab-count">3</span></div>
+    </div>
+    <div class="tab-content">
+
+      <div class="section-header">Sign sequence — bl codes: 1B7 &nbsp;AW1a? &nbsp;100 &nbsp;1G4a &nbsp;000 &nbsp;000</div>
+
+      <div class="sign-sequence" style="margin-bottom:20px">
+        <div class="seq-slot">
+          <div class="seq-slot-img active">img</div>
+          <div class="seq-slot-code">1B7</div>
+        </div>
+        <div class="seq-arrow">›</div>
+        <div class="seq-slot">
+          <div class="seq-slot-img uncertain">img</div>
+          <div class="seq-slot-code uncertain">AW1a?</div>
+        </div>
+        <div class="seq-arrow">›</div>
+        <div class="seq-slot">
+          <div class="seq-slot-img">img</div>
+          <div class="seq-slot-code">100</div>
+        </div>
+        <div class="seq-arrow">›</div>
+        <div class="seq-slot">
+          <div class="seq-slot-img">img</div>
+          <div class="seq-slot-code">1G4a</div>
+        </div>
+        <div class="seq-arrow">›</div>
+        <div class="seq-slot">
+          <div class="seq-slot-img">img</div>
+          <div class="seq-slot-code">000</div>
+        </div>
+        <div class="seq-arrow">›</div>
+        <div class="seq-slot">
+          <div class="seq-slot-img">img</div>
+          <div class="seq-slot-code">000</div>
+        </div>
+      </div>
+
+      <div class="section-header">Sign detail</div>
+      <div class="graphemes-panel">
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code">1B7</div>
+            <div class="grapheme-reading">— no reading assigned —</div>
+            <div class="grapheme-pos">NOUN · "bone throne" (CMGG)</div>
+          </div>
+          <span class="grapheme-position-badge">main sign</span>
+        </div>
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code" style="color:var(--amber)">AW1a <span style="font-size:11px;font-weight:400">?</span></div>
+            <div class="grapheme-reading">— uncertain —</div>
+            <div class="grapheme-pos">bat glyph (AW = bat, hanging)</div>
+          </div>
+          <span class="grapheme-position-badge uncertain">uncertain · prefix?</span>
+        </div>
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code">100</div>
+            <div class="grapheme-reading">aj</div>
+            <div class="grapheme-pos">SYLLABOGRAM · agentive prefix</div>
+          </div>
+          <span class="grapheme-position-badge">suffix</span>
+        </div>
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code">1G4a</div>
+            <div class="grapheme-reading">— reading unknown —</div>
+            <div class="grapheme-pos">elongated · droplet element</div>
+          </div>
+          <span class="grapheme-position-badge">suffix</span>
+        </div>
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code">000</div>
+            <div class="grapheme-reading">—</div>
+            <div class="grapheme-pos">eroded / undetermined</div>
+          </div>
+          <span class="grapheme-position-badge" style="background:#f8f0f0;color:#b34040;border:1px solid #e0b0b0">eroded</span>
+        </div>
+
+        <div class="grapheme-row">
+          <div class="grapheme-thumb">img</div>
+          <div class="grapheme-info">
+            <div class="grapheme-code">000</div>
+            <div class="grapheme-reading">—</div>
+            <div class="grapheme-pos">eroded / undetermined</div>
+          </div>
+          <span class="grapheme-position-badge" style="background:#f8f0f0;color:#b34040;border:1px solid #e0b0b0">eroded</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PEOPLE TAB -->
+<div class="wireframe-section">
+  <div class="section-title">Glyph Block — People tab (same page)</div>
+  <div class="card">
+    <div class="tabs">
+      <div class="tab">Transcription</div>
+      <div class="tab">Dates</div>
+      <div class="tab">Signs <span class="tab-count">6</span></div>
+      <div class="tab active">People <span class="tab-count">3</span></div>
+    </div>
+    <div class="tab-content">
+      <div class="section-header">Named individuals associated with this block</div>
+      <div class="people-list">
+        <div class="person-row">
+          <div class="person-icon">✦</div>
+          <div class="person-name"><a href="#" style="color:var(--link);text-decoration:none">Juunat Omotz</a></div>
+          <span class="person-role">scribe</span>
+        </div>
+        <div class="person-row">
+          <div class="person-icon">✦</div>
+          <div class="person-name"><a href="#" style="color:var(--link);text-decoration:none">Bik'il</a></div>
+          <span class="person-role">scribe</span>
+        </div>
+        <div class="person-row">
+          <div class="person-icon">?</div>
+          <div class="person-name" style="color:#888">?? Chahk (of …)</div>
+          <span class="person-role" style="background:var(--amber-light);color:var(--amber)">scribe · uncertain</span>
+        </div>
+      </div>
+      <div class="note-inline" style="margin-top:12px">Scribe attributions from MHD field "scribe". Uncertain identifications marked. Links go to named individual pages when available.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

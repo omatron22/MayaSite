@@ -38,6 +38,7 @@ export interface Block {
   id: number;
   mhd_block_id: string;
   artifact_code: string;
+  artifact_name: string | null;
   surface_page: string | null;
   orientation_frame: string | null;
   coordinate: string | null;
@@ -51,6 +52,9 @@ export interface Block {
   event_long_count: string | null;
   event_260_day: string | null;
   event_365_day: string | null;
+  event_gregorian: string | null;
+  transcription_1: string | null;
+  transcription_2: string | null;
   region: string | null;
   site_name: string | null;
   person_code: string | null;
@@ -105,4 +109,49 @@ export interface Source {
   short_code: string;
   base_url: string;
   requires_login: boolean;
+}
+
+// Concordance architecture types
+export interface CatalogEntry {
+  entry_id: string;
+  catalog: string;
+  catalog_code: string;
+  parent_entry: string | null;
+  variant_code: string | null;
+  reading_value: string | null;
+  reading_type: string | null;
+  gloss_english: string | null;
+  gloss_mayan: string | null;
+  part_of_speech: string[] | null;
+  confidence_level: number | null;
+  image_url: string | null;
+  legacy_catalog_sign_id: number | null;
+}
+
+export interface Graph {
+  graph_id: string;
+  catalog_entry: string;
+  variant_suffix: string | null;
+  image_url: string | null;
+  iconographic_tags: string[] | null;
+  notes: string | null;
+}
+
+export interface Person {
+  person_id: string;
+  name: string;
+  source: string;
+  site_name: string | null;
+  notes: string | null;
+}
+
+export interface BlockSignSlot {
+  slot_id: string;
+  slot_position: number;
+  certainty: 'certain' | 'uncertain' | 'eroded';
+  raw_code: string;
+  entry_id: string | null;
+  catalog_code: string | null;
+  image_url: string | null;
+  reading_value: string | null;
 }

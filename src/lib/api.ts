@@ -9,6 +9,7 @@ import type {
   ConcordanceResponse,
   InferenceResponse,
   SignLookupResponse,
+  NewConcordanceResponse,
 } from '../../api/lib/types';
 
 class ApiError extends Error {
@@ -48,6 +49,7 @@ export interface SearchApiParams {
   artifact?: string;
   site?: string;
   hasDate?: boolean;
+  collapseVariants?: boolean;
 }
 
 export function searchApi(params: SearchApiParams, signal?: AbortSignal): Promise<SearchResponse> {
@@ -69,6 +71,7 @@ export function searchApi(params: SearchApiParams, signal?: AbortSignal): Promis
   if (params.artifact) searchParams.set('artifact', params.artifact);
   if (params.site) searchParams.set('site', params.site);
   if (params.hasDate) searchParams.set('hasDate', 'true');
+  if (params.collapseVariants) searchParams.set('collapseVariants', 'true');
 
   return fetchJson<SearchResponse>(`/api/search?${searchParams}`, signal);
 }
@@ -274,6 +277,100 @@ export function fetchCmhi(
   if (params.type) searchParams.set('type', params.type);
   if (params.monument) searchParams.set('monument', params.monument);
   return fetchJson<CmhiResponse>(`/api/collections?source=cmhi&${searchParams}`, signal);
+}
+
+// New concordance API
+export interface NewConcordanceApiParams {
+  q?: string;
+  page?: number;
+  pageSize?: number;
+  catalog?: string;
+  sortBy?: string;
+  sortDir?: string;
+}
+
+export function fetchNewConcordance(params: NewConcordanceApiParams, signal?: AbortSignal): Promise<NewConcordanceResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.set('mode', 'concordance');
+  if (params.q) searchParams.set('q', params.q);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
+  if (params.catalog) searchParams.set('catalog', params.catalog);
+  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
+  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
+  return fetchJson<NewConcordanceResponse>(`/api/search?${searchParams}`, signal);
+}
+
+// Catalog entry detail (via sign endpoint with legacy ID)
+export interface CatalogEntryDetail {
+  entry_id: string;
+  catalog: string;
+  catalog_code: string;
+  reading_value: string | null;
+  gloss_english: string | null;
+  image_url: string | null;
+  cross_references: {
+    entry_id: string;
+    catalog: string;
+    catalog_code: string;
+    correspondence: string;
+  }[];
+}
+
+// Person detail
+export interface PersonDetailResponse {
+  person: {
+    person_id: string;
+    name: string;
+    source: string;
+    site_name: string | null;
+    notes: string | null;
+  };
+  blocks: Array<{
+    id: number;
+    mhd_block_id: string;
+    artifact_code: string;
+    site_name: string | null;
+    region: string | null;
+    block_english: string | null;
+    block_maya1: string | null;
+    event_calendar: string | null;
+    event_gregorian: string | null;
+    block_img: string | null;
+    role: string;
+  }>;
+  sites: Array<{
+    site_name: string;
+    count: number;
+  }>;
+  totalBlocks: number;
+}
+
+export function fetchPerson(personId: string, signal?: AbortSignal): Promise<PersonDetailResponse> {
+  return fetchJson<PersonDetailResponse>(`/api/search?mode=person_detail&personId=${encodeURIComponent(personId)}`, signal);
+}
+
+export interface PersonSearchResponse {
+  results: Array<{
+    person_id: string;
+    name: string;
+    source: string;
+    site_name: string | null;
+    notes: string | null;
+    block_count: number;
+  }>;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export function fetchPersons(params: { q?: string; page?: number; source?: string }, signal?: AbortSignal): Promise<PersonSearchResponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.set('mode', 'persons');
+  if (params.q) searchParams.set('q', params.q);
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.source) searchParams.set('source', params.source);
+  return fetchJson<PersonSearchResponse>(`/api/search?${searchParams}`, signal);
 }
 
 export { ApiError };

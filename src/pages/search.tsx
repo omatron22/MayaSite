@@ -9,8 +9,8 @@ import { SignCardSkeleton, BlockCardSkeleton, GraphemeCardSkeleton } from '../co
 import { useSearchFilters } from '../hooks/useSearchFilters';
 import type { SearchFilters } from '../hooks/useSearchFilters';
 import { useSearch } from '../hooks/useSearch';
-import { exportSearch, fetchConcordance } from '../lib/api';
-import type { SignSearchResult, BlockSearchResult, GraphemeSearchResult, ConcordanceRow } from '../../api/lib/types';
+import { exportSearch, fetchConcordance, fetchNewConcordance } from '../lib/api';
+import type { SignSearchResult, BlockSearchResult, GraphemeSearchResult, ConcordanceRow, NewConcordanceRow } from '../../api/lib/types';
 
 type ViewMode = 'signs' | 'blocks' | 'graphemes' | 'concordance';
 type SortCol = 'mhd_code' | 'graphcode' | 'thompson_code' | 'zender_code' | 'kettunen_code' | 'gronemeyer_code' | 'syllabic_value' | 'english_translation' | 'bonn_sign_number';
@@ -40,6 +40,7 @@ function parseFiltersFromURL(params: URLSearchParams): Partial<SearchFilters> {
   if (params.get('hasDate') === '1') overrides.hasDate = true;
   if (params.get('hasTranslation') === '1') overrides.hasTranslation = true;
   if (params.get('hasInstances') === '1') overrides.hasInstances = true;
+  if (params.get('showVariants') === '1') overrides.collapseVariants = false;
   const volume = params.get('volume');
   if (volume) overrides.volume = volume;
   const wordClass = params.get('wordClass');
@@ -75,7 +76,7 @@ export function SearchPage() {
   });
   const [hasSearched, setHasSearched] = useState(false);
 
-  // Concordance state
+  // Concordance state (legacy)
   const [concordanceRows, setConcordanceRows] = useState<ConcordanceRow[]>([]);
   const [concordanceTotal, setConcordanceTotal] = useState(0);
   const [concordancePage, setConcordancePage] = useState(1);
@@ -94,6 +95,11 @@ export function SearchPage() {
   });
   const [concordanceLoading, setConcordanceLoading] = useState(false);
   const [concordanceError, setConcordanceError] = useState<string | null>(null);
+  // New concordance state
+  const [newConcordanceRows, setNewConcordanceRows] = useState<NewConcordanceRow[]>([]);
+  const [newConcordanceTotal, setNewConcordanceTotal] = useState(0);
+  const [catalogFilter, setCatalogFilter] = useState(() => searchParams.get('catalog') || '');
+  const [useNewConcordance, setUseNewConcordance] = useState(() => searchParams.get('cversion') !== 'legacy');
 
   const initialFilterOverrides = useRef(parseFiltersFromURL(searchParams)).current;
   const { filters, updateFilter, clearFilters, activeFilterCount } = useSearchFilters(initialFilterOverrides);
@@ -139,23 +145,42 @@ export function SearchPage() {
     setConcordanceError(null);
     const controller = new AbortController();
 
-    fetchConcordance({
-      q: debouncedQuery, page: concordancePage, pageSize: CONCORDANCE_PAGE_SIZE,
-      sortBy: concordanceSortBy, sortDir: concordanceSortDir, ...concordanceFilters,
-    }, controller.signal)
-      .then(data => {
-        setConcordanceRows(data.rows);
-        setConcordanceTotal(data.total);
-        setHasSearched(true);
-      })
-      .catch(err => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setConcordanceError(err instanceof Error ? err.message : 'Failed to load concordance data');
-      })
-      .finally(() => setConcordanceLoading(false));
+    if (useNewConcordance) {
+      fetchNewConcordance({
+        q: debouncedQuery, page: concordancePage, pageSize: CONCORDANCE_PAGE_SIZE,
+        catalog: catalogFilter, sortBy: 'catalog_code', sortDir: concordanceSortDir,
+      }, controller.signal)
+        .then(data => {
+          setNewConcordanceRows(data.rows);
+          setNewConcordanceTotal(data.total);
+          setConcordanceTotal(data.total);
+          setHasSearched(true);
+        })
+        .catch(err => {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          // Fall back to legacy if new tables don't exist
+          setUseNewConcordance(false);
+        })
+        .finally(() => setConcordanceLoading(false));
+    } else {
+      fetchConcordance({
+        q: debouncedQuery, page: concordancePage, pageSize: CONCORDANCE_PAGE_SIZE,
+        sortBy: concordanceSortBy, sortDir: concordanceSortDir, ...concordanceFilters,
+      }, controller.signal)
+        .then(data => {
+          setConcordanceRows(data.rows);
+          setConcordanceTotal(data.total);
+          setHasSearched(true);
+        })
+        .catch(err => {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          setConcordanceError(err instanceof Error ? err.message : 'Failed to load concordance data');
+        })
+        .finally(() => setConcordanceLoading(false));
+    }
 
     return () => controller.abort();
-  }, [viewMode, debouncedQuery, concordancePage, concordanceSortBy, concordanceSortDir, concordanceFilters]);
+  }, [viewMode, debouncedQuery, concordancePage, concordanceSortBy, concordanceSortDir, concordanceFilters, useNewConcordance, catalogFilter]);
 
   // Sync state to URL
   useEffect(() => {
@@ -339,63 +364,168 @@ export function SearchPage() {
         {/* Concordance Table */}
         {viewMode === 'concordance' && (
           <div className="border border-gray-200 rounded-lg overflow-hidden">
+            {/* Version toggle + catalog filter */}
+            <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 border-b border-gray-200">
+              <button
+                onClick={() => setUseNewConcordance(!useNewConcordance)}
+                className={`px-2 py-1 text-xs font-medium rounded border transition-colors ${
+                  useNewConcordance ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-gray-100 border-gray-200 text-gray-500'
+                }`}
+              >
+                {useNewConcordance ? 'New Concordance' : 'Legacy View'}
+              </button>
+              {useNewConcordance && (
+                <select
+                  value={catalogFilter}
+                  onChange={(e) => { setCatalogFilter(e.target.value); setConcordancePage(1); }}
+                  className="py-1 px-2 bg-white text-gray-700 border border-gray-300 rounded text-xs"
+                >
+                  <option value="">All Catalogs</option>
+                  <option value="MHD">MHD</option>
+                  <option value="TWKM">TWKM</option>
+                  <option value="Thompson">Thompson</option>
+                  <option value="CMGG">CMGG</option>
+                  <option value="Grube">Grube</option>
+                  <option value="Tokovinine">Tokovinine</option>
+                  <option value="MacriVail">Macri & Vail</option>
+                  <option value="RodriguezOchoa">Rodriguez Ochoa</option>
+                  <option value="RingleSmithStark">Ringle & Smith-Stark</option>
+                  <option value="Knorozov">Knorozov</option>
+                  <option value="Zimmermann">Zimmermann</option>
+                  <option value="Gates">Gates</option>
+                  <option value="Evreinov">Evreinov</option>
+                  <option value="RendonSpescha">Rendon Spescha</option>
+                </select>
+              )}
+            </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50 w-[50px]">Image</th>
-                    {CONCORDANCE_COLUMNS.map(col => (
-                      <th key={col.key} className="px-3 py-2.5 text-left bg-gray-50">
-                        <button
-                          onClick={() => toggleConcordanceSort(col.key)}
-                          className="inline-flex items-center gap-1 text-gray-500 font-medium text-xs uppercase tracking-wide bg-transparent border-none cursor-pointer hover:text-gray-900 transition-colors"
-                        >
-                          {col.label}
-                          <SortIcon col={col.key} />
-                        </button>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {concordanceLoading ? (
-                    <tr><td colSpan={10} className="text-center py-16 text-gray-400"><div className="loading-spinner mx-auto"></div></td></tr>
-                  ) : concordanceRows.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-16 text-gray-400">No results found</td></tr>
-                  ) : (
-                    concordanceRows.map(row => (
-                      <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="px-3 py-2">
-                          {row.primary_image_url ? (
-                            <img src={row.primary_image_url} alt="" width={32} height={32} className="w-8 h-8 object-contain bg-gray-50 rounded border border-gray-200" />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-gray-300 text-xs">--</div>
-                          )}
-                        </td>
-                        <td className="px-3 py-2">
-                          <Link to={`/sign/${row.id}`} className="text-blue-600 no-underline hover:underline font-medium text-sm">
-                            {row.mhd_code}
-                          </Link>
-                        </td>
-                        <td className="px-3 py-2 text-gray-700">{row.graphcode || '--'}</td>
-                        <td className="px-3 py-2 text-gray-700">{row.thompson_code ? `T${row.thompson_code}` : '--'}</td>
-                        <td className="px-3 py-2 text-gray-700">{row.zender_code || '--'}</td>
-                        <td className="px-3 py-2 text-gray-700">{row.kettunen_code || '--'}</td>
-                        <td className="px-3 py-2 text-gray-700">{row.gronemeyer_code || '--'}</td>
-                        <td className="px-3 py-2 text-gray-700">{row.bonn_sign_number || '--'}</td>
-                        <td className="px-3 py-2 text-blue-600 italic">{row.syllabic_value || '--'}</td>
-                        <td className="px-3 py-2 text-gray-700 max-w-[200px] truncate">{row.english_translation || '--'}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              {useNewConcordance ? (
+                /* New concordance table */
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50 w-[50px]">Image</th>
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50">Code</th>
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50">Catalog</th>
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50">Reading</th>
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50">Meaning</th>
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50">Cross-References</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {concordanceLoading ? (
+                      <tr><td colSpan={6} className="text-center py-16 text-gray-400"><div className="loading-spinner mx-auto"></div></td></tr>
+                    ) : newConcordanceRows.length === 0 ? (
+                      <tr><td colSpan={6} className="text-center py-16 text-gray-400">No results found</td></tr>
+                    ) : (
+                      newConcordanceRows.map(row => (
+                        <tr key={row.entry_id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="px-3 py-2">
+                            {row.image_url ? (
+                              <img src={row.image_url} alt="" width={32} height={32} className="w-8 h-8 object-contain bg-gray-50 rounded border border-gray-200" />
+                            ) : (
+                              <div className="w-8 h-8 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-gray-300 text-xs">--</div>
+                            )}
+                          </td>
+                          <td className="px-3 py-2">
+                            <Link to={`/entry/${row.entry_id}`} className="text-blue-600 no-underline hover:underline font-medium text-sm">
+                              {row.catalog_code}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className="inline-block px-1.5 py-0.5 bg-gray-100 rounded text-xs text-gray-600">{row.catalog}</span>
+                          </td>
+                          <td className="px-3 py-2 text-blue-600 italic">{row.reading_value || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700 max-w-[180px] truncate">{row.gloss_english || '--'}</td>
+                          <td className="px-3 py-2">
+                            <div className="flex flex-wrap gap-1">
+                              {row.cross_references.slice(0, 5).map((ref) => (
+                                <Link
+                                  key={ref.entry_id}
+                                  to={`/entry/${ref.entry_id}`}
+                                  className="no-underline"
+                                >
+                                  <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[11px] border ${
+                                    ref.correspondence === 'exact'
+                                      ? 'bg-green-50 border-green-200 text-green-700'
+                                      : 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                                  }`}>
+                                    {ref.correspondence === 'exact' ? '=' : '≈'}
+                                    <span className="font-medium">{ref.catalog_code}</span>
+                                    <span className="opacity-60">{ref.catalog}</span>
+                                  </span>
+                                </Link>
+                              ))}
+                              {row.cross_references.length > 5 && (
+                                <span className="text-[11px] text-gray-400">+{row.cross_references.length - 5}</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              ) : (
+                /* Legacy concordance table */
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="px-3 py-2.5 text-left text-gray-500 font-medium text-xs uppercase tracking-wide bg-gray-50 w-[50px]">Image</th>
+                      {CONCORDANCE_COLUMNS.map(col => (
+                        <th key={col.key} className="px-3 py-2.5 text-left bg-gray-50">
+                          <button
+                            onClick={() => toggleConcordanceSort(col.key)}
+                            className="inline-flex items-center gap-1 text-gray-500 font-medium text-xs uppercase tracking-wide bg-transparent border-none cursor-pointer hover:text-gray-900 transition-colors"
+                          >
+                            {col.label}
+                            <SortIcon col={col.key} />
+                          </button>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {concordanceLoading ? (
+                      <tr><td colSpan={10} className="text-center py-16 text-gray-400"><div className="loading-spinner mx-auto"></div></td></tr>
+                    ) : concordanceRows.length === 0 ? (
+                      <tr><td colSpan={10} className="text-center py-16 text-gray-400">No results found</td></tr>
+                    ) : (
+                      concordanceRows.map(row => (
+                        <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="px-3 py-2">
+                            {row.primary_image_url ? (
+                              <img src={row.primary_image_url} alt="" width={32} height={32} className="w-8 h-8 object-contain bg-gray-50 rounded border border-gray-200" />
+                            ) : (
+                              <div className="w-8 h-8 bg-gray-50 rounded border border-gray-200 flex items-center justify-center text-gray-300 text-xs">--</div>
+                            )}
+                          </td>
+                          <td className="px-3 py-2">
+                            <Link to={`/sign/${row.id}`} className="text-blue-600 no-underline hover:underline font-medium text-sm">
+                              {row.mhd_code}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2 text-gray-700">{row.graphcode || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700">{row.thompson_code ? `T${row.thompson_code}` : '--'}</td>
+                          <td className="px-3 py-2 text-gray-700">{row.zender_code || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700">{row.kettunen_code || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700">{row.gronemeyer_code || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700">{row.bonn_sign_number || '--'}</td>
+                          <td className="px-3 py-2 text-blue-600 italic">{row.syllabic_value || '--'}</td>
+                          <td className="px-3 py-2 text-gray-700 max-w-[200px] truncate">{row.english_translation || '--'}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
 
             {/* Concordance pagination */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-3 py-2.5 border-t border-gray-200">
-                <div className="text-gray-400 text-sm">{concordanceTotal.toLocaleString()} signs</div>
+                <div className="text-gray-400 text-sm">{concordanceTotal.toLocaleString()} entries</div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
@@ -444,11 +574,24 @@ export function SearchPage() {
 
             <div>
               {viewMode === 'signs' && (
-                <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
-                  {(results as SignSearchResult[]).map((sign) => (
-                    <SignCard key={sign.id} sign={sign} />
-                  ))}
-                </div>
+                <>
+                  <div className="flex items-center gap-2 mb-3">
+                    <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={!filters.collapseVariants}
+                        onChange={() => updateFilter('collapseVariants', !filters.collapseVariants)}
+                        className="rounded border-gray-300 text-blue-600 w-3.5 h-3.5"
+                      />
+                      Show variants
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
+                    {(results as SignSearchResult[]).map((sign) => (
+                      <SignCard key={sign.id} sign={sign} />
+                    ))}
+                  </div>
+                </>
               )}
 
               {viewMode === 'blocks' && (

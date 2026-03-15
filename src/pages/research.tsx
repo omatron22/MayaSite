@@ -284,6 +284,81 @@ export function ResearchPage() {
               </div>
             </div>
 
+            {/* Concordance Coverage */}
+            {stats.entriesPerCatalog && (
+              <div className="border border-gray-200 rounded-lg p-4 mb-6">
+                <h2 className="text-sm font-semibold text-gray-900 mb-4">Concordance Coverage</h2>
+                <div className="grid grid-cols-3 max-md:grid-cols-2 gap-3 mb-4">
+                  {Object.entries(stats.entriesPerCatalog).map(([catalog, count]) => (
+                    <div key={catalog} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-lg font-bold text-gray-900">{count.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">{catalog}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-2 max-md:grid-cols-1 gap-3 mb-4">
+                  {stats.totalConcordanceLinks != null && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-lg font-bold text-gray-900">{stats.totalConcordanceLinks.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Concordance Links</div>
+                    </div>
+                  )}
+                  {stats.totalGraphs != null && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-lg font-bold text-gray-900">{stats.totalGraphs.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Graph Variants</div>
+                    </div>
+                  )}
+                  {stats.totalBlockSignSlots != null && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-lg font-bold text-gray-900">{stats.totalBlockSignSlots.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Block Sign Slots</div>
+                    </div>
+                  )}
+                  {stats.blocksWithGregorian != null && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="text-lg font-bold text-gray-900">{stats.blocksWithGregorian.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">Blocks with Gregorian Date</div>
+                    </div>
+                  )}
+                </div>
+                {stats.correspondenceBreakdown && (
+                  <div className="mb-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Correspondence Types</div>
+                    <div className="flex gap-3 flex-wrap text-sm">
+                      {Object.entries(stats.correspondenceBreakdown).map(([type, count]) => (
+                        <span key={type} className="px-2 py-1 bg-gray-100 rounded text-gray-700">
+                          <span className="font-medium">{type === 'exact' ? '=' : type === 'approximate' ? '\u2248' : type}</span>{' '}
+                          {count.toLocaleString()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {stats.slotCertaintyBreakdown && (
+                  <div className="mb-3">
+                    <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Slot Certainty</div>
+                    <div className="flex gap-3 flex-wrap text-sm">
+                      {Object.entries(stats.slotCertaintyBreakdown).map(([type, count]) => (
+                        <span key={type} className={`px-2 py-1 rounded ${
+                          type === 'certain' ? 'bg-green-50 text-green-700' :
+                          type === 'uncertain' ? 'bg-yellow-50 text-yellow-700' :
+                          'bg-red-50 text-red-700'
+                        }`}>
+                          {type}: {count.toLocaleString()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {stats.mhdVariants != null && stats.mhdParents != null && (
+                  <div className="text-sm text-gray-600">
+                    MHD hierarchy: <span className="font-medium text-gray-900">{stats.mhdParents.toLocaleString()}</span> parent entries, <span className="font-medium text-gray-900">{stats.mhdVariants.toLocaleString()}</span> variants
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Top sites table */}
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">

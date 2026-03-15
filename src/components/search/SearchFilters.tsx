@@ -1,4 +1,4 @@
-import { Image, Database, FileText, Calendar, X } from 'lucide-react';
+import { Image, Database, FileText, Calendar, X, Layers } from 'lucide-react';
 import type { SearchFilters } from '../../hooks/useSearchFilters';
 
 interface SearchFiltersProps {
@@ -111,6 +111,7 @@ export function SearchFiltersComponent({
                 {filterChip('ML Training', <Database size={12} />, filters.hasRoboflow, () => updateFilter('hasRoboflow', !filters.hasRoboflow))}
                 {filterChip('Corpus Examples', <FileText size={12} />, filters.hasInstances, () => updateFilter('hasInstances', !filters.hasInstances))}
                 {filterChip('Has Translation', <FileText size={12} />, filters.hasTranslation, () => updateFilter('hasTranslation', !filters.hasTranslation))}
+                {filterChip('Collapse Variants', <Layers size={12} />, filters.collapseVariants, () => updateFilter('collapseVariants', !filters.collapseVariants))}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <select className={selectClass} value={filters.volume} onChange={(e) => updateFilter('volume', e.target.value)}>

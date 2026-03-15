@@ -7,6 +7,7 @@ export interface SearchFilters {
   hasDate: boolean;
   hasTranslation: boolean;
   hasInstances: boolean;
+  collapseVariants: boolean;
 
   // Dropdowns
   volume: string;
@@ -29,6 +30,7 @@ const defaultFilters: SearchFilters = {
   hasDate: false,
   hasTranslation: false,
   hasInstances: false,
+  collapseVariants: true,
   volume: 'all',
   wordClass: 'all',
   technique: 'all',

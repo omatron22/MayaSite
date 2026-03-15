@@ -12,6 +12,7 @@ interface SignCardProps {
     word_class?: string | null;
     grapheme_count: number;
     roboflow_count: number;
+    variant_count?: number;
   };
 }
 
@@ -49,6 +50,9 @@ export const SignCard = memo(({ sign }: SignCardProps) => (
         )}
         {sign.roboflow_count > 0 && (
           <span className="text-gray-500">{sign.roboflow_count} ML</span>
+        )}
+        {sign.variant_count != null && sign.variant_count > 0 && (
+          <span className="text-purple-500">{sign.variant_count} var</span>
         )}
       </div>
     </div>

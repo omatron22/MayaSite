@@ -27,14 +27,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             g.grapheme_code,
             b.block_english,
             b.block_maya1,
+            b.block_logosyll,
             b.artifact_code,
             b.event_calendar,
+            b.event_long_count,
+            b.event_gregorian,
+            b.site_name,
+            b.region,
+            b.semantic_context,
+            b.mhd_block_id,
+            b.coordinate,
+            b.surface_page,
+            b.orientation_frame,
             COALESCE(b.block_image1_url, b.block_image2_url) as block_img
           FROM graphemes g
           LEFT JOIN blocks b ON g.block_id = b.id
           WHERE g.catalog_sign_id = ?
           ORDER BY b.event_calendar DESC
-          LIMIT 100
+          LIMIT 200
         `,
         args: [signId],
       }),
@@ -53,11 +63,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: `No sign found with ID: ${signId}` });
     }
 
+    // Fetch concordance data if catalog_entries exist for this sign
+    let crossRefs: unknown[] = [];
+    let graphs: unknown[] = [];
+    try {
+      const [crossRefResult, graphsResult] = await Promise.all([
+        db.execute({
+          sql: `SELECT ce2.entry_id, ce2.catalog, ce2.catalog_code,
+                       ce2.reading_value, ce2.gloss_english, ce2.part_of_speech,
+                       ce2.confidence_level, ce2.image_url as entry_image_url,
+                       cl.correspondence, cl.asserted_by
+                FROM catalog_entries ce1
+                JOIN concordance_links cl ON (cl.entry_a = ce1.entry_id OR cl.entry_b = ce1.entry_id)
+                JOIN catalog_entries ce2 ON ce2.entry_id = CASE
+                  WHEN cl.entry_a = ce1.entry_id THEN cl.entry_b ELSE cl.entry_a END
+                WHERE ce1.legacy_catalog_sign_id = ?
+                ORDER BY ce2.catalog, ce2.catalog_code`,
+          args: [signId],
+        }),
+        db.execute({
+          sql: `SELECT g.graph_id, g.variant_suffix, g.variant_type_label, g.medium, g.image_url, g.iconographic_tags, g.notes
+                FROM graphs g
+                JOIN catalog_entries ce ON g.catalog_entry = ce.entry_id
+                WHERE ce.legacy_catalog_sign_id = ?
+                ORDER BY g.variant_suffix`,
+          args: [signId],
+        }),
+      ]);
+      crossRefs = crossRefResult.rows.map(r => ({
+        ...r,
+        part_of_speech: r.part_of_speech ? JSON.parse(String(r.part_of_speech)) : null,
+      }));
+      graphs = graphsResult.rows.map(r => ({
+        ...r,
+        iconographic_tags: r.iconographic_tags ? JSON.parse(String(r.iconographic_tags)) : null,
+      }));
+    } catch {
+      // Tables may not exist yet — gracefully degrade
+    }
+
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({
       sign: signResult.rows[0],
       graphemes: graphemeResult.rows,
       roboflow: roboflowResult.rows,
+      crossRefs,
+      graphs,
     });
   } catch (err) {
     console.error('Sign detail error:', err);

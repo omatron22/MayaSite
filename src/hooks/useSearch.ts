@@ -44,6 +44,7 @@ export function useSearch(viewMode: ViewMode, filters: SearchFilters, query: str
         artifact: filters.artifact || undefined,
         site: filters.site || undefined,
         hasDate: filters.hasDate || undefined,
+        collapseVariants: filters.collapseVariants || undefined,
       }, controller.signal);
 
       setResults(response.results as SearchResult[]);

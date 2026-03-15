@@ -19,6 +19,8 @@ const ScannerPage = lazy(() => import('./pages/scanner').then(m => ({ default: m
 const MapPage = lazy(() => import('./pages/map').then(m => ({ default: m.MapPage })));
 const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
 const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
+const EntryDetailPage = lazy(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
+const PersonDetailPage = lazy(() => import('./pages/personDetail').then(m => ({ default: m.PersonDetailPage })));
 
 function PageLoader() {
   return (
@@ -40,6 +42,8 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
+              <Route path="/entry/:entryId" element={<EntryDetailPage />} />
+              <Route path="/person/:personId" element={<PersonDetailPage />} />
               <Route path="/block/:id" element={<BlockDetailPage />} />
               <Route path="/grapheme/:id" element={<GraphemeDetailPage />} />
               <Route path="/research" element={<ResearchPage />} />

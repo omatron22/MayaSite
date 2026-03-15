@@ -77,6 +77,8 @@ export interface SignDetailResponse {
   sign: CatalogSign;
   graphemes: SignGrapheme[];
   roboflow: SignRoboflowInstance[];
+  crossRefs: SignDetailCrossRef[];
+  graphs: SignDetailGraph[];
 }
 
 export interface SignGrapheme {
@@ -85,8 +87,18 @@ export interface SignGrapheme {
   grapheme_code: string;
   block_english: string | null;
   block_maya1: string | null;
+  block_logosyll: string | null;
   artifact_code: string | null;
   event_calendar: string | null;
+  event_long_count: string | null;
+  event_gregorian: string | null;
+  site_name: string | null;
+  region: string | null;
+  semantic_context: string | null;
+  mhd_block_id: string | null;
+  coordinate: string | null;
+  surface_page: string | null;
+  orientation_frame: string | null;
   block_img: string | null;
 }
 
@@ -105,6 +117,9 @@ export interface SignRoboflowInstance {
 export interface BlockDetailResponse {
   block: Block;
   graphemes: BlockGrapheme[];
+  signSlots: BlockSignSlotDetail[];
+  prevBlock: { id: number; coordinate: string } | null;
+  nextBlock: { id: number; coordinate: string } | null;
 }
 
 export interface BlockGrapheme {
@@ -188,6 +203,16 @@ export interface StatsResponse {
   bonnImageCoverage: number;
   signsByRegion: Record<string, number>;
   topSites: Array<{ site: string; count: number }>;
+  // Concordance stats
+  entriesPerCatalog?: Record<string, number>;
+  totalConcordanceLinks?: number;
+  totalBlockSignSlots?: number;
+  totalGraphs?: number;
+  correspondenceBreakdown?: Record<string, number>;
+  mhdVariants?: number;
+  mhdParents?: number;
+  slotCertaintyBreakdown?: Record<string, number>;
+  blocksWithGregorian?: number;
 }
 
 // Analytics
@@ -263,6 +288,112 @@ export interface SignLookupEntry {
 
 export interface SignLookupResponse {
   signs: Record<string, SignLookupEntry>;
+}
+
+// Concordance architecture types
+export interface CatalogEntryRow {
+  entry_id: string;
+  catalog: string;
+  catalog_code: string;
+  parent_entry: string | null;
+  variant_code: string | null;
+  reading_value: string | null;
+  reading_type: string | null;
+  gloss_english: string | null;
+  gloss_mayan: string | null;
+  part_of_speech: string | null;
+  confidence_level: number | null;
+  function_variant: string | null;
+  image_url: string | null;
+  source_url: string | null;
+  notes: string | null;
+  legacy_catalog_sign_id: number | null;
+}
+
+export interface ConcordanceLinkRow {
+  link_id: string;
+  entry_a: string;
+  entry_b: string;
+  correspondence: 'exact' | 'approximate' | 'partial' | 'disputed';
+  asserted_by: string | null;
+  notes: string | null;
+}
+
+export interface GraphRow {
+  graph_id: string;
+  catalog_entry: string;
+  variant_suffix: string | null;
+  variant_type_label: string | null;
+  medium: string | null;
+  iconographic_tags: string | null;
+  image_url: string | null;
+  notes: string | null;
+}
+
+export interface BlockSignSlotRow {
+  slot_id: string;
+  block_id: number;
+  slot_position: number;
+  catalog_entry: string | null;
+  certainty: 'certain' | 'uncertain' | 'eroded';
+  position_in_block: string | null;
+  graph: string | null;
+  raw_code: string;
+}
+
+export interface NewConcordanceRow {
+  entry_id: string;
+  catalog: string;
+  catalog_code: string;
+  reading_value: string | null;
+  reading_type: string | null;
+  gloss_english: string | null;
+  image_url: string | null;
+  confidence_level: number | null;
+  cross_references: {
+    entry_id: string;
+    catalog: string;
+    catalog_code: string;
+    correspondence: string;
+  }[];
+}
+
+export interface NewConcordanceResponse {
+  rows: NewConcordanceRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface SignDetailCrossRef {
+  entry_id: string;
+  catalog: string;
+  catalog_code: string;
+  correspondence: string;
+  asserted_by: string | null;
+}
+
+export interface SignDetailGraph {
+  graph_id: string;
+  variant_suffix: string | null;
+  variant_type_label: string | null;
+  medium: string | null;
+  image_url: string | null;
+  iconographic_tags: string[] | null;
+  notes: string | null;
+}
+
+export interface BlockSignSlotDetail {
+  slot_id: string;
+  slot_position: number;
+  certainty: string;
+  position_in_block: string | null;
+  raw_code: string;
+  graph: string | null;
+  entry_id: string | null;
+  catalog_code: string | null;
+  image_url: string | null;
+  reading_value: string | null;
 }
 
 // Error
