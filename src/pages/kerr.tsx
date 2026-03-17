@@ -14,7 +14,9 @@ export function KerrPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [inputFocused, setInputFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -39,40 +41,66 @@ export function KerrPage() {
   }, [debouncedQuery, page]);
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
+  const hasNextPage = page < totalPages;
+  const hasPrevPage = page > 1;
 
   const handleQueryChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value), []);
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      <table className="w-auto mb-4">
-        <thead>
-          <tr>
-            <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Kerr Maya Vase Database</th>
-            <th className="px-3 py-1 text-right text-xs">{data ? `${data.total.toLocaleString()} vessels` : ''}</th>
-          </tr>
-        </thead>
+      {/* Search bar — matches search page style */}
+      <table className="w-auto mb-2">
         <tbody>
           <tr>
-            <td className="px-3 py-2" colSpan={3}>
-              <input
-                type="text"
-                className="w-full py-1.5 px-2 bg-white border-2 border-black text-black text-sm focus:outline-none placeholder:text-black/40"
-                placeholder="Search by K-number or description..."
-                value={query}
-                onChange={handleQueryChange}
-              />
+            <td className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
+              <div className="flex items-center">
+                <span className="font-[800] select-none shrink-0">&gt;&nbsp;</span>
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  className="absolute opacity-0 pointer-events-none"
+                  value={query}
+                  onChange={handleQueryChange}
+                  onFocus={() => setInputFocused(true)}
+                  onBlur={() => setInputFocused(false)}
+                />
+                {inputFocused || query ? (
+                  <>
+                    <span className="font-[600]">{query}</span>
+                    <span className="blink-cursor font-[800] select-none">|</span>
+                  </>
+                ) : (
+                  <span className="select-none">search by K-number or description...</span>
+                )}
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
 
+      {/* Results bar */}
+      {data && !loading && (
+        <div className="flex items-center justify-between mb-4">
+          <table className="w-auto">
+            <tbody>
+              <tr>
+                <td className="px-3 py-1 text-sm">
+                  <strong>{data.total.toLocaleString()}</strong> vessels
+                  {query && <span> matching &quot;{query}&quot;</span>}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {error && (
-        <table className="w-auto mb-4">
+        <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-4 text-sm text-center">
-                {error}
-                <span className="ml-2 cursor-pointer underline" onClick={() => setPage(1)}>Retry</span>
+              <td className="px-3 py-2 text-sm">{error}</td>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => setPage(1)}>
+                <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>
           </tbody>
@@ -80,16 +108,19 @@ export function KerrPage() {
       )}
 
       {loading && (
-        <div className="flex justify-center py-12">
+        <div className="flex items-center justify-center py-16">
           <ProgressBarLoader />
         </div>
       )}
 
       {!loading && !error && data && data.results.length === 0 && (
-        <table className="w-auto">
+        <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-8 text-sm text-center">No vessels found. Try adjusting your search.</td>
+              <td className="px-3 py-2 text-sm">
+                No vessels found.
+                {query ? ' Try adjusting your search.' : ''}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -127,27 +158,46 @@ export function KerrPage() {
             ))}
           </div>
 
+          {/* Pagination — matches search page */}
           {totalPages > 1 && (
-            <table className="w-auto mt-4">
+            <table className="w-auto mt-6">
               <tbody>
                 <tr>
-                  <td className="px-3 py-2 text-sm">
-                    <span
-                      className={`cursor-pointer ${page <= 1 ? 'opacity-30 pointer-events-none' : 'underline hover:no-underline'}`}
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
-                    >
-                      &lt; Previous
-                    </span>
+                  {hasPrevPage && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => Math.max(1, p - 1))}>
+                      <span className="text-sm">Prev</span>
+                    </td>
+                  )}
+                  {page > 2 && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(1)}>
+                      <span className="text-sm">1</span>
+                    </td>
+                  )}
+                  {page > 3 && <td className="px-1 py-1 text-sm">...</td>}
+                  {hasPrevPage && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => p - 1)}>
+                      <span className="text-sm">{page - 1}</span>
+                    </td>
+                  )}
+                  <td className="px-3 py-1">
+                    <strong>[{page}]</strong>
                   </td>
-                  <td className="px-3 py-2 text-sm text-center">Page {page} of {totalPages}</td>
-                  <td className="px-3 py-2 text-sm text-right">
-                    <span
-                      className={`cursor-pointer ${page >= totalPages ? 'opacity-30 pointer-events-none' : 'underline hover:no-underline'}`}
-                      onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                    >
-                      Next &gt;
-                    </span>
-                  </td>
+                  {hasNextPage && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => p + 1)}>
+                      <span className="text-sm">{page + 1}</span>
+                    </td>
+                  )}
+                  {page < totalPages - 2 && <td className="px-1 py-1 text-sm">...</td>}
+                  {page < totalPages - 1 && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(totalPages)}>
+                      <span className="text-sm">{totalPages}</span>
+                    </td>
+                  )}
+                  {hasNextPage && (
+                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
+                      <span className="text-sm">Next</span>
+                    </td>
+                  )}
                 </tr>
               </tbody>
             </table>

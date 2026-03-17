@@ -1,8 +1,73 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 
 import { fetchCmhi } from '../lib/api';
 import type { CmhiResponse } from '../lib/api';
+
+function ToggleButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <td className="px-3 py-1 text-center cursor-pointer" onClick={onClick}>
+      <span className="text-xs inline-grid">
+        <span className="invisible col-start-1 row-start-1 font-[800]">[{label}]</span>
+        <span className="col-start-1 row-start-1">
+          {active ? <strong>[{label}]</strong> : label}
+        </span>
+      </span>
+    </td>
+  );
+}
+
+function SiteDropdown({ options, selected, onSelect }: {
+  options: { code: string; name: string }[];
+  selected: string;
+  onSelect: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLTableCellElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handle = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [open]);
+
+  const label = selected
+    ? options.find(o => o.code === selected)?.name || selected
+    : 'All Sites';
+
+  return (
+    <td className="px-3 py-1 relative cursor-pointer" ref={ref} onClick={() => setOpen(!open)}>
+      <span className="text-xs">
+        {selected ? <strong>[{label}]</strong> : label}
+      </span>
+      {open && (
+        <div
+          className="absolute left-0 top-full z-50 bg-white border-2 border-black mt-[-2px] max-h-[300px] overflow-y-auto min-w-[200px] flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            className="px-3 py-1 cursor-pointer text-xs border-b border-black"
+            onClick={() => { onSelect(''); setOpen(false); }}
+          >
+            {!selected ? <strong>[All Sites]</strong> : 'All Sites'}
+          </div>
+          {options.map(opt => (
+            <div
+              key={opt.code}
+              className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0"
+              onClick={() => { onSelect(opt.code); setOpen(false); }}
+            >
+              {selected === opt.code ? <strong>[{opt.name}]</strong> : opt.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </td>
+  );
+}
 
 export function CmhiPage() {
   const [data, setData] = useState<CmhiResponse | null>(null);
@@ -43,59 +108,54 @@ export function CmhiPage() {
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      <table className="w-auto mb-4">
-        <thead>
-          <tr>
-            <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Corpus of Maya Hieroglyphic Inscriptions</th>
-            <th className="px-3 py-1 text-right text-xs">{!loading && data ? `${data.images.length.toLocaleString()} images` : ''}</th>
-          </tr>
-        </thead>
+      {/* Filters — matches search page table style */}
+      <table className="w-auto mb-2">
         <tbody>
           <tr>
-            <td className="px-3 py-2">
-              <select
-                className="w-full py-1.5 px-2 bg-white border-2 border-black text-sm cursor-pointer focus:outline-none"
-                value={selectedSite}
-                onChange={e => setSelectedSite(e.target.value)}
-              >
-                <option value="">All Sites</option>
-                {siteOptions.map(s => (
-                  <option key={s.code} value={s.code}>{s.name} ({s.code})</option>
-                ))}
-              </select>
-            </td>
-            <td className="px-3 py-2">
-              <select
-                className="w-full py-1.5 px-2 bg-white border-2 border-black text-sm cursor-pointer focus:outline-none"
-                value={selectedType}
-                onChange={e => setSelectedType(e.target.value)}
-              >
-                <option value="">All Types</option>
-                <option value="drawing">Drawings</option>
-                <option value="photo">Photos</option>
-              </select>
-            </td>
-            <td className="px-3 py-2 text-right">
-              {(selectedSite || selectedType) && (
-                <span
-                  className="text-xs underline cursor-pointer hover:no-underline"
-                  onClick={() => { setSelectedSite(''); setSelectedType(''); }}
-                >
-                  Clear
-                </span>
-              )}
-            </td>
+            <td className="px-3 py-1 text-xs font-[800]">Site:</td>
+            <SiteDropdown
+              options={siteOptions}
+              selected={selectedSite}
+              onSelect={setSelectedSite}
+            />
+          </tr>
+          <tr>
+            <td className="px-3 py-1 text-xs font-[800]">Type:</td>
+            <ToggleButton label="Drawing" active={selectedType === 'drawing'} onClick={() => setSelectedType(selectedType === 'drawing' ? '' : 'drawing')} />
+            <ToggleButton label="Photo" active={selectedType === 'photo'} onClick={() => setSelectedType(selectedType === 'photo' ? '' : 'photo')} />
+            {(selectedSite || selectedType) && (
+              <td className="px-3 py-1 cursor-pointer" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>
+                <span className="text-xs font-[800]">[Clear]</span>
+              </td>
+            )}
           </tr>
         </tbody>
       </table>
 
+      {/* Results bar */}
+      {!loading && data && (
+        <div className="flex items-center justify-between mb-4">
+          <table className="w-auto">
+            <tbody>
+              <tr>
+                <td className="px-3 py-1 text-sm">
+                  <strong>{data.images.length.toLocaleString()}</strong> images
+                  {selectedSite && <span> from {siteOptions.find(s => s.code === selectedSite)?.name || selectedSite}</span>}
+                  {selectedType && <span>, {selectedType}s</span>}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {error && (
-        <table className="w-auto mb-4">
+        <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-4 text-sm text-center">
-                {error}
-                <span className="ml-2 cursor-pointer underline" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>Retry</span>
+              <td className="px-3 py-2 text-sm">{error}</td>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>
+                <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>
           </tbody>
@@ -103,16 +163,16 @@ export function CmhiPage() {
       )}
 
       {loading && (
-        <div className="flex justify-center py-12">
+        <div className="flex items-center justify-center py-16">
           <ProgressBarLoader />
         </div>
       )}
 
       {!loading && !error && data && data.images.length === 0 && (
-        <table className="w-auto">
+        <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-8 text-sm text-center">No images found. Try adjusting your filters.</td>
+              <td className="px-3 py-2 text-sm">No images found. Try adjusting your filters.</td>
             </tr>
           </tbody>
         </table>
