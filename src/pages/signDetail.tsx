@@ -123,72 +123,43 @@ export function SignDetailPage() {
     <div className="max-w-[80ch] mx-auto px-4 py-4">
       <div className="flex flex-col gap-4">
 
-        {/* Breadcrumb */}
-        <div className="text-xs">
-          <Link to="/search" className="underline hover:no-underline">Search</Link>
-          {' > Signs > '}
-          <span className="font-[800]">{displayCode}</span>
-        </div>
-
         {/* Header */}
         <table className="w-auto">
           <thead>
             <tr>
-              <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>
-                {displayCode}
-                {sign.english_translation && ` — "${sign.english_translation}"`}
+              <th className="px-3 py-1 text-left text-xs" colSpan={2}>
+                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                {' > Signs > '}
+                <span className="font-[800]">{displayCode}</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            {/* Image row */}
+            {/* Image — prominent, centered */}
             <tr>
-              <td className="px-3 py-1 text-xs font-[800] align-top">Image</td>
-              <td className="px-3 py-2 align-top">
+              <td className="px-3 py-4 text-center" colSpan={2}>
                 {sign.primary_image_url ? (
-                  <img src={sign.primary_image_url} alt={displayCode} loading="lazy" className="max-w-[120px] max-h-[120px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  <img src={sign.primary_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : sign.bonn_image_url ? (
-                  <img src={sign.bonn_image_url} alt={displayCode} loading="lazy" className="max-w-[120px] max-h-[120px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  <img src={sign.bonn_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
                   <span className="text-xs">no image</span>
                 )}
-                {sign.bonn_image_url && <span className="text-[9px] ml-2">Drawn: C. Prager / TWKM</span>}
+                {sign.bonn_image_url && <div className="text-[9px] mt-1">Drawn: C. Prager / TWKM</div>}
               </td>
             </tr>
-            {/* Catalog codes */}
-            <tr>
-              <td className="px-3 py-1 text-xs font-[800]">MHD</td>
-              <td className="px-3 py-1 text-xs">{sign.mhd_code}</td>
-            </tr>
-            {sign.thompson_code && (
+            {/* Sign name + gloss */}
+            {sign.english_translation && (
               <tr>
-                <td className="px-3 py-1 text-xs font-[800]">Thompson</td>
-                <td className="px-3 py-1 text-xs">T{sign.thompson_code}</td>
+                <td className="px-3 py-1 text-xs font-[800]">{displayCode}</td>
+                <td className="px-3 py-1 text-xs">"{sign.english_translation}"</td>
               </tr>
             )}
-            {sign.zender_code && (
-              <tr>
-                <td className="px-3 py-1 text-xs font-[800]">TWKM</td>
-                <td className="px-3 py-1 text-xs">{sign.zender_code}</td>
-              </tr>
-            )}
-            {sign.kettunen_code && (
-              <tr>
-                <td className="px-3 py-1 text-xs font-[800]">Kettunen</td>
-                <td className="px-3 py-1 text-xs">{sign.kettunen_code}</td>
-              </tr>
-            )}
-            {sign.gronemeyer_code && (
-              <tr>
-                <td className="px-3 py-1 text-xs font-[800]">Gronemeyer</td>
-                <td className="px-3 py-1 text-xs">{sign.gronemeyer_code}</td>
-              </tr>
-            )}
-            {/* Key info */}
+            {/* Reading */}
             {sign.syllabic_value && (
               <tr>
                 <td className="px-3 py-1 text-xs font-[800]">Reading</td>
-                <td className="px-3 py-1 text-xs font-[800]">{sign.syllabic_value}</td>
+                <td className="px-3 py-1 text-xs">{sign.syllabic_value}</td>
               </tr>
             )}
             {sign.logographic_value && (
@@ -207,13 +178,24 @@ export function SignDetailPage() {
               <td className="px-3 py-1 text-xs font-[800]">Decipherment</td>
               <td className="px-3 py-1 text-xs">{confidenceLevel}/8</td>
             </tr>
-            {sign.picture_description && (
+            {sign.picture_description && sign.picture_description !== '?' && (
               <tr>
                 <td className="px-3 py-1 text-xs font-[800]">Depicts</td>
                 <td className="px-3 py-1 text-xs">{sign.picture_description}</td>
               </tr>
             )}
-            {/* Links */}
+            {/* Catalog codes — compact, one row */}
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Catalogs</td>
+              <td className="px-3 py-1 text-xs">
+                MHD {sign.mhd_code}
+                {sign.thompson_code && ` · Thompson T${sign.thompson_code}`}
+                {sign.zender_code && ` · TWKM ${sign.zender_code}`}
+                {sign.kettunen_code && ` · Kettunen ${sign.kettunen_code}`}
+                {sign.gronemeyer_code && ` · Gronemeyer ${sign.gronemeyer_code}`}
+              </td>
+            </tr>
+            {/* Sources */}
             <tr>
               <td className="px-3 py-1 text-xs font-[800]">Sources</td>
               <td className="px-3 py-1 text-xs">
