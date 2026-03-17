@@ -125,7 +125,7 @@ export function CmhiPage() {
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      {/* Unified tabs + filters table */}
+      {/* Tabs */}
       <table className="w-auto">
         <tbody>
           <tr>

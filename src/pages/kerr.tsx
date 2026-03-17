@@ -50,11 +50,25 @@ export function KerrPage() {
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      {/* Unified search + tabs table */}
-      <table className="w-full">
+      {/* Tabs */}
+      <table className="w-auto">
         <tbody>
           <tr>
-            <td colSpan={2} className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
+            <td className="px-3 py-1">
+              <span className="text-sm font-[800]">[Kerr Vases]</span>
+            </td>
+            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/cmhi')}>
+              <span className="text-sm">CMHI</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Search bar */}
+      <table className="w-auto mt-2">
+        <tbody>
+          <tr>
+            <td className="px-3 py-2 cursor-text min-w-[400px]" onClick={() => searchInputRef.current?.focus()}>
               <div className="flex items-center">
                 <span className="font-[800] select-none shrink-0">&gt;&nbsp;</span>
                 <input
@@ -75,14 +89,6 @@ export function KerrPage() {
                   <span className="select-none">search by K-number or description...</span>
                 )}
               </div>
-            </td>
-          </tr>
-          <tr>
-            <td className="px-3 py-1">
-              <span className="text-sm font-[800]">[Kerr Vases]</span>
-            </td>
-            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/cmhi')}>
-              <span className="text-sm">CMHI</span>
             </td>
           </tr>
         </tbody>
