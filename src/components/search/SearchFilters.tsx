@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { SearchFilters } from '../../hooks/useSearchFilters';
 import { PopupSelect } from './PopupSelect';
 import { getAllUniqueSites } from '../../lib/sites';
@@ -45,7 +44,6 @@ export function SearchFiltersComponent({
   activeFilterCount: _activeFilterCount,
   searchRow,
 }: SearchFiltersProps) {
-  const navigate = useNavigate();
   const siteNames = useMemo(() => {
     return Array.from(getAllUniqueSites().keys()).sort();
   }, []);
@@ -70,9 +68,6 @@ export function SearchFiltersComponent({
                 </td>
               );
             })}
-            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/search/scanner')}>
-              <span className="text-sm">Scanner</span>
-            </td>
           </tr>
         </tbody>
       </table>

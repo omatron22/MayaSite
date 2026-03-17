@@ -32,7 +32,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/search" replace />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/search/scanner" element={<ScannerPage />} />
+              <Route path="/scanner" element={<ScannerPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
               <Route path="/entry/:entryId" element={<EntryDetailPage />} />
               <Route path="/block/:id" element={<BlockDetailPage />} />
@@ -45,8 +45,8 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               {/* Redirects for old routes */}
               <Route path="/research" element={<Navigate to="/about" replace />} />
-              <Route path="/tools" element={<Navigate to="/search/scanner" replace />} />
-              <Route path="/tools/scanner" element={<Navigate to="/search/scanner" replace />} />
+              <Route path="/tools" element={<Navigate to="/scanner" replace />} />
+              <Route path="/tools/scanner" element={<Navigate to="/scanner" replace />} />
               <Route path="/tools/map" element={<Navigate to="/about" replace />} />
               <Route path="/tools/kerr" element={<Navigate to="/collections/kerr" replace />} />
               <Route path="/tools/cmhi" element={<Navigate to="/collections/cmhi" replace />} />
