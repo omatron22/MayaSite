@@ -12,10 +12,23 @@ function pct(n: number, total: number): string {
   return Math.round((n / total) * 100) + '%';
 }
 
+function AnimatedDots() {
+  const [dots, setDots] = useState(1);
+  useEffect(() => {
+    const id = setInterval(() => setDots(d => (d % 3) + 1), 400);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{'.'.repeat(dots)}<span className="invisible">{'.'.repeat(3 - dots)}</span></span>;
+}
+
+function Loading() {
+  return <span>Loading<AnimatedDots /></span>;
+}
+
 const RESEARCH_RESOURCES = [
   { title: 'Introduction to Maya Hieroglyphs', desc: 'Comprehensive introduction for students and researchers', url: 'https://www.mesoweb.com/resources/handbook/IMH2020.pdf' },
   { title: 'Visual Catalog of Maya Hieroglyphs', desc: 'Tokovinine\'s illustrated reference catalog', url: 'https://www.mesoweb.com/resources/catalog/Tokovinine_Catalog.pdf' },
-  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive online sign catalog with phonetic values, concordances across 11 catalog systems (Bonn/TWKM)', url: 'https://classicmayan.org' },
+  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive sign catalog with phonetic values and concordances across 11 catalog systems', url: 'https://classicmayan.org' },
   { title: 'Updated Maya-English Vocabulary', desc: 'Comprehensive vocabulary list for decipherment', url: 'https://www.mesoweb.com/resources/vocabulary/Vocabulary-2009.01.pdf' },
 ];
 
@@ -33,15 +46,15 @@ export function AboutPage() {
   const linkedPct = s ? pct(s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
   const unlinkedPct = s ? pct(s.totalGraphemes - s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
 
-  const dataSources = [
-    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} catalog signs, ${fmt(s.totalBlocks)} glyph blocks, and ${fmt(s.totalGraphemes)} grapheme instances` : 'Loading...', url: 'https://mayadatabase.org' },
-    { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM, Thompson, CMGG mappings', url: 'https://mayaglyphs.org/LMGGC.html' },
-    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances for computer vision` : 'Loading...', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs` : 'Loading...', url: 'https://research.mayavase.com/kerrmaya.html' },
-    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : 'Loading...', url: 'https://peabody.harvard.edu/cmhi' },
+  const dataSources: { title: string; desc: string | React.ReactNode; url: string | null }[] = [
+    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} catalog signs, ${fmt(s.totalBlocks)} glyph blocks, ${fmt(s.totalGraphemes)} grapheme instances` : <Loading />, url: 'https://mayadatabase.org' },
+    { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced codes with TWKM, Thompson, CMGG mappings', url: 'https://mayaglyphs.org/LMGGC.html' },
+    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances for computer vision` : <Loading />, url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
+    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs` : <Loading />, url: 'https://research.mayavase.com/kerrmaya.html' },
+    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
     { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 4 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
     { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 728 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Reference Codes', desc: s ? `Thompson ${pct(s.thompsonCoverage, s.totalSigns)}, Zender ${pct(s.zenderCoverage, s.totalSigns)}, Kettunen ${pct(s.kettunenCoverage, s.totalSigns)}, Gronemeyer ${pct(s.gronemeyerCoverage, s.totalSigns)}` : 'Loading...', url: null },
+    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries across MHD, TWKM, Thompson, and 11 other catalogs with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
   ];
 
   return (
@@ -58,15 +71,18 @@ export function AboutPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">
-                Maya glyphs have been catalogued according to multiple, often incompatible classification
-                systems over the past century. This fragmentation forces researchers to cross-reference
-                multiple sources manually, slowing progress and creating barriers to entry.
+                Maya hieroglyphs have been catalogued across multiple incompatible classification
+                systems over the past century — Thompson, Macri-Vail, Zimmermann, and others.
+                Researchers must cross-reference these systems manually, slowing decipherment
+                and creating barriers to entry.
               </td>
             </tr>
             <tr>
               <td className="px-3 py-2 text-sm">
-                This project unifies data from the Maya Hieroglyphic Database, the LMGG concordance tables,
-                the ClassicMayan.org Bonn sign catalog, and machine learning datasets into a single searchable interface.
+                This project unifies the Maya Hieroglyphic Database (MHD), the LMGG concordance,
+                the ClassicMayan.org Bonn sign catalog, Kerr vase photography, Harvard CMHI drawings,
+                and machine learning datasets into a single searchable interface with cross-catalog
+                concordance linking.
               </td>
             </tr>
           </tbody>
@@ -131,16 +147,16 @@ export function AboutPage() {
           </thead>
           <tbody>
             <tr>
-              <td className="px-3 py-1 text-xs">Site/region mapping covers 100% of blocks across 200+ sites using Peabody CMHI site codes.</td>
+              <td className="px-3 py-1 text-xs">MHD data includes records through early 2022 and may not reflect recent discoveries.</td>
             </tr>
             <tr>
               <td className="px-3 py-1 text-xs">{linkedPct} of graphemes linked to catalog signs. Remaining {unlinkedPct} are unidentified (code "000"), uncertain (?), or numerals.</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">MHD data includes records through early 2022.</td>
+              <td className="px-3 py-1 text-xs">737/1,075 Bonn signs matched to MHD catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} entries)` : ''}. Unmatched are mostly newer 1500+ series not in MHD.</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">737/1,075 Bonn signs matched to catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} MHD entries)` : ''}. Unmatched are mostly 1500+ series.</td>
+              <td className="px-3 py-1 text-xs">Site coordinates cover 200+ archaeological sites across 4 regions using Peabody CMHI codes.</td>
             </tr>
           </tbody>
         </table>
