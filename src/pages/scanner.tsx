@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { runInference, lookupSigns } from '../lib/api';
 import type { InferencePrediction, SignLookupEntry } from '../../api/lib/types';
@@ -81,27 +81,8 @@ export function ScannerPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const navigate = useNavigate();
-
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      {/* Tab bar matching search page */}
-      <table className="w-auto mb-4">
-        <tbody>
-          <tr>
-            {['Signs', 'Blocks', 'Graphemes', 'Concordance'].map(mode => (
-              <td key={mode} className="px-3 py-1 cursor-pointer" onClick={() => navigate('/search')}>
-                <span className="text-sm">{mode}</span>
-              </td>
-            ))}
-            <td className="px-3 py-1">
-              <span className="text-sm font-[800]">[Scanner]</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div className="max-w-[1000px]">
         <p className="text-black text-sm mb-6">Upload an image to detect and identify Maya hieroglyphs</p>
 
         {!imageDataUrl ? (
@@ -184,7 +165,6 @@ export function ScannerPage() {
         {error && (
           <div className="mt-4 p-3 bg-white border-2 border-black  text-black text-sm text-center">{error}</div>
         )}
-      </div>
     </div>
   );
 }
