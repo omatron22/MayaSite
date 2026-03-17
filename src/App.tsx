@@ -12,7 +12,6 @@ const CollectionsPage = lazy(() => import('./pages/collections').then(m => ({ de
 const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
 const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 const EntryDetailPage = lazy(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
-const ScannerPage = lazy(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
 
 function PageLoader() {
   return (
@@ -32,7 +31,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/search" replace />} />
               <Route path="/search" element={<SearchPage />} />
-              <Route path="/scanner" element={<ScannerPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
               <Route path="/entry/:entryId" element={<EntryDetailPage />} />
               <Route path="/block/:id" element={<BlockDetailPage />} />
@@ -45,8 +43,8 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               {/* Redirects for old routes */}
               <Route path="/research" element={<Navigate to="/about" replace />} />
-              <Route path="/tools" element={<Navigate to="/scanner" replace />} />
-              <Route path="/tools/scanner" element={<Navigate to="/scanner" replace />} />
+              <Route path="/tools" element={<Navigate to="/search" replace />} />
+              <Route path="/tools/search" element={<Navigate to="/search" replace />} />
               <Route path="/tools/map" element={<Navigate to="/about" replace />} />
               <Route path="/tools/kerr" element={<Navigate to="/collections/kerr" replace />} />
               <Route path="/tools/cmhi" element={<Navigate to="/collections/cmhi" replace />} />
