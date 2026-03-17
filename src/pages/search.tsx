@@ -379,9 +379,9 @@ export function SearchPage() {
         </table>
       )}
 
-      {/* Loading — only when no results to show yet */}
-      {isLoading && results.length === 0 && viewMode !== 'concordance' && (
-        <div className="flex items-center justify-center py-16">
+      {/* Loading bar — always visible when loading */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-4">
           <ProgressBarLoader />
         </div>
       )}
@@ -459,10 +459,8 @@ export function SearchPage() {
                 </tr>
               </thead>
               <tbody>
-                {concordanceLoading && concordanceRows.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-16"><ProgressBarLoader /></td></tr>
-                ) : concordanceRows.length === 0 ? (
-                  <tr><td colSpan={6} className="text-center py-16">No results found</td></tr>
+                {concordanceRows.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-16">{concordanceLoading ? '' : 'No results found'}</td></tr>
                 ) : (
                   concordanceRows.map(row => (
                     <tr key={row.entry_id}>
