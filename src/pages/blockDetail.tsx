@@ -295,8 +295,8 @@ export function BlockDetailPage() {
                       <td className="px-3 py-1 text-xs font-[800]">
                         {slot.certainty === 'eroded' || slot.raw_code === '000' ? (
                           <span>000</span>
-                        ) : slot.catalog_sign_id ? (
-                          <Link to={`/sign/${slot.catalog_sign_id}`} className="underline hover:no-underline">
+                        ) : slot.entry_id ? (
+                          <Link to={`/entry/${slot.entry_id}`} className="underline hover:no-underline">
                             {slot.catalog_code || slot.raw_code}
                           </Link>
                         ) : (
