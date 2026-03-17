@@ -128,15 +128,23 @@ export function SignDetailPage() {
           <Link to="/search" className="underline hover:no-underline">Search</Link>
           {' > Signs > '}
           <span className="font-[800]">{displayCode}</span>
-          {sign.thompson_code && ` / T${sign.thompson_code}`}
         </div>
 
         {/* Header */}
         <table className="w-auto">
-          <tbody>
+          <thead>
             <tr>
-              {/* Image */}
-              <td className="px-3 py-3 align-top w-[140px]">
+              <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>
+                {displayCode}
+                {sign.english_translation && ` — "${sign.english_translation}"`}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Image row */}
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800] align-top">Image</td>
+              <td className="px-3 py-2 align-top">
                 {sign.primary_image_url ? (
                   <img src={sign.primary_image_url} alt={displayCode} loading="lazy" className="max-w-[120px] max-h-[120px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : sign.bonn_image_url ? (
@@ -144,72 +152,78 @@ export function SignDetailPage() {
                 ) : (
                   <span className="text-xs">no image</span>
                 )}
-                {sign.bonn_image_url && (
-                  <div className="text-[9px] mt-1">Drawn: C. Prager / TWKM</div>
-                )}
+                {sign.bonn_image_url && <span className="text-[9px] ml-2">Drawn: C. Prager / TWKM</span>}
               </td>
-
-              {/* Metadata */}
-              <td className="px-3 py-3 align-top">
-                <div className="text-2xl font-[800] mb-1">{displayCode}</div>
-
-                {sign.english_translation && (
-                  <div className="text-sm mb-2">"{sign.english_translation}"</div>
+            </tr>
+            {/* Catalog codes */}
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">MHD</td>
+              <td className="px-3 py-1 text-xs">{sign.mhd_code}</td>
+            </tr>
+            {sign.thompson_code && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Thompson</td>
+                <td className="px-3 py-1 text-xs">T{sign.thompson_code}</td>
+              </tr>
+            )}
+            {sign.zender_code && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">TWKM</td>
+                <td className="px-3 py-1 text-xs">{sign.zender_code}</td>
+              </tr>
+            )}
+            {sign.kettunen_code && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Kettunen</td>
+                <td className="px-3 py-1 text-xs">{sign.kettunen_code}</td>
+              </tr>
+            )}
+            {sign.gronemeyer_code && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Gronemeyer</td>
+                <td className="px-3 py-1 text-xs">{sign.gronemeyer_code}</td>
+              </tr>
+            )}
+            {/* Key info */}
+            {sign.syllabic_value && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Reading</td>
+                <td className="px-3 py-1 text-xs font-[800]">{sign.syllabic_value}</td>
+              </tr>
+            )}
+            {sign.logographic_value && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Logographic</td>
+                <td className="px-3 py-1 text-xs">{sign.logographic_value}</td>
+              </tr>
+            )}
+            {sign.word_class && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Class</td>
+                <td className="px-3 py-1 text-xs">{sign.word_class}</td>
+              </tr>
+            )}
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Decipherment</td>
+              <td className="px-3 py-1 text-xs">{confidenceLevel}/8</td>
+            </tr>
+            {sign.picture_description && (
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Depicts</td>
+                <td className="px-3 py-1 text-xs">{sign.picture_description}</td>
+              </tr>
+            )}
+            {/* Links */}
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Sources</td>
+              <td className="px-3 py-1 text-xs">
+                <a href="https://mayadatabase.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">MHD</a>
+                {sign.zender_code && (
+                  <>{' · '}<a href="https://classicmayan.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">ClassicMayan.org</a></>
                 )}
-
-                {/* Catalog codes as plain text */}
-                <table className="w-auto mb-2">
-                  <tbody>
-                    <tr>
-                      <td className="pr-3 py-0.5 text-xs font-[800]">MHD</td>
-                      <td className="py-0.5 text-xs">{sign.mhd_code}</td>
-                    </tr>
-                    {sign.thompson_code && (
-                      <tr>
-                        <td className="pr-3 py-0.5 text-xs font-[800]">Thompson</td>
-                        <td className="py-0.5 text-xs">T{sign.thompson_code}</td>
-                      </tr>
-                    )}
-                    {sign.zender_code && (
-                      <tr>
-                        <td className="pr-3 py-0.5 text-xs font-[800]">TWKM</td>
-                        <td className="py-0.5 text-xs">{sign.zender_code}</td>
-                      </tr>
-                    )}
-                    {sign.kettunen_code && (
-                      <tr>
-                        <td className="pr-3 py-0.5 text-xs font-[800]">Kettunen</td>
-                        <td className="py-0.5 text-xs">{sign.kettunen_code}</td>
-                      </tr>
-                    )}
-                    {sign.gronemeyer_code && (
-                      <tr>
-                        <td className="pr-3 py-0.5 text-xs font-[800]">Gronemeyer</td>
-                        <td className="py-0.5 text-xs">{sign.gronemeyer_code}</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-
-                {/* Key info */}
-                <div className="text-xs space-y-0.5">
-                  {sign.syllabic_value && <div>Reading: <span className="font-[800]">{sign.syllabic_value}</span></div>}
-                  {sign.logographic_value && <div>Logographic: <span className="font-[800]">{sign.logographic_value}</span></div>}
-                  {sign.word_class && <div>Class: {sign.word_class}</div>}
-                  <div>Decipherment: {confidenceLevel}/8</div>
-                  {sign.picture_description && <div>Depicts: {sign.picture_description}</div>}
-                </div>
-
-                {/* Links */}
-                <div className="flex gap-3 mt-2 text-xs">
-                  {sign.zender_code && (
-                    <a href="https://classicmayan.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">ClassicMayan.org</a>
-                  )}
-                  <a href="https://mayadatabase.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">MHD</a>
-                  {sign.gronemeyer_code && (
-                    <a href="https://mayaglyphs.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">mayaglyphs.org</a>
-                  )}
-                </div>
+                {sign.gronemeyer_code && (
+                  <>{' · '}<a href="https://mayaglyphs.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">mayaglyphs.org</a></>
+                )}
               </td>
             </tr>
           </tbody>
