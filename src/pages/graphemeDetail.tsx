@@ -82,24 +82,28 @@ export function GraphemeDetailPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
-                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
-                {' > '}
-                <Link to="/search?mode=graphemes" className="underline hover:no-underline font-normal">Graphemes</Link>
-                {' > '}
-                <span className="font-[800]">{displayCode}</span>
-              </th>
-              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
-                {prevGrapheme ? (
-                  <Link to={`/grapheme/${prevGrapheme.id}`} className="underline hover:no-underline" title={prevGrapheme.code}>&lsaquo;</Link>
-                ) : (
-                  <span className="select-none">&lsaquo;</span>
-                )}
-                {' '}
-                {nextGrapheme ? (
-                  <Link to={`/grapheme/${nextGrapheme.id}`} className="underline hover:no-underline" title={nextGrapheme.code}>&rsaquo;</Link>
-                ) : (
-                  <span className="select-none">&rsaquo;</span>
-                )}
+                <div className="flex justify-between items-center">
+                  <span>
+                    <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                    {' > '}
+                    <Link to="/search?mode=graphemes" className="underline hover:no-underline font-normal">Graphemes</Link>
+                    {' > '}
+                    <span className="font-[800]">{displayCode}</span>
+                  </span>
+                  <span className="font-normal whitespace-nowrap">
+                    {prevGrapheme ? (
+                      <Link to={`/grapheme/${prevGrapheme.id}`} className="no-underline" title={prevGrapheme.code}>&lsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&lsaquo;</span>
+                    )}
+                    {' '}
+                    {nextGrapheme ? (
+                      <Link to={`/grapheme/${nextGrapheme.id}`} className="no-underline" title={nextGrapheme.code}>&rsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&rsaquo;</span>
+                    )}
+                  </span>
+                </div>
               </th>
             </tr>
           </thead>

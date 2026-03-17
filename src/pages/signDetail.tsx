@@ -126,24 +126,28 @@ export function SignDetailPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
-                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
-                {' > '}
-                <Link to="/search?mode=signs" className="underline hover:no-underline font-normal">Signs</Link>
-                {' > '}
-                <span className="font-[800]">{displayCode}</span>
-              </th>
-              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
-                {prevSign ? (
-                  <Link to={`/sign/${prevSign.id}`} className="underline hover:no-underline" title={prevSign.code}>&lsaquo;</Link>
-                ) : (
-                  <span className="select-none">&lsaquo;</span>
-                )}
-                {' '}
-                {nextSign ? (
-                  <Link to={`/sign/${nextSign.id}`} className="underline hover:no-underline" title={nextSign.code}>&rsaquo;</Link>
-                ) : (
-                  <span className="select-none">&rsaquo;</span>
-                )}
+                <div className="flex justify-between items-center">
+                  <span>
+                    <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                    {' > '}
+                    <Link to="/search?mode=signs" className="underline hover:no-underline font-normal">Signs</Link>
+                    {' > '}
+                    <span className="font-[800]">{displayCode}</span>
+                  </span>
+                  <span className="font-normal whitespace-nowrap">
+                    {prevSign ? (
+                      <Link to={`/sign/${prevSign.id}`} className="no-underline" title={prevSign.code}>&lsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&lsaquo;</span>
+                    )}
+                    {' '}
+                    {nextSign ? (
+                      <Link to={`/sign/${nextSign.id}`} className="no-underline" title={nextSign.code}>&rsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&rsaquo;</span>
+                    )}
+                  </span>
+                </div>
               </th>
             </tr>
           </thead>

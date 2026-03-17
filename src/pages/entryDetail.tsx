@@ -156,24 +156,28 @@ export function EntryDetailPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
-                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
-                {' > '}
-                <Link to="/search?mode=concordance" className="underline hover:no-underline font-normal">Concordance</Link>
-                {' > '}
-                <span className="font-[800]">{entry.catalog_code}</span>
-              </th>
-              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
-                {prevEntry ? (
-                  <Link to={`/entry/${prevEntry.entry_id}`} className="underline hover:no-underline" title={prevEntry.code}>&lsaquo;</Link>
-                ) : (
-                  <span className="select-none">&lsaquo;</span>
-                )}
-                {' '}
-                {nextEntry ? (
-                  <Link to={`/entry/${nextEntry.entry_id}`} className="underline hover:no-underline" title={nextEntry.code}>&rsaquo;</Link>
-                ) : (
-                  <span className="select-none">&rsaquo;</span>
-                )}
+                <div className="flex justify-between items-center">
+                  <span>
+                    <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                    {' > '}
+                    <Link to="/search?mode=concordance" className="underline hover:no-underline font-normal">Concordance</Link>
+                    {' > '}
+                    <span className="font-[800]">{entry.catalog_code}</span>
+                  </span>
+                  <span className="font-normal whitespace-nowrap">
+                    {prevEntry ? (
+                      <Link to={`/entry/${prevEntry.entry_id}`} className="no-underline" title={prevEntry.code}>&lsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&lsaquo;</span>
+                    )}
+                    {' '}
+                    {nextEntry ? (
+                      <Link to={`/entry/${nextEntry.entry_id}`} className="no-underline" title={nextEntry.code}>&rsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&rsaquo;</span>
+                    )}
+                  </span>
+                </div>
               </th>
             </tr>
           </thead>

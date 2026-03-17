@@ -112,24 +112,28 @@ export function BlockDetailPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
-                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
-                {' > '}
-                <Link to="/search?mode=blocks" className="underline hover:no-underline font-normal">Blocks</Link>
-                {' > '}
-                <span className="font-[800]">{block.mhd_block_id}</span>
-              </th>
-              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
-                {prevBlock ? (
-                  <Link to={`/block/${prevBlock.id}`} className="underline hover:no-underline" title={prevBlock.coordinate}>&lsaquo;</Link>
-                ) : (
-                  <span className="select-none">&lsaquo;</span>
-                )}
-                {block.coordinate && <> <span className="text-xs">{block.coordinate}</span> </>}
-                {nextBlock ? (
-                  <Link to={`/block/${nextBlock.id}`} className="underline hover:no-underline" title={nextBlock.coordinate}>&rsaquo;</Link>
-                ) : (
-                  <span className="select-none">&rsaquo;</span>
-                )}
+                <div className="flex justify-between items-center">
+                  <span>
+                    <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                    {' > '}
+                    <Link to="/search?mode=blocks" className="underline hover:no-underline font-normal">Blocks</Link>
+                    {' > '}
+                    <span className="font-[800]">{block.mhd_block_id}</span>
+                  </span>
+                  <span className="font-normal whitespace-nowrap">
+                    {prevBlock ? (
+                      <Link to={`/block/${prevBlock.id}`} className="no-underline" title={prevBlock.coordinate}>&lsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&lsaquo;</span>
+                    )}
+                    {block.coordinate && <> {block.coordinate} </>}
+                    {nextBlock ? (
+                      <Link to={`/block/${nextBlock.id}`} className="no-underline" title={nextBlock.coordinate}>&rsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&rsaquo;</span>
+                    )}
+                  </span>
+                </div>
               </th>
             </tr>
           </thead>
