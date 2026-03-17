@@ -47,14 +47,14 @@ export function AboutPage() {
   const unlinkedPct = s ? pct(s.totalGraphemes - s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
 
   const dataSources: { title: string; desc: string | React.ReactNode; url: string | null }[] = [
-    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} catalog signs, ${fmt(s.totalBlocks)} glyph blocks, ${fmt(s.totalGraphemes)} grapheme instances` : <Loading />, url: 'https://mayadatabase.org' },
-    { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced codes with TWKM, Thompson, CMGG mappings', url: 'https://mayaglyphs.org/LMGGC.html' },
-    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances for computer vision` : <Loading />, url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs` : <Loading />, url: 'https://research.mayavase.com/kerrmaya.html' },
-    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
-    { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 5 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
-    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 727 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 13 catalog systems including MHD, TWKM, Thompson, CMGG, Grube, and 8 others with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
+    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} signs, ${fmt(s.totalBlocks)} inscription blocks, and ${fmt(s.totalGraphemes)} individual glyph occurrences from the largest Maya epigraphy database` : <Loading />, url: 'https://mayadatabase.org' },
+    { title: 'LMGG Concordance Table', desc: '1,236 signs cross-referenced between Thompson, TWKM, and CMGG numbering systems — lets you look up the same sign across different catalogs', url: 'https://mayaglyphs.org/LMGGC.html' },
+    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} machine-learning-annotated glyph images for automated sign recognition` : <Loading />, url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
+    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} rollout photographs of painted Maya ceramic vessels` : <Loading />, url: 'https://research.mayavase.com/kerrmaya.html' },
+    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images from the Corpus of Maya Hieroglyphic Inscriptions — ${fmt(s.totalCmhiDrawings)} line drawings and ${fmt(s.totalCmhiPhotos)} photographs` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
+    { title: 'Peabody Museum Site Codes', desc: '200+ archaeological site abbreviations mapped to GPS coordinates across 5 Maya regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
+    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs with 1,565 visual variants and 727 proposed readings from the University of Bonn (CC BY 4.0)', url: 'https://classicmayan.org' },
+    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 13 catalog systems (MHD, TWKM, Thompson, CMGG, Grube, and 8 others) — ${pct(s.thompsonCoverage, s.totalSigns)} Thompson coverage, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
   ];
 
   return (
@@ -71,18 +71,19 @@ export function AboutPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">
-                Maya hieroglyphs have been catalogued across multiple incompatible classification
-                systems over the past century — Thompson, Macri-Vail, Zimmermann, and others.
-                Researchers must cross-reference these systems manually, slowing decipherment
-                and creating barriers to entry.
+                Maya hieroglyphs have been catalogued under multiple incompatible numbering systems
+                over the past century — Thompson, Macri-Vail, Zimmermann, and others. A single glyph
+                can have a different code in each system, forcing researchers to manually cross-reference
+                between catalogs.
               </td>
             </tr>
             <tr>
               <td className="px-3 py-2 text-sm">
-                This project unifies the Maya Hieroglyphic Database (MHD), the LMGG concordance,
-                the ClassicMayan.org Bonn sign catalog, Kerr vase photography, Harvard CMHI drawings,
-                and machine learning datasets into a single searchable interface with cross-catalog
-                concordance linking.
+                This project brings together 8 major data sources into one searchable interface:
+                the MHD epigraphy database, the Bonn/TWKM sign catalog, the LMGG concordance table,
+                Kerr vase photography, Harvard CMHI drawings, Peabody site coordinates, a machine
+                learning glyph dataset, and a unified cross-catalog concordance linking signs across
+                13 numbering systems.
               </td>
             </tr>
           </tbody>
@@ -147,92 +148,100 @@ export function AboutPage() {
           </thead>
           <tbody>
             <tr>
-              <td className="px-3 py-1 text-xs">MHD data includes records through early 2022 and may not reflect recent discoveries.</td>
+              <td className="px-3 py-1 text-xs">Data current through early 2022 — recent discoveries or reclassifications may not be reflected.</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">{linkedPct} of graphemes linked to catalog signs. Remaining {unlinkedPct} are unidentified (code "000"), uncertain (?), or numerals.</td>
+              <td className="px-3 py-1 text-xs">{s ? `${linkedPct} of individual glyphs are identified and linked to a catalog sign. The remaining ${unlinkedPct} are either eroded/unreadable (code "000"), uncertain readings (?), or bare numerals.` : <Loading />}</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">737/1,075 Bonn signs matched to MHD catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} entries)` : ''}. Unmatched are mostly newer 1500+ series not in MHD.</td>
+              <td className="px-3 py-1 text-xs">737 of 1,075 Bonn/TWKM signs matched to MHD catalog entries{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} entries)` : ''}. The 338 unmatched signs are mostly from the 1500+ series — newer additions to the Bonn catalog that don't have MHD equivalents.</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">Site coordinates cover 200+ archaeological sites across 5 regions using Peabody CMHI codes.</td>
+              <td className="px-3 py-1 text-xs">GPS coordinates available for 200+ sites across 5 regions (Petén, Usumacinta, Southeast, Northern Yucatan, Western).</td>
             </tr>
           </tbody>
         </table>
 
         {/* Database Overview — at bottom */}
-        {s && (
-          <table className="w-auto">
-            <thead>
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Database</th>
+              <th className="px-3 py-1 text-right text-xs">
+                {s ? `${fmt(s.totalSigns + s.totalBlocks + s.totalGraphemes + s.totalRoboflow + s.totalKerr + totalCmhi)} total records` : <Loading />}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {s ? (
+              <>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalSigns)}</td>
+                  <td className="px-3 py-1 text-sm">catalog signs</td>
+                  <td className="px-3 py-1 text-xs">{fmt(s.signsWithImages)} with images</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalBlocks)}</td>
+                  <td className="px-3 py-1 text-sm">inscription blocks</td>
+                  <td className="px-3 py-1 text-xs">{fmt(s.blocksWithDates)} dated, {fmt(s.blocksWithTranslations)} translated</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalGraphemes)}</td>
+                  <td className="px-3 py-1 text-sm">individual glyphs</td>
+                  <td className="px-3 py-1 text-xs">{fmt(s.graphemesLinkedToCatalog)} identified and linked to catalog</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalRoboflow)}</td>
+                  <td className="px-3 py-1 text-sm">ML annotations</td>
+                  <td className="px-3 py-1 text-xs">machine-learning detected glyph instances</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalKerr)}</td>
+                  <td className="px-3 py-1 text-sm">Kerr vessels</td>
+                  <td className="px-3 py-1 text-xs">rollout photographs of painted ceramics</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-1 text-sm font-[800]">{fmt(totalCmhi)}</td>
+                  <td className="px-3 py-1 text-sm">CMHI images</td>
+                  <td className="px-3 py-1 text-xs">{fmt(s.totalCmhiDrawings)} line drawings, {fmt(s.totalCmhiPhotos)} photographs</td>
+                </tr>
+              </>
+            ) : (
               <tr>
-                <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Database</th>
-                <th className="px-3 py-1 text-right text-xs">
-                  {fmt(s.totalSigns + s.totalBlocks + s.totalGraphemes + s.totalRoboflow + s.totalKerr + totalCmhi)} total records
-                </th>
+                <td className="px-3 py-1 text-xs" colSpan={3}><Loading /></td>
               </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalSigns)}</td>
-                <td className="px-3 py-1 text-sm">catalog signs</td>
-                <td className="px-3 py-1 text-xs">{fmt(s.signsWithImages)} with images</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalBlocks)}</td>
-                <td className="px-3 py-1 text-sm">inscription blocks</td>
-                <td className="px-3 py-1 text-xs">{fmt(s.blocksWithDates)} dated, {fmt(s.blocksWithTranslations)} translated</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalGraphemes)}</td>
-                <td className="px-3 py-1 text-sm">grapheme instances</td>
-                <td className="px-3 py-1 text-xs">{fmt(s.graphemesLinkedToCatalog)} linked to catalog</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalRoboflow)}</td>
-                <td className="px-3 py-1 text-sm">ML annotations</td>
-                <td className="px-3 py-1 text-xs">Roboflow detected instances</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalKerr)}</td>
-                <td className="px-3 py-1 text-sm">Kerr vessels</td>
-                <td className="px-3 py-1 text-xs">rollout photographs</td>
-              </tr>
-              <tr>
-                <td className="px-3 py-1 text-sm font-[800]">{fmt(totalCmhi)}</td>
-                <td className="px-3 py-1 text-sm">CMHI images</td>
-                <td className="px-3 py-1 text-xs">{fmt(s.totalCmhiDrawings)} drawings, {fmt(s.totalCmhiPhotos)} photos</td>
-              </tr>
-            </tbody>
-          </table>
-        )}
+            )}
+          </tbody>
+        </table>
 
         {/* Top Sites — at bottom */}
-        {s && (
-          <table className="w-auto">
-            <thead>
-              <tr>
-                <th className="px-3 py-1 text-left text-xs uppercase" colSpan={4}>Top Archaeological Sites</th>
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase" colSpan={4}>Top Archaeological Sites</th>
+            </tr>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs">#</th>
+              <th className="px-3 py-1 text-left text-xs">Site</th>
+              <th className="px-3 py-1 text-right text-xs">Glyphs</th>
+              <th className="px-3 py-1 text-right text-xs">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s ? s.topSites.map((site, idx) => (
+              <tr key={site.site}>
+                <td className="px-3 py-1 text-sm">{idx + 1}</td>
+                <td className="px-3 py-1 text-sm font-[800]">{site.site}</td>
+                <td className="px-3 py-1 text-sm text-right">{site.count.toLocaleString()}</td>
+                <td className="px-3 py-1 text-xs text-right">{((site.count / s.totalGraphemes) * 100).toFixed(1)}%</td>
               </tr>
+            )) : (
               <tr>
-                <th className="px-3 py-1 text-left text-xs">#</th>
-                <th className="px-3 py-1 text-left text-xs">Site</th>
-                <th className="px-3 py-1 text-right text-xs">Instances</th>
-                <th className="px-3 py-1 text-right text-xs">Share</th>
+                <td className="px-3 py-1 text-xs" colSpan={4}><Loading /></td>
               </tr>
-            </thead>
-            <tbody>
-              {s.topSites.map((site, idx) => (
-                <tr key={site.site}>
-                  <td className="px-3 py-1 text-sm">{idx + 1}</td>
-                  <td className="px-3 py-1 text-sm font-[800]">{site.site}</td>
-                  <td className="px-3 py-1 text-sm text-right">{site.count.toLocaleString()}</td>
-                  <td className="px-3 py-1 text-xs text-right">{((site.count / s.totalGraphemes) * 100).toFixed(1)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+            )}
+          </tbody>
+        </table>
 
         <p className="text-xs italic text-center px-3 py-2">
           This project consolidates publicly available scholarly resources.
