@@ -536,8 +536,8 @@ export function SignDetailPage() {
 
                       {/* Reading */}
                       <div>
-                        {g.block_maya1 && g.block_maya1 !== '_' ? (
-                          <div className="font-mono italic text-sm">{g.block_maya1}</div>
+                        {g.transcription_1 && g.transcription_1 !== '_' ? (
+                          <div className="font-mono italic text-sm">{g.transcription_1}</div>
                         ) : null}
                         {g.block_english && g.block_english !== '_' && (
                           <div className="text-[11px] text-black">&ldquo;{g.block_english}&rdquo;</div>

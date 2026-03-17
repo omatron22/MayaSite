@@ -292,7 +292,7 @@ export interface PersonDetailResponse {
     site_name: string | null;
     region: string | null;
     block_english: string | null;
-    block_maya1: string | null;
+    transcription_1: string | null;
     event_calendar: string | null;
     event_gregorian: string | null;
     block_img: string | null;

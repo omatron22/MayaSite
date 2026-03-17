@@ -142,7 +142,7 @@ async function main() {
 
   // Get all blocks that have graphcodes
   const blocksResult = await db.execute(`
-    SELECT id, block_graphcodes, block_hyphenated
+    SELECT id, block_graphcodes, transcription_hyphen
     FROM blocks
     WHERE block_graphcodes IS NOT NULL AND block_graphcodes != '' AND block_graphcodes != '_'
   `);
@@ -174,7 +174,7 @@ async function main() {
   const blockHyphen = new Map<string, string>();
   const blockCodes = new Map<string, string>();
   for (const row of blocksResult.rows) {
-    blockHyphen.set(String(row.id), String(row.block_hyphenated || ''));
+    blockHyphen.set(String(row.id), String(row.transcription_hyphen || ''));
     blockCodes.set(String(row.id), String(row.block_graphcodes || ''));
   }
 

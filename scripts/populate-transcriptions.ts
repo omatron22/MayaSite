@@ -1,49 +1,35 @@
 // scripts/populate-transcriptions.ts
-// Copies block_maya1 → transcription_1 and block_maya2 → transcription_2.
-// MHD field names: blmaya1 = "bl transcr 1", blmaya2 = "bl transcr 2" — same data.
+// Verifies transcription_1 and transcription_2 columns are populated.
+// Previously copied block_maya1 → transcription_1, now those are the canonical column names.
 // Run with: npx tsx scripts/populate-transcriptions.ts
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 import { db } from '../api/lib/db.ts';
 
 async function main() {
-  console.log('Populating transcription_1/transcription_2 from block_maya1/block_maya2...\n');
+  console.log('Checking transcription_1/transcription_2 population...\n');
 
   // Check current state
   const before = await db.execute(`
     SELECT
       SUM(CASE WHEN transcription_1 IS NOT NULL AND transcription_1 != '' THEN 1 ELSE 0 END) as t1,
       SUM(CASE WHEN transcription_2 IS NOT NULL AND transcription_2 != '' THEN 1 ELSE 0 END) as t2,
-      SUM(CASE WHEN block_maya1 IS NOT NULL AND block_maya1 != '' THEN 1 ELSE 0 END) as m1,
-      SUM(CASE WHEN block_maya2 IS NOT NULL AND block_maya2 != '' THEN 1 ELSE 0 END) as m2
+      SUM(CASE WHEN transcription_1 IS NOT NULL AND transcription_1 != '' THEN 1 ELSE 0 END) as m1,
+      SUM(CASE WHEN transcription_2 IS NOT NULL AND transcription_2 != '' THEN 1 ELSE 0 END) as m2
     FROM blocks
   `);
   const b = before.rows[0] as Record<string, number>;
   console.log(`Before: transcription_1=${b.t1}, transcription_2=${b.t2}`);
-  console.log(`Source: block_maya1=${b.m1}, block_maya2=${b.m2}\n`);
+  console.log(`Source: transcription_1=${b.m1}, transcription_2=${b.m2}\n`);
 
   if (b.t1 > 0) {
     console.log('transcription_1 already populated. Skipping.');
     return;
   }
 
-  // Copy block_maya1 → transcription_1
-  await db.execute(`
-    UPDATE blocks
-    SET transcription_1 = block_maya1
-    WHERE block_maya1 IS NOT NULL AND block_maya1 != ''
-      AND (transcription_1 IS NULL OR transcription_1 = '')
-  `);
-  console.log('  Copied block_maya1 → transcription_1');
-
-  // Copy block_maya2 → transcription_2
-  await db.execute(`
-    UPDATE blocks
-    SET transcription_2 = block_maya2
-    WHERE block_maya2 IS NOT NULL AND block_maya2 != ''
-      AND (transcription_2 IS NULL OR transcription_2 = '')
-  `);
-  console.log('  Copied block_maya2 → transcription_2');
+  // transcription_1 and transcription_2 are now the canonical column names.
+  // No copy needed — they are populated directly by import scripts.
+  console.log('  transcription_1 and transcription_2 are the canonical columns (no copy needed)');
 
   // Verify
   const after = await db.execute(`

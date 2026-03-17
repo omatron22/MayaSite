@@ -104,7 +104,7 @@ export function BlockDetailPage() {
 
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasCalendarInfo = useMemo(() => hasValue(block?.event_calendar) || hasValue(block?.event_long_count) || hasValue(block?.event_gregorian) || hasValue(block?.event_260_day) || hasValue(block?.event_365_day), [block, hasValue]);
-  const hasTextContent = useMemo(() => hasValue(block?.block_maya1) || hasValue(block?.block_english) || hasValue(block?.block_logosyll) || hasValue(block?.block_hyphenated) || hasValue(block?.transcription_1), [block, hasValue]);
+  const hasTextContent = useMemo(() => hasValue(block?.transcription_1) || hasValue(block?.block_english) || hasValue(block?.transcription_logosyll) || hasValue(block?.transcription_hyphen) || hasValue(block?.transcription_1), [block, hasValue]);
   const hasPeople = useMemo(() => hasValue(block?.person_code) || hasValue(block?.scribe), [block, hasValue]);
 
   // Parse semantic_context into tags
@@ -349,16 +349,16 @@ export function BlockDetailPage() {
               <div>
                 <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-4">Full block transcription</h3>
                 <div className="border-2 border-black overflow-hidden">
-                  {hasValue(block.block_logosyll) && (
+                  {hasValue(block.transcription_logosyll) && (
                     <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
                       <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Logosyll.</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.block_logosyll}</div>
+                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_logosyll}</div>
                     </div>
                   )}
-                  {hasValue(block.block_hyphenated) && (
+                  {hasValue(block.transcription_hyphen) && (
                     <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
                       <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Hyphen</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.block_hyphenated}</div>
+                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_hyphen}</div>
                     </div>
                   )}
                   {hasValue(block.transcription_1) && (
@@ -371,18 +371,6 @@ export function BlockDetailPage() {
                     <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
                       <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Transcr. 2</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_2}</div>
-                    </div>
-                  )}
-                  {hasValue(block.block_maya1) && !(block.block_maya1 === block.transcription_1) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Maya 1</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.block_maya1}</div>
-                    </div>
-                  )}
-                  {hasValue(block.block_maya2) && !(block.block_maya2 === block.transcription_2) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Maya 2</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.block_maya2}</div>
                     </div>
                   )}
                   {hasValue(block.block_english) && (

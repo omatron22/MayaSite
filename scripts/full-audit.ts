@@ -65,7 +65,7 @@ async function main() {
   console.log('\n=== BLOCKS FIELD COVERAGE ===');
   const totalBlocks = await count(`SELECT COUNT(*) as count FROM blocks`);
   const blockFields = [
-    'block_id', 'artifact_code', 'block_maya1', 'block_english',
+    'block_id', 'artifact_code', 'transcription_1', 'block_english',
     'event_calendar', 'event_long_count', 'surface_page',
     'block_img', 'region', 'site_name'
   ];
@@ -140,9 +140,9 @@ async function main() {
 
   console.log('\n=== TRANSLATION COVERAGE ===');
   const blocksTrans = await safeCount(`SELECT COUNT(*) as count FROM blocks WHERE block_english IS NOT NULL AND block_english != ''`);
-  const blocksMaya = await safeCount(`SELECT COUNT(*) as count FROM blocks WHERE block_maya1 IS NOT NULL AND block_maya1 != ''`);
+  const blocksMaya = await safeCount(`SELECT COUNT(*) as count FROM blocks WHERE transcription_1 IS NOT NULL AND transcription_1 != ''`);
   console.log(`  Blocks with English translation: ${blocksTrans ?? 'COLUMN NOT FOUND'}/${totalBlocks}`);
-  console.log(`  Blocks with Maya transliteration: ${blocksMaya ?? 'COLUMN NOT FOUND'}/${totalBlocks}`);
+  console.log(`  Blocks with transcription_1: ${blocksMaya ?? 'COLUMN NOT FOUND'}/${totalBlocks}`);
   
   const graphTrans = await safeCount(`SELECT COUNT(*) as count FROM graphemes WHERE grapheme_english IS NOT NULL AND grapheme_english != ''`);
   const graphMaya = await safeCount(`SELECT COUNT(*) as count FROM graphemes WHERE grapheme_maya IS NOT NULL AND grapheme_maya != ''`);

@@ -45,7 +45,7 @@ export function GraphemeDetailPage() {
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasTemporal = useMemo(() => hasValue(grapheme?.event_calendar) || hasValue(grapheme?.event_long_count), [grapheme, hasValue]);
   const hasGeographic = useMemo(() => hasValue(grapheme?.region) || hasValue(grapheme?.site_name), [grapheme, hasValue]);
-  const hasBlockContext = useMemo(() => hasValue(grapheme?.block_maya1) || hasValue(grapheme?.block_english), [grapheme, hasValue]);
+  const hasBlockContext = useMemo(() => hasValue(grapheme?.transcription_1) || hasValue(grapheme?.block_english), [grapheme, hasValue]);
   const hasMetadata = useMemo(() => hasValue(grapheme?.sign_technique) || hasValue(grapheme?.distribution) || hasValue(grapheme?.picture_description), [grapheme, hasValue]);
 
   const catalogCodes = useMemo(() => {
@@ -157,7 +157,7 @@ export function GraphemeDetailPage() {
                   Block Context
                 </h3>
                 <div className="flex flex-col gap-2">
-                  {hasValue(grapheme.block_maya1) && <p className="text-sm text-black m-0">{grapheme.block_maya1}</p>}
+                  {hasValue(grapheme.transcription_1) && <p className="text-sm text-black m-0">{grapheme.transcription_1}</p>}
                   {hasValue(grapheme.block_english) && <p className="text-sm text-black italic m-0">&quot;{grapheme.block_english}&quot;</p>}
                 </div>
               </section>

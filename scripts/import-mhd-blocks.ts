@@ -170,7 +170,7 @@ async function main() {
       sql: `
         INSERT INTO blocks (
           mhd_block_id, artifact_code, surface_page, orientation_frame, coordinate,
-          block_logosyll, block_hyphenated, block_maya1, block_maya2, block_english,
+          transcription_logosyll, transcription_hyphen, transcription_1, transcription_2, block_english,
           block_graphcodes, event_calendar, event_long_count, event_260_day, event_365_day,
           region, site_name,
           person_code, scribe, material, technique, artifact_type, object_description,

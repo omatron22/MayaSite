@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           g.*,
           b.mhd_block_id,
           b.artifact_code,
-          b.block_maya1,
+          b.transcription_1,
           b.block_english,
           b.event_calendar,
           b.event_long_count,

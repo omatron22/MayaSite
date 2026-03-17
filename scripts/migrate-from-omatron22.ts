@@ -124,7 +124,7 @@ async function main() {
       const inserts = missing.map(b => ({
         sql: `INSERT INTO blocks (
           mhd_block_id, artifact_code, surface_page, orientation_frame, coordinate,
-          block_logosyll, block_hyphenated, block_maya1, block_maya2, block_english,
+          transcription_logosyll, transcription_hyphen, transcription_1, transcription_2, block_english,
           block_graphcodes, event_calendar, event_long_count, event_260_day, event_365_day,
           person_code, notes, semantic_context, sort_order,
           block_image1_url, block_image2_url, site_name, region,
@@ -132,7 +132,7 @@ async function main() {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         args: [
           b.mhd_block_id, b.artifact_code, b.surface_page, b.orientation_frame, b.coordinate,
-          b.block_logosyll, b.block_hyphenated, b.block_maya1, b.block_maya2, b.block_english,
+          b.transcription_logosyll, b.transcription_hyphen, b.transcription_1, b.transcription_2, b.block_english,
           b.block_graphcodes, b.event_calendar, b.event_long_count, b.event_260_day, b.event_365_day,
           b.person_code, b.notes, b.semantic_context, b.sort_order,
           b.block_image1_url, b.block_image2_url, b.site_name, b.region,

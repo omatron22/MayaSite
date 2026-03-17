@@ -225,7 +225,7 @@ async function searchBlocks(
       mhd_block_id LIKE ? OR
       artifact_code LIKE ? OR
       block_english LIKE ? OR
-      block_maya1 LIKE ? OR
+      transcription_1 LIKE ? OR
       event_calendar LIKE ?
     )`);
     const qParam = `%${query}%`;
@@ -308,7 +308,7 @@ async function searchGraphemes(
       g.grapheme_code LIKE ? OR
       g.artifact_code LIKE ? OR
       b.block_english LIKE ? OR
-      b.block_maya1 LIKE ?
+      b.transcription_1 LIKE ?
     )`);
     const qParam = `%${query}%`;
     params.push(qParam, qParam, qParam, qParam);
@@ -363,7 +363,7 @@ async function searchGraphemes(
     sql: `
       SELECT
         g.*,
-        b.block_maya1,
+        b.transcription_1,
         b.block_english,
         b.event_calendar,
         COALESCE(b.block_image1_url, b.block_image2_url) as block_img,
@@ -599,7 +599,7 @@ async function handlePersonDetail(req: VercelRequest, res: VercelResponse) {
     // Get linked blocks with details
     const blocksResult = await db.execute({
       sql: `SELECT b.id, b.mhd_block_id, b.artifact_code, b.site_name, b.region,
-                   b.block_english, b.block_maya1, b.event_calendar, b.event_gregorian,
+                   b.block_english, b.transcription_1, b.event_calendar, b.event_gregorian,
                    COALESCE(b.block_image1_url, b.block_image2_url) as block_img,
                    pbl.role
             FROM person_block_links pbl
@@ -683,8 +683,8 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
                 g.block_id,
                 g.grapheme_code,
                 b.block_english,
-                b.block_maya1,
-                b.block_logosyll,
+                b.transcription_1,
+                b.transcription_logosyll,
                 b.artifact_code,
                 b.event_calendar,
                 b.event_long_count,

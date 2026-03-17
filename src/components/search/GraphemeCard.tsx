@@ -7,7 +7,7 @@ interface GraphemeCardProps {
     mhd_code_sub?: string | null;
     grapheme_code: string;
     syllabic_value?: string | null;
-    block_maya1?: string | null;
+    transcription_1?: string | null;
     block_english?: string | null;
     artifact_code?: string | null;
     site_name?: string | null;
@@ -33,7 +33,7 @@ export const GraphemeCard = memo(({ grapheme }: GraphemeCardProps) => {
       <td className="px-2 py-1 text-xs italic">{grapheme.syllabic_value || '--'}</td>
       <td className="px-2 py-1 text-xs">{grapheme.artifact_code || '--'}</td>
       <td className="px-2 py-1 text-xs">{grapheme.site_name || '--'}</td>
-      <td className="px-2 py-1 text-xs max-w-[180px] truncate">{grapheme.block_maya1 || '--'}</td>
+      <td className="px-2 py-1 text-xs max-w-[180px] truncate">{grapheme.transcription_1 || '--'}</td>
       <td className="px-2 py-1 text-xs">{grapheme.event_calendar || '--'}</td>
     </tr>
   );

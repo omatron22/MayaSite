@@ -7,7 +7,7 @@ interface BlockCardProps {
     block_id: string;
     artifact_code?: string;
     site_name?: string | null;
-    block_maya1?: string | null;
+    transcription_1?: string | null;
     block_english?: string | null;
     event_calendar?: string | null;
     block_img?: string | null;
@@ -30,7 +30,7 @@ export const BlockCard = memo(({ block }: BlockCardProps) => {
       <td className="px-2 py-1 font-[800]">{block.block_id}</td>
       <td className="px-2 py-1 text-xs">{block.artifact_code || '--'}</td>
       <td className="px-2 py-1 text-xs">{block.site_name || '--'}</td>
-      <td className="px-2 py-1 text-xs">{block.block_maya1 || '--'}</td>
+      <td className="px-2 py-1 text-xs">{block.transcription_1 || '--'}</td>
       <td className="px-2 py-1 text-xs italic max-w-[180px] truncate">{block.block_english ? `"${block.block_english}"` : '--'}</td>
       <td className="px-2 py-1 text-xs">{block.event_calendar || '--'}</td>
     </tr>

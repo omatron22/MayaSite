@@ -48,8 +48,8 @@ interface Attestation {
   block_id: number | null;
   grapheme_code: string;
   block_english: string | null;
-  block_maya1: string | null;
-  block_logosyll: string | null;
+  transcription_1: string | null;
+  transcription_logosyll: string | null;
   artifact_code: string | null;
   event_calendar: string | null;
   event_long_count: string | null;
@@ -416,8 +416,8 @@ export function EntryDetailPage() {
 
                     {/* Reading */}
                     <div>
-                      {g.block_maya1 && g.block_maya1 !== '_' ? (
-                        <div className="font-mono italic text-sm">{g.block_maya1}</div>
+                      {g.transcription_1 && g.transcription_1 !== '_' ? (
+                        <div className="font-mono italic text-sm">{g.transcription_1}</div>
                       ) : null}
                       {g.block_english && g.block_english !== '_' && (
                         <div className="text-[11px] text-black">&ldquo;{g.block_english}&rdquo;</div>

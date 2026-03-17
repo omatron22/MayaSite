@@ -42,7 +42,7 @@ export interface BlockSearchResult {
   id: number;
   block_id: string;
   artifact_code: string;
-  block_maya1: string | null;
+  transcription_1: string | null;
   block_english: string | null;
   event_calendar: string | null;
   block_img: string | null;
@@ -61,7 +61,7 @@ export interface GraphemeSearchResult {
   grapheme_english: string | null;
   artifact_code: string | null;
   location_summary: string | null;
-  block_maya1: string | null;
+  transcription_1: string | null;
   block_english: string | null;
   event_calendar: string | null;
   block_img: string | null;
@@ -86,8 +86,8 @@ export interface SignGrapheme {
   block_id: number | null;
   grapheme_code: string;
   block_english: string | null;
-  block_maya1: string | null;
-  block_logosyll: string | null;
+  transcription_1: string | null;
+  transcription_logosyll: string | null;
   artifact_code: string | null;
   event_calendar: string | null;
   event_long_count: string | null;
@@ -152,7 +152,7 @@ export interface GraphemeDetailResponse {
   location_summary: string | null;
   // Block fields
   mhd_block_id: string | null;
-  block_maya1: string | null;
+  transcription_1: string | null;
   block_english: string | null;
   event_calendar: string | null;
   event_long_count: string | null;

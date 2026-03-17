@@ -42,10 +42,10 @@ export interface Block {
   surface_page: string | null;
   orientation_frame: string | null;
   coordinate: string | null;
-  block_logosyll: string | null;
-  block_hyphenated: string | null;
-  block_maya1: string | null;
-  block_maya2: string | null;
+  transcription_logosyll: string | null;
+  transcription_hyphen: string | null;
+  transcription_1: string | null;
+  transcription_2: string | null;
   block_english: string | null;
   block_graphcodes: string | null;
   event_calendar: string | null;
@@ -53,8 +53,6 @@ export interface Block {
   event_260_day: string | null;
   event_365_day: string | null;
   event_gregorian: string | null;
-  transcription_1: string | null;
-  transcription_2: string | null;
   region: string | null;
   site_name: string | null;
   person_code: string | null;
