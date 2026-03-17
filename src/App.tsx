@@ -12,8 +12,6 @@ const CollectionsPage = lazy(() => import('./pages/collections').then(m => ({ de
 const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
 const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 const EntryDetailPage = lazy(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
-const PersonDetailPage = lazy(() => import('./pages/personDetail').then(m => ({ default: m.PersonDetailPage })));
-const HomePage = lazy(() => import('./pages/home').then(m => ({ default: m.HomePage })));
 const ScannerPage = lazy(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
 
 function PageLoader() {
@@ -32,12 +30,11 @@ function App() {
         <main className="flex-1">
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<HomePage />} />
+              <Route path="/" element={<Navigate to="/search" replace />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/search/scanner" element={<ScannerPage />} />
               <Route path="/sign/:id" element={<SignDetailPage />} />
               <Route path="/entry/:entryId" element={<EntryDetailPage />} />
-              <Route path="/person/:personId" element={<PersonDetailPage />} />
               <Route path="/block/:id" element={<BlockDetailPage />} />
               <Route path="/grapheme/:id" element={<GraphemeDetailPage />} />
               <Route path="/collections" element={<CollectionsPage />}>

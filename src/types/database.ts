@@ -135,14 +135,6 @@ export interface Graph {
   notes: string | null;
 }
 
-export interface Person {
-  person_id: string;
-  name: string;
-  source: string;
-  site_name: string | null;
-  notes: string | null;
-}
-
 export interface BlockSignSlot {
   slot_id: string;
   slot_position: number;

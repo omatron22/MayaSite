@@ -39,14 +39,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleEntryDetail(req, res);
     }
 
-    if (mode === 'person_detail') {
-      return handlePersonDetail(req, res);
-    }
-
-    if (mode === 'persons') {
-      return handlePersonSearch(req, res);
-    }
-
     const isExport = exportMode === 'true';
     const pageNum = isExport ? 1 : Math.max(1, parseInt(page));
     const pageSizeNum = isExport ? 5000 : Math.min(100, Math.max(1, parseInt(pageSize)));
@@ -518,119 +510,6 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     console.error('New concordance error:', err);
     return res.status(500).json({ error: 'Failed to load concordance data', details: String(err) });
-  }
-}
-
-async function handlePersonSearch(req: VercelRequest, res: VercelResponse) {
-  const q = String(req.query.q || '').trim();
-  const page = Math.max(1, parseInt(String(req.query.page || '1')));
-  const pageSize = Math.min(100, Math.max(1, parseInt(String(req.query.pageSize || '50'))));
-  const sourceFilter = String(req.query.source || '').trim();
-  const offset = (page - 1) * pageSize;
-
-  const conditions: string[] = [];
-  const args: (string | number)[] = [];
-
-  if (q) {
-    conditions.push('(p.name LIKE ? OR p.person_id LIKE ?)');
-    const like = `%${q}%`;
-    args.push(like, like);
-  }
-
-  if (sourceFilter) {
-    conditions.push('p.source = ?');
-    args.push(sourceFilter);
-  }
-
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-  try {
-    const [dataResult, countResult] = await Promise.all([
-      db.execute({
-        sql: `SELECT p.person_id, p.name, p.source, p.site_name, p.notes,
-                     COUNT(pbl.id) as block_count
-              FROM persons p
-              LEFT JOIN person_block_links pbl ON p.person_id = pbl.person_id
-              ${where}
-              GROUP BY p.person_id
-              ORDER BY block_count DESC
-              LIMIT ? OFFSET ?`,
-        args: [...args, pageSize, offset],
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as total FROM persons p ${where}`,
-        args,
-      }),
-    ]);
-
-    const total = Number(countResult.rows[0].total);
-
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json({
-      results: dataResult.rows,
-      total,
-      page,
-      pageSize,
-    });
-  } catch (err) {
-    console.error('Person search error:', err);
-    return res.status(500).json({ error: 'Failed to search persons', details: String(err) });
-  }
-}
-
-async function handlePersonDetail(req: VercelRequest, res: VercelResponse) {
-  const personId = String(req.query.personId || '').trim();
-  if (!personId) {
-    return res.status(400).json({ error: 'personId is required' });
-  }
-
-  try {
-    const personResult = await db.execute({
-      sql: 'SELECT * FROM persons WHERE person_id = ?',
-      args: [personId],
-    });
-
-    if (personResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Person not found' });
-    }
-
-    const person = personResult.rows[0];
-
-    // Get linked blocks with details
-    const blocksResult = await db.execute({
-      sql: `SELECT b.id, b.mhd_block_id, b.artifact_code, b.site_name, b.region,
-                   b.block_english, b.transcription_1, b.event_calendar, b.event_gregorian,
-                   COALESCE(b.block_image1_url, b.block_image2_url) as block_img,
-                   pbl.role
-            FROM person_block_links pbl
-            JOIN blocks b ON b.id = pbl.block_id
-            WHERE pbl.person_id = ?
-            ORDER BY b.artifact_code, b.sort_order
-            LIMIT 200`,
-      args: [personId],
-    });
-
-    // Get site distribution
-    const sitesResult = await db.execute({
-      sql: `SELECT b.site_name, COUNT(*) as count
-            FROM person_block_links pbl
-            JOIN blocks b ON b.id = pbl.block_id
-            WHERE pbl.person_id = ? AND b.site_name IS NOT NULL
-            GROUP BY b.site_name
-            ORDER BY count DESC`,
-      args: [personId],
-    });
-
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json({
-      person,
-      blocks: blocksResult.rows,
-      sites: sitesResult.rows,
-      totalBlocks: blocksResult.rows.length,
-    });
-  } catch (err) {
-    console.error('Person detail error:', err);
-    return res.status(500).json({ error: 'Failed to load person', details: String(err) });
   }
 }
 
