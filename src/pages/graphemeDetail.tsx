@@ -1,23 +1,10 @@
-import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 import { fetchGrapheme } from '../lib/api';
 import type { GraphemeDetailResponse } from '../../api/lib/types';
 
-interface CatalogCodeData {
-  label: string;
-  code: string;
-  variant?: string;
-}
-
-const CatalogCodeBadge = memo(({ label, code, variant }: CatalogCodeData) => (
-  <div className="flex items-center gap-2 flex-wrap">
-    <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">{label}:</span>
-    <span className="bg-white text-black font-mono text-xs px-2 py-0.5 ">{code}</span>
-    {variant && <span className="text-[11px] text-black italic">var. {variant}</span>}
-  </div>
-));
-CatalogCodeBadge.displayName = 'CatalogCodeBadge';
+type TabType = 'information' | 'context' | 'catalog';
 
 export function GraphemeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,207 +30,166 @@ export function GraphemeDetailPage() {
   }, [id]);
 
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
-  const hasTemporal = useMemo(() => hasValue(grapheme?.event_calendar) || hasValue(grapheme?.event_long_count), [grapheme, hasValue]);
-  const hasGeographic = useMemo(() => hasValue(grapheme?.region) || hasValue(grapheme?.site_name), [grapheme, hasValue]);
   const hasBlockContext = useMemo(() => hasValue(grapheme?.transcription_1) || hasValue(grapheme?.block_english), [grapheme, hasValue]);
-  const hasMetadata = useMemo(() => hasValue(grapheme?.sign_technique) || hasValue(grapheme?.distribution) || hasValue(grapheme?.picture_description), [grapheme, hasValue]);
 
-  const catalogCodes = useMemo(() => {
-    if (!grapheme) return [];
-    return [
-      hasValue(grapheme.thompson_code) && { label: 'Thompson', code: `T${grapheme.thompson_code}`, variant: grapheme.thompson_variant || undefined },
-      hasValue(grapheme.zender_code) && { label: 'Zender', code: grapheme.zender_code! },
-      hasValue(grapheme.kettunen_code) && { label: 'Kettunen', code: grapheme.kettunen_code! },
-      hasValue(grapheme.gronemeyer_code) && { label: 'Gronemeyer', code: grapheme.gronemeyer_code! },
-      grapheme.bonn_sign_number && { label: 'Bonn', code: String(grapheme.bonn_sign_number) },
-      hasValue(grapheme.mhd_code_2003) && { label: 'MHD 2003', code: grapheme.mhd_code_2003! },
-    ].filter((v): v is CatalogCodeData => Boolean(v));
-  }, [grapheme, hasValue]);
+  const [activeTab, setActiveTab] = useState<TabType>('information');
 
   if (loading) {
     return (
-      <div className="bg-white p-6">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <ProgressBarLoader />
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <ProgressBarLoader />
       </div>
     );
   }
 
   if (error || !grapheme) {
     return (
-      <div className="bg-white p-6">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <p className="text-black mb-4">{error || 'Grapheme not found'}</p>
-          <Link to="/search" className="text-black underline text-sm ">Back to search</Link>
-        </div>
+      <div className="max-w-[80ch] mx-auto px-4 py-4">
+        <p className="text-sm">{error || 'Grapheme not found'}</p>
+        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
       </div>
     );
   }
 
-  const infoRow = (label: string, value: React.ReactNode) => (
-    <div className="flex gap-3 py-2 border-b border-black last:border-b-0">
-      <span className="text-black text-sm min-w-[100px]">{label}</span>
-      <span className="text-black text-sm">{value}</span>
-    </div>
-  );
+  const tabLabel = (tab: TabType, label: string) => {
+    const isActive = activeTab === tab;
+    return (
+      <td className="px-3 py-1 cursor-pointer" onClick={() => setActiveTab(tab)}>
+        <span className="text-sm inline-grid">
+          <span className="invisible col-start-1 row-start-1 font-[800]">[{label}]</span>
+          <span className="col-start-1 row-start-1">
+            {isActive ? <strong>[{label}]</strong> : label}
+          </span>
+        </span>
+      </td>
+    );
+  };
+
+  const displayCode = grapheme.graphcode || grapheme.grapheme_code || 'Unknown';
 
   return (
-    <div className="bg-white p-6 max-md:p-4">
-      <div className="max-w-[1100px] mx-auto">
-        <Link to="/search" className="inline-flex items-center gap-1 text-black underline text-sm mb-6">
-          ← Back to search
-        </Link>
+    <div className="max-w-[80ch] mx-auto px-4 py-4">
+      <div className="flex flex-col gap-4">
 
-        <h1 className="text-2xl font-[800] uppercase text-black mb-6">
-          {grapheme.mhd_block_id || 'Unknown Block'} - {grapheme.grapheme_code || grapheme.graphcode}
-        </h1>
-
-        <div className="grid grid-cols-[1.2fr_1fr] max-md:grid-cols-1 gap-6">
-          <div className="flex flex-col gap-4">
-            {hasTemporal && (
-              <section className="border-2 border-black p-4 ">
-                <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                  Temporal
-                </h3>
-                <div className="flex flex-col">
-                  {hasValue(grapheme.event_calendar) && infoRow('Calendar', grapheme.event_calendar)}
-                  {hasValue(grapheme.event_long_count) && infoRow('Long Count', <span className="font-mono text-xs bg-white px-2 py-0.5 ">{grapheme.event_long_count}</span>)}
-                </div>
-              </section>
-            )}
-
-            {hasGeographic && (
-              <section className="border-2 border-black p-4 ">
-                <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                  Geographic
-                </h3>
-                <div className="flex flex-col">
-                  {hasValue(grapheme.region) && infoRow('Region', grapheme.region)}
-                  {hasValue(grapheme.site_name) && infoRow('Site', grapheme.site_name)}
-                </div>
-              </section>
-            )}
-
-            <section className="border-2 border-black p-4 ">
-              <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                Artifact
-              </h3>
-              <div className="flex flex-col">
-                {infoRow('Block ID', grapheme.block_id ? (
-                  <Link to={`/block/${grapheme.block_id}`} className="font-mono text-xs bg-white text-black underline px-2 py-0.5  ">{grapheme.mhd_block_id || 'N/A'}</Link>
+        {/* Header */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs">
+                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                {' > '}
+                <Link to="/search?mode=graphemes" className="underline hover:no-underline font-normal">Graphemes</Link>
+                {' > '}
+                <span className="font-[800]">{displayCode}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-3 py-4 text-center">
+                {grapheme.primary_image_url ? (
+                  <img src={grapheme.primary_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
-                  <span className="font-mono text-xs bg-white px-2 py-0.5 ">{grapheme.mhd_block_id || 'N/A'}</span>
-                ))}
-                {infoRow('Artifact Code', grapheme.artifact_code || 'N/A')}
-                {hasValue(grapheme.surface_page) && infoRow('Surface/Page', grapheme.surface_page)}
-              </div>
-            </section>
-
-            <section className="border-2 border-black p-4 ">
-              <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                Instance
-              </h3>
-              <div className="flex flex-col">
-                {infoRow('Code', <span className="font-mono text-xs bg-white px-2 py-0.5 ">{grapheme.grapheme_code || grapheme.graphcode || 'N/A'}</span>)}
-                {hasValue(grapheme.grapheme_maya) && infoRow('Maya Text', grapheme.grapheme_maya)}
-                {hasValue(grapheme.grapheme_english) && infoRow('Translation', <span className="italic text-black">&quot;{grapheme.grapheme_english}&quot;</span>)}
-              </div>
-            </section>
-
-            {hasBlockContext && (
-              <section className="border-2 border-black p-4 ">
-                <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                  Block Context
-                </h3>
-                <div className="flex flex-col gap-2">
-                  {hasValue(grapheme.transcription_1) && <p className="text-sm text-black m-0">{grapheme.transcription_1}</p>}
-                  {hasValue(grapheme.block_english) && <p className="text-sm text-black italic m-0">&quot;{grapheme.block_english}&quot;</p>}
-                </div>
-              </section>
-            )}
-          </div>
-
-          {grapheme.catalog_sign_id && (
-            <div>
-              <section className="border-2 border-black p-4  sticky top-20">
-                <h3 className="flex items-center gap-2 text-sm font-[800] uppercase text-black pb-2 mb-3 border-b-2 border-black">
-                  Catalog Reference
-                </h3>
-
-                {grapheme.primary_image_url && (
-                  <div className="bg-white border-2 border-black p-4  flex items-center justify-center min-h-[160px] mb-4">
-                    <img src={grapheme.primary_image_url} alt={grapheme.graphcode || 'Catalog sign'} loading="lazy" width={200} height={200} className="max-w-full max-h-[240px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                  </div>
+                  <span className="text-xs">no image</span>
                 )}
+                {hasValue(grapheme.grapheme_english) && <div className="text-xs mt-2">"{grapheme.grapheme_english}"</div>}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-                <div className="text-lg font-[800] text-black mb-3">{grapheme.graphcode}</div>
+        {/* Tabs */}
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              {tabLabel('information', 'Information')}
+              {hasBlockContext && tabLabel('context', 'Block Context')}
+              {grapheme.catalog_sign_id && tabLabel('catalog', 'Catalog')}
+            </tr>
+          </tbody>
+        </table>
 
-                {catalogCodes.length > 0 && (
-                  <div className="flex flex-col gap-2 p-3 bg-white  mb-4">
-                    {catalogCodes.map((cd) => (
-                      <CatalogCodeBadge key={cd.label} label={cd.label} code={cd.code} variant={cd.variant} />
-                    ))}
-                  </div>
-                )}
+        {/* INFORMATION */}
+        {activeTab === 'information' && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
+                <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="px-3 py-1 text-xs font-[800]">Code</td><td className="px-3 py-1 text-xs">{grapheme.grapheme_code || displayCode}</td></tr>
+              {grapheme.block_id && (
+                <tr>
+                  <td className="px-3 py-1 text-xs font-[800]">Block</td>
+                  <td className="px-3 py-1 text-xs">
+                    <Link to={`/block/${grapheme.block_id}`} className="underline hover:no-underline">{grapheme.mhd_block_id || `Block ${grapheme.block_id}`}</Link>
+                  </td>
+                </tr>
+              )}
+              {hasValue(grapheme.artifact_code) && <tr><td className="px-3 py-1 text-xs font-[800]">Artifact</td><td className="px-3 py-1 text-xs">{grapheme.artifact_code}</td></tr>}
+              {hasValue(grapheme.surface_page) && <tr><td className="px-3 py-1 text-xs font-[800]">Surface</td><td className="px-3 py-1 text-xs">{grapheme.surface_page}</td></tr>}
+              {hasValue(grapheme.site_name) && <tr><td className="px-3 py-1 text-xs font-[800]">Site</td><td className="px-3 py-1 text-xs">{grapheme.site_name}</td></tr>}
+              {hasValue(grapheme.region) && <tr><td className="px-3 py-1 text-xs font-[800]">Region</td><td className="px-3 py-1 text-xs">{grapheme.region}</td></tr>}
+              {hasValue(grapheme.event_calendar) && <tr><td className="px-3 py-1 text-xs font-[800]">Calendar</td><td className="px-3 py-1 text-xs">{grapheme.event_calendar}</td></tr>}
+              {hasValue(grapheme.event_long_count) && <tr><td className="px-3 py-1 text-xs font-[800]">Long Count</td><td className="px-3 py-1 text-xs">{grapheme.event_long_count}</td></tr>}
+              {hasValue(grapheme.grapheme_maya) && <tr><td className="px-3 py-1 text-xs font-[800]">Maya text</td><td className="px-3 py-1 text-xs">{grapheme.grapheme_maya}</td></tr>}
+              {hasValue(grapheme.grapheme_english) && <tr><td className="px-3 py-1 text-xs font-[800]">Translation</td><td className="px-3 py-1 text-xs">"{grapheme.grapheme_english}"</td></tr>}
+            </tbody>
+          </table>
+        )}
 
-                <div className="flex flex-col gap-2 py-3 border-y border-black mb-4">
-                  {hasValue(grapheme.syllabic_value) && (
-                    <div className="flex gap-3 items-baseline">
-                      <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">Syllabic:</span>
-                      <span className="text-sm text-black">{grapheme.syllabic_value}</span>
-                    </div>
-                  )}
-                  {hasValue(grapheme.logographic_value) && (
-                    <div className="flex gap-3 items-baseline">
-                      <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">Logographic:</span>
-                      <span className="text-sm text-black">{grapheme.logographic_value}</span>
-                    </div>
-                  )}
-                  {hasValue(grapheme.logographic_cvc) && (
-                    <div className="flex gap-3 items-baseline">
-                      <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">CVC:</span>
-                      <span className="text-sm text-black font-mono">{grapheme.logographic_cvc}</span>
-                    </div>
-                  )}
-                  {hasValue(grapheme.english_translation) && (
-                    <div className="flex gap-3 items-baseline">
-                      <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">Translation:</span>
-                      <span className="text-sm text-black italic">&quot;{grapheme.english_translation}&quot;</span>
-                    </div>
-                  )}
-                  {hasValue(grapheme.word_class) && (
-                    <div className="flex gap-3 items-baseline">
-                      <span className="text-xs text-black uppercase tracking-wide min-w-[80px]">Word Class:</span>
-                      <span className="text-xs text-black uppercase">{grapheme.word_class}</span>
-                    </div>
-                  )}
-                </div>
+        {/* BLOCK CONTEXT */}
+        {activeTab === 'context' && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
+                <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hasValue(grapheme.transcription_1) && <tr><td className="px-3 py-1 text-xs font-[800]">Transcription</td><td className="px-3 py-1 text-xs">{grapheme.transcription_1}</td></tr>}
+              {hasValue(grapheme.block_english) && <tr><td className="px-3 py-1 text-xs font-[800]">English</td><td className="px-3 py-1 text-xs">"{grapheme.block_english}"</td></tr>}
+            </tbody>
+          </table>
+        )}
 
-                {hasMetadata && (
-                  <div className="flex flex-col gap-1.5 text-sm mb-4">
-                    {hasValue(grapheme.sign_technique) && (
-                      <div className="flex gap-2"><span className="text-black font-[600] min-w-[80px]">Technique:</span><span className="text-black">{grapheme.sign_technique}</span></div>
-                    )}
-                    {hasValue(grapheme.distribution) && (
-                      <div className="flex gap-2"><span className="text-black font-[600] min-w-[80px]">Distribution:</span><span className="text-black">{grapheme.distribution}</span></div>
-                    )}
-                    {hasValue(grapheme.picture_description) && (
-                      <div className="flex flex-col gap-1"><span className="text-black font-[600]">Description:</span><span className="text-black">{grapheme.picture_description}</span></div>
-                    )}
-                  </div>
-                )}
+        {/* CATALOG */}
+        {activeTab === 'catalog' && grapheme.catalog_sign_id && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
+                <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="px-3 py-1 text-xs font-[800]">Graph code</td><td className="px-3 py-1 text-xs">{grapheme.graphcode}</td></tr>
+              {hasValue(grapheme.syllabic_value) && <tr><td className="px-3 py-1 text-xs font-[800]">Reading</td><td className="px-3 py-1 text-xs">{grapheme.syllabic_value}</td></tr>}
+              {hasValue(grapheme.logographic_value) && <tr><td className="px-3 py-1 text-xs font-[800]">Logographic</td><td className="px-3 py-1 text-xs">{grapheme.logographic_value}</td></tr>}
+              {hasValue(grapheme.logographic_cvc) && <tr><td className="px-3 py-1 text-xs font-[800]">CVC</td><td className="px-3 py-1 text-xs">{grapheme.logographic_cvc}</td></tr>}
+              {hasValue(grapheme.english_translation) && <tr><td className="px-3 py-1 text-xs font-[800]">Translation</td><td className="px-3 py-1 text-xs">"{grapheme.english_translation}"</td></tr>}
+              {hasValue(grapheme.word_class) && <tr><td className="px-3 py-1 text-xs font-[800]">Word class</td><td className="px-3 py-1 text-xs">{grapheme.word_class}</td></tr>}
+              {hasValue(grapheme.thompson_code) && <tr><td className="px-3 py-1 text-xs font-[800]">Thompson</td><td className="px-3 py-1 text-xs">T{grapheme.thompson_code}{grapheme.thompson_variant ? ` (var. ${grapheme.thompson_variant})` : ''}</td></tr>}
+              {hasValue(grapheme.zender_code) && <tr><td className="px-3 py-1 text-xs font-[800]">TWKM</td><td className="px-3 py-1 text-xs">{grapheme.zender_code}</td></tr>}
+              {hasValue(grapheme.kettunen_code) && <tr><td className="px-3 py-1 text-xs font-[800]">Kettunen</td><td className="px-3 py-1 text-xs">{grapheme.kettunen_code}</td></tr>}
+              {hasValue(grapheme.gronemeyer_code) && <tr><td className="px-3 py-1 text-xs font-[800]">Gronemeyer</td><td className="px-3 py-1 text-xs">{grapheme.gronemeyer_code}</td></tr>}
+              {grapheme.bonn_sign_number && <tr><td className="px-3 py-1 text-xs font-[800]">Bonn</td><td className="px-3 py-1 text-xs">Sign {grapheme.bonn_sign_number}</td></tr>}
+              {hasValue(grapheme.sign_technique) && <tr><td className="px-3 py-1 text-xs font-[800]">Technique</td><td className="px-3 py-1 text-xs">{grapheme.sign_technique}</td></tr>}
+              {hasValue(grapheme.distribution) && <tr><td className="px-3 py-1 text-xs font-[800]">Distribution</td><td className="px-3 py-1 text-xs">{grapheme.distribution}</td></tr>}
+              {hasValue(grapheme.picture_description) && <tr><td className="px-3 py-1 text-xs font-[800]">Depicts</td><td className="px-3 py-1 text-xs">{grapheme.picture_description}</td></tr>}
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Full entry</td>
+                <td className="px-3 py-1 text-xs">
+                  <Link to={`/sign/${grapheme.catalog_sign_id}`} className="underline hover:no-underline">View sign detail</Link>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        )}
 
-                <Link
-                  to={`/sign/${grapheme.catalog_sign_id}`}
-                  className="text-black underline text-sm"
-                >
-                  View Full Catalog Entry &rarr;
-                </Link>
-              </section>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

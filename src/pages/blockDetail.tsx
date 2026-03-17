@@ -1,72 +1,11 @@
-import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 import { fetchBlock } from '../lib/api';
 import type { Block } from '../types/database';
 import type { BlockGrapheme, BlockSignSlotDetail } from '../../api/lib/types';
 
-type TabType = 'transcription' | 'dates' | 'signs' | 'people';
-
-interface SlotInfo {
-  certainty?: string;
-  position_in_block?: string | null;
-}
-
-const GraphemeRow = memo(({ grapheme, slotInfo }: { grapheme: BlockGrapheme; slotInfo?: SlotInfo }) => (
-  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white ">
-    <div>
-      {grapheme.primary_image_url ? (
-        <img src={grapheme.primary_image_url} alt={grapheme.graphcode || grapheme.grapheme_code} loading="lazy" className="w-[44px] h-[32px] object-contain border-2 border-black bg-white" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-      ) : (
-        <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">img</div>
-      )}
-    </div>
-    <div className="flex flex-col gap-0.5">
-      <div className="font-mono text-sm font-[600]">
-        {grapheme.catalog_sign_id ? (
-          <Link to={`/sign/${grapheme.catalog_sign_id}`} className="text-black underline no-underline hover:underline">
-            {grapheme.graphcode || grapheme.grapheme_code}
-          </Link>
-        ) : (
-          <span className="text-black">{grapheme.graphcode || grapheme.grapheme_code}</span>
-        )}
-        {slotInfo?.certainty === 'uncertain' && <span className="text-black ml-1 text-xs">?</span>}
-      </div>
-      {grapheme.syllabic_value && <div className="italic text-sm">{grapheme.syllabic_value}</div>}
-      {grapheme.grapheme_english && grapheme.grapheme_english !== '_' && (
-        <div className="text-[11px] text-black">{grapheme.english_translation || grapheme.grapheme_english}</div>
-      )}
-    </div>
-    <div className="flex flex-col items-end gap-1">
-      {slotInfo?.position_in_block && slotInfo.position_in_block !== 'eroded' && (
-        <span className={`font-mono text-[10px] px-2 py-0.5 border ${
-          slotInfo.position_in_block === 'main' ? 'bg-white text-black border-black' :
-          slotInfo.position_in_block === 'prefix' ? 'bg-white text-black underline border-black' :
-          slotInfo.position_in_block === 'suffix' ? 'bg-white text-black border-black' :
-          'bg-white text-black border-black'
-        }`}>{slotInfo.position_in_block === 'main' ? 'main sign' : slotInfo.position_in_block}</span>
-      )}
-      {slotInfo?.certainty === 'uncertain' && (
-        <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">uncertain</span>
-      )}
-    </div>
-  </div>
-));
-GraphemeRow.displayName = 'GraphemeRow';
-
-const ErodedRow = memo(() => (
-  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white">
-    <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">---</div>
-    <div className="flex flex-col gap-0.5">
-      <div className="font-mono text-sm text-black">000</div>
-      <div className="text-[11px] text-black">eroded / undetermined</div>
-    </div>
-    <div>
-      <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">eroded</span>
-    </div>
-  </div>
-));
-ErodedRow.displayName = 'ErodedRow';
+type TabType = 'information' | 'transcription' | 'dates' | 'signs' | 'people';
 
 export function BlockDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -77,7 +16,7 @@ export function BlockDetailPage() {
   const [nextBlock, setNextBlock] = useState<{ id: number; coordinate: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('transcription');
+  const [activeTab, setActiveTab] = useState<TabType>('information');
 
   useEffect(() => {
     if (!id) { setError('No ID provided'); setLoading(false); return; }
@@ -104,16 +43,14 @@ export function BlockDetailPage() {
 
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasCalendarInfo = useMemo(() => hasValue(block?.event_calendar) || hasValue(block?.event_long_count) || hasValue(block?.event_gregorian) || hasValue(block?.event_260_day) || hasValue(block?.event_365_day), [block, hasValue]);
-  const hasTextContent = useMemo(() => hasValue(block?.transcription_1) || hasValue(block?.block_english) || hasValue(block?.transcription_logosyll) || hasValue(block?.transcription_hyphen) || hasValue(block?.transcription_1), [block, hasValue]);
+  const hasTextContent = useMemo(() => hasValue(block?.transcription_1) || hasValue(block?.block_english) || hasValue(block?.transcription_logosyll) || hasValue(block?.transcription_hyphen), [block, hasValue]);
   const hasPeople = useMemo(() => hasValue(block?.person_code) || hasValue(block?.scribe), [block, hasValue]);
 
-  // Parse semantic_context into tags
   const semanticTags = useMemo(() => {
     if (!block?.semantic_context || block.semantic_context === '_') return [];
     return block.semantic_context.split(/[/,;]/).map(s => s.trim()).filter(Boolean);
   }, [block]);
 
-  // Parse person_code and scribe into people list
   const people = useMemo(() => {
     if (!block) return [];
     const list: { name: string; role: string; uncertain: boolean }[] = [];
@@ -136,468 +73,305 @@ export function BlockDetailPage() {
 
   if (loading) {
     return (
-      <div className="bg-white p-6">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <ProgressBarLoader />
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <ProgressBarLoader />
       </div>
     );
   }
 
   if (error || !block) {
     return (
-      <div className="bg-white p-6">
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <p className="text-black mb-4">{error || 'Block not found'}</p>
-          <Link to="/search" className="text-black underline text-sm no-underline hover:underline">Back to search</Link>
-        </div>
+      <div className="max-w-[80ch] mx-auto px-4 py-4">
+        <p className="text-sm">{error || 'Block not found'}</p>
+        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
       </div>
     );
   }
 
-  const tabBtn = (tab: TabType, label: string, count?: number) => (
-    <button
-      className={`px-4 py-3 text-sm font-[600] border-b-2  whitespace-nowrap ${
-        activeTab === tab ? 'text-black border-black' : 'text-black border-transparent'
-      }`}
-      onClick={() => setActiveTab(tab)}
-    >
-      {label}
-      {count !== undefined && count > 0 && <span className="ml-1.5 font-mono text-xs text-black">{count}</span>}
-    </button>
-  );
-
-  const metaRow = (label: string, value: string | null | undefined, mono?: boolean) => (
-    hasValue(value) && (
-      <div className="flex gap-0 text-sm">
-        <span className="text-black min-w-[120px] shrink-0">{label}</span>
-        <span className={`text-black ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
-      </div>
-    )
-  );
+  const tabLabel = (tab: TabType, label: string, count?: number) => {
+    const isActive = activeTab === tab;
+    const text = count !== undefined ? `${label} ${count}` : label;
+    return (
+      <td className="px-3 py-1 cursor-pointer" onClick={() => setActiveTab(tab)}>
+        <span className="text-sm inline-grid">
+          <span className="invisible col-start-1 row-start-1 font-[800]">[{text}]</span>
+          <span className="col-start-1 row-start-1">
+            {isActive ? <strong>[{text}]</strong> : text}
+          </span>
+        </span>
+      </td>
+    );
+  };
 
   return (
-    <div className="bg-white p-6 max-md:p-4">
-      <div className="max-w-[1100px] mx-auto">
-        {/* Breadcrumb with block nav */}
-        <div className="flex items-center gap-1 text-sm text-black mb-6">
-          <Link to="/search" className="text-black underline no-underline hover:underline">Search</Link>
-          <span>&rsaquo;</span>
-          <span>Blocks</span>
-          <span>&rsaquo;</span>
-          {block.artifact_code && (
-            <>
-              <span className="text-black">{block.artifact_code}</span>
-              <span>&rsaquo;</span>
-            </>
-          )}
-          <span className="text-black font-[600]">{block.mhd_block_id}</span>
-          {block.coordinate && (
-            <span className="ml-3 inline-flex items-center gap-1.5">
-              {prevBlock ? (
-                <Link to={`/block/${prevBlock.id}`} className="text-black underline no-underline" title={`Previous: ${prevBlock.coordinate}`}>&lsaquo;</Link>
-              ) : (
-                <span className="text-black select-none">&lsaquo;</span>
-              )}
-              <span className="font-mono text-xs text-black">{block.coordinate}</span>
-              {nextBlock ? (
-                <Link to={`/block/${nextBlock.id}`} className="text-black underline no-underline" title={`Next: ${nextBlock.coordinate}`}>&rsaquo;</Link>
-              ) : (
-                <span className="text-black select-none">&rsaquo;</span>
-              )}
-            </span>
-          )}
-        </div>
+    <div className="max-w-[80ch] mx-auto px-4 py-4">
+      <div className="flex flex-col gap-4">
 
-        {/* Hero: Image + Dual-column metadata */}
-        <div className="border-2 border-black overflow-hidden">
-          <div className="grid grid-cols-[280px_1fr] max-md:grid-cols-1 gap-0">
-            {/* Image panel */}
-            <div className="bg-white border-r-2 border-black max-md:border-r-0 max-md:border-b flex flex-col items-center justify-center p-6 gap-3">
-              {(block.block_image1_url || block.block_image2_url) ? (
-                <img
-                  src={block.block_image1_url || block.block_image2_url || ''}
-                  alt={block.mhd_block_id}
-                  loading="lazy"
-                  className="max-h-[200px] max-w-full object-contain"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
-              ) : (
-                <div className="w-[180px] h-[140px] bg-white border border-dashed border-black flex items-center justify-center text-black text-xs font-mono">
-                  no image
-                </div>
-              )}
-              <div className="text-[10px] font-mono text-black text-center">
-                {block.mhd_block_id}
-                {block.coordinate && ` \u00B7 ${block.coordinate}`}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <a href="https://mayadatabase.org" target="_blank" rel="noopener noreferrer"
-                  className="text-black underline text-[11px] no-underline px-2 py-0.5 border-2 border-black bg-white inline-flex items-center gap-1">
-                  MHD record
-                </a>
-                {block.block_image2_url && block.block_image1_url && (
-                  <a href={block.block_image2_url} target="_blank" rel="noopener noreferrer"
-                    className="text-black underline text-[11px] no-underline px-2 py-0.5 border-2 border-black bg-white inline-flex items-center gap-1">
-                    More images
-                  </a>
+        {/* Header */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs">
+                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                {' > '}
+                <Link to="/search?mode=blocks" className="underline hover:no-underline font-normal">Blocks</Link>
+                {block.artifact_code && (
+                  <>
+                    {' > '}
+                    <span>{block.artifact_code}</span>
+                  </>
                 )}
-              </div>
-            </div>
-
-            {/* Dual-column metadata */}
-            <div className="grid grid-cols-2 max-md:grid-cols-1 gap-6 p-6">
-              {/* Left: Location & Object */}
-              <div className="flex flex-col gap-3">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-black pb-1.5 border-b-2 border-black">
-                  Location &amp; Object
-                </div>
-                {metaRow('Block ID', block.mhd_block_id, true)}
-                {metaRow('Coordinate', block.coordinate, true)}
-                {hasValue(block.artifact_code) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Artifact</span>
-                    <span className="text-black">
-                      {block.artifact_code}
-                      {block.artifact_name && block.artifact_name !== block.artifact_code && (
-                        <span className="text-black"> &mdash; {block.artifact_name.includes(',') ? block.artifact_name.split(',').slice(1).join(',').trim() : block.artifact_name}</span>
-                      )}
-                    </span>
-                  </div>
+                {' > '}
+                <span className="font-[800]">{block.mhd_block_id}</span>
+                {block.coordinate && (
+                  <span className="ml-3">
+                    {prevBlock ? (
+                      <Link to={`/block/${prevBlock.id}`} className="underline hover:no-underline font-normal" title={`Previous: ${prevBlock.coordinate}`}>&lsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&lsaquo;</span>
+                    )}
+                    {' '}
+                    <span className="text-xs">{block.coordinate}</span>
+                    {' '}
+                    {nextBlock ? (
+                      <Link to={`/block/${nextBlock.id}`} className="underline hover:no-underline font-normal" title={`Next: ${nextBlock.coordinate}`}>&rsaquo;</Link>
+                    ) : (
+                      <span className="select-none">&rsaquo;</span>
+                    )}
+                  </span>
                 )}
-                {hasValue(block.site_name) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Site</span>
-                    <Link to={`/search?mode=blocks&site=${encodeURIComponent(block.site_name!)}`} className="text-black underline no-underline hover:underline">{block.site_name}</Link>
-                  </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-3 py-4 text-center">
+                {(block.block_image1_url || block.block_image2_url) ? (
+                  <img
+                    src={block.block_image1_url || block.block_image2_url || ''}
+                    alt={block.mhd_block_id}
+                    loading="lazy"
+                    className="max-h-[200px] object-contain inline-block"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <span className="text-xs">no image</span>
                 )}
-                {metaRow('Region', block.region)}
-                {metaRow('Surface', block.surface_page)}
-                {metaRow('Frame', block.orientation_frame)}
-                {(hasValue(block.technique) || hasValue(block.material)) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Medium</span>
-                    <span className="text-black">{[block.technique, block.material].filter(v => v && v !== '_' && v !== '-').join(' \u2013 ') || '\u2014'}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Attribution & Semantic */}
-              <div className="flex flex-col gap-3">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-black pb-1.5 border-b-2 border-black">
-                  Attribution &amp; Semantic Context
-                </div>
-                {hasValue(block.scribe) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Scribe(s)</span>
-                    <span className="text-black">{block.scribe}</span>
-                  </div>
-                )}
-                {hasValue(block.person_code) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Person</span>
-                    <span className="text-black">{block.person_code}</span>
-                  </div>
-                )}
-                {semanticTags.length > 0 && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Semantic</span>
-                    <div className="flex flex-wrap gap-1">
-                      {semanticTags.map((tag, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 bg-white border-2 border-black text-black">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {metaRow('Calendar type', block.event_calendar)}
-                {metaRow('Object type', block.artifact_type)}
-                {metaRow('Description', block.object_description)}
-                {hasValue(block.image_notes) && (
-                  <div className="flex gap-0 text-sm">
-                    <span className="text-black min-w-[120px] shrink-0">Image notes</span>
-                    <span className="text-black italic text-xs">{block.image_notes}</span>
-                  </div>
-                )}
-                {/* MHD source ID (numeric suffix of mhd_block_id) */}
-                {block.mhd_block_id && block.mhd_block_id.includes('-') && (
-                  <div className="flex gap-0 text-sm mt-1">
-                    <span className="text-black min-w-[120px] shrink-0">MHD source ID</span>
-                    <span className="text-black font-mono text-xs">{block.mhd_block_id.split('-').pop()}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+                {hasValue(block.block_english) && <div className="text-xs mt-2">"{block.block_english}"</div>}
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-x border-black bg-white overflow-x-auto px-4">
-          {tabBtn('transcription', 'Transcription')}
-          {hasCalendarInfo && tabBtn('dates', 'Dates')}
-          {tabBtn('signs', 'Signs', signSlots.length || graphemes.length)}
-          {hasPeople && tabBtn('people', 'People', people.length)}
-        </div>
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              {tabLabel('information', 'Information')}
+              {hasTextContent && tabLabel('transcription', 'Transcription')}
+              {hasCalendarInfo && tabLabel('dates', 'Dates')}
+              {tabLabel('signs', 'Signs', signSlots.length || graphemes.length)}
+              {hasPeople && tabLabel('people', 'People', people.length)}
+            </tr>
+          </tbody>
+        </table>
 
-        {/* Tab Content */}
-        <div className="border-2 border-black p-6 min-h-[200px]">
-
-          {/* TRANSCRIPTION TAB */}
-          {activeTab === 'transcription' && (
-            hasTextContent ? (
-              <div>
-                <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-4">Full block transcription</h3>
-                <div className="border-2 border-black overflow-hidden">
-                  {hasValue(block.transcription_logosyll) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Logosyll.</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_logosyll}</div>
-                    </div>
-                  )}
-                  {hasValue(block.transcription_hyphen) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Hyphen</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_hyphen}</div>
-                    </div>
-                  )}
-                  {hasValue(block.transcription_1) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Transcr. 1</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_1}</div>
-                    </div>
-                  )}
-                  {hasValue(block.transcription_2) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Transcr. 2</div>
-                      <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_2}</div>
-                    </div>
-                  )}
-                  {hasValue(block.block_english) && (
-                    <div className="grid grid-cols-[110px_1fr]">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">English</div>
-                      <div className="p-3 italic text-sm text-black">&ldquo;{block.block_english}&rdquo;</div>
-                    </div>
-                  )}
-                </div>
-                {block.notes && block.notes !== '' && (
-                  <div className="mt-4 p-3 bg-white border-2 border-black">
-                    <span className="text-[10px] font-mono uppercase tracking-wide text-black block mb-1">Notes</span>
-                    <p className="text-sm text-black m-0 leading-relaxed">{block.notes}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-center text-black py-12">No transcription data available for this block</p>
-            )
-          )}
-
-          {/* DATES TAB */}
-          {activeTab === 'dates' && (
-            <div>
-              <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-2">Two date contexts &mdash; event date vs. object date</h3>
-              <p className="text-xs text-black italic mb-4">
-                MHD records may contain event dates (the historical event described) and/or object dates (when the monument was created).
-              </p>
-              <div className="grid grid-cols-2 max-md:grid-cols-1 gap-4">
-                {/* Event date column */}
-                <div className="border-2 border-black overflow-hidden">
-                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-white border-b-2 border-black text-black">
-                    Event date (ev–)
-                  </div>
-                  <div className="py-2">
-                    <DateRow label="Calendar" value={block.event_calendar} />
-                    <DateRow label="Long Count" value={block.event_long_count} />
-                    <DateRow label="260-day" value={block.event_260_day} />
-                    <DateRow label="365-day" value={block.event_365_day} />
-                    <DateRow label="Gregorian" value={block.event_gregorian} />
-                  </div>
-                </div>
-                {/* Object date column */}
-                <div className="border-2 border-black overflow-hidden">
-                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-white border-b-2 border-black text-black">
-                    Object date (obj–)
-                  </div>
-                  <div className="py-2">
-                    {(block as unknown as Record<string, unknown>).object_date_start ? (
-                      <>
-                        <DateRow label="Long Count" value={(block as unknown as Record<string, unknown>).object_date_lc as string | null} />
-                        <DateRow label="260-day" value={(block as unknown as Record<string, unknown>).object_date_260 as string | null} />
-                        <DateRow label="365-day" value={(block as unknown as Record<string, unknown>).object_date_365 as string | null} />
-                        <DateRow label="Gregorian" value={(block as unknown as Record<string, unknown>).object_date_start as string | null} />
-                        {(block as unknown as Record<string, unknown>).object_date_end && (
-                          <DateRow label="End date" value={(block as unknown as Record<string, unknown>).object_date_end as string | null} />
-                        )}
-                      </>
-                    ) : (
-                      <div className="px-3 py-2 text-xs text-black italic">No separate object date available</div>
+        {/* INFORMATION */}
+        {activeTab === 'information' && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
+                <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td className="px-3 py-1 text-xs font-[800]">Block ID</td><td className="px-3 py-1 text-xs">{block.mhd_block_id}</td></tr>
+              {hasValue(block.coordinate) && <tr><td className="px-3 py-1 text-xs font-[800]">Coordinate</td><td className="px-3 py-1 text-xs">{block.coordinate}</td></tr>}
+              {hasValue(block.artifact_code) && (
+                <tr>
+                  <td className="px-3 py-1 text-xs font-[800]">Artifact</td>
+                  <td className="px-3 py-1 text-xs">
+                    {block.artifact_code}
+                    {block.artifact_name && block.artifact_name !== block.artifact_code && (
+                      <span> — {block.artifact_name.includes(',') ? block.artifact_name.split(',').slice(1).join(',').trim() : block.artifact_name}</span>
                     )}
-                  </div>
-                </div>
-              </div>
-              {!(block as unknown as Record<string, unknown>).object_date_start && (
-                <p className="text-xs text-black italic mt-3">
-                  Object dates (when the monument was made) are only available for artifacts documented in the TWKM corpus.
-                </p>
+                  </td>
+                </tr>
               )}
-            </div>
-          )}
+              {hasValue(block.site_name) && (
+                <tr>
+                  <td className="px-3 py-1 text-xs font-[800]">Site</td>
+                  <td className="px-3 py-1 text-xs">
+                    <Link to={`/search?mode=blocks&site=${encodeURIComponent(block.site_name!)}`} className="underline hover:no-underline">{block.site_name}</Link>
+                  </td>
+                </tr>
+              )}
+              {hasValue(block.region) && <tr><td className="px-3 py-1 text-xs font-[800]">Region</td><td className="px-3 py-1 text-xs">{block.region}</td></tr>}
+              {hasValue(block.surface_page) && <tr><td className="px-3 py-1 text-xs font-[800]">Surface</td><td className="px-3 py-1 text-xs">{block.surface_page}</td></tr>}
+              {hasValue(block.orientation_frame) && <tr><td className="px-3 py-1 text-xs font-[800]">Frame</td><td className="px-3 py-1 text-xs">{block.orientation_frame}</td></tr>}
+              {(hasValue(block.technique) || hasValue(block.material)) && (
+                <tr>
+                  <td className="px-3 py-1 text-xs font-[800]">Medium</td>
+                  <td className="px-3 py-1 text-xs">{[block.technique, block.material].filter(v => v && v !== '_' && v !== '-').join(' — ') || '—'}</td>
+                </tr>
+              )}
+              {hasValue(block.artifact_type) && <tr><td className="px-3 py-1 text-xs font-[800]">Object type</td><td className="px-3 py-1 text-xs">{block.artifact_type}</td></tr>}
+              {hasValue(block.object_description) && <tr><td className="px-3 py-1 text-xs font-[800]">Description</td><td className="px-3 py-1 text-xs">{block.object_description}</td></tr>}
+              {semanticTags.length > 0 && (
+                <tr>
+                  <td className="px-3 py-1 text-xs font-[800]">Semantic</td>
+                  <td className="px-3 py-1 text-xs">{semanticTags.join(', ')}</td>
+                </tr>
+              )}
+              {hasValue(block.event_calendar) && <tr><td className="px-3 py-1 text-xs font-[800]">Calendar type</td><td className="px-3 py-1 text-xs">{block.event_calendar}</td></tr>}
+              {hasValue(block.image_notes) && <tr><td className="px-3 py-1 text-xs font-[800]">Image notes</td><td className="px-3 py-1 text-xs">{block.image_notes}</td></tr>}
+              <tr>
+                <td className="px-3 py-1 text-xs font-[800]">Sources</td>
+                <td className="px-3 py-1 text-xs">
+                  <a href="https://mayadatabase.org" target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">MHD</a>
+                  {block.block_image2_url && block.block_image1_url && (
+                    <>{' · '}<a href={block.block_image2_url} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">More images</a></>
+                  )}
+                </td>
+              </tr>
+              {block.notes && block.notes !== '' && <tr><td className="px-3 py-1 text-xs font-[800]">Notes</td><td className="px-3 py-1 text-xs">{block.notes}</td></tr>}
+            </tbody>
+          </table>
+        )}
 
-          {/* SIGNS TAB */}
-          {activeTab === 'signs' && (
-            <div>
-              {/* Sign sequence strip */}
-              {signSlots.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-3">
-                    Sign sequence &mdash; {hasValue(block.block_graphcodes) ? block.block_graphcodes : `${signSlots.length} signs`}
-                  </h3>
-                  <div className="flex items-center gap-1.5 p-4 bg-white border-2 border-black flex-wrap">
-                    {signSlots.map((slot, i) => (
-                      <div key={slot.slot_id} className="flex items-center gap-1.5">
-                        <div className="flex flex-col items-center gap-1">
-                          <div className={`w-[48px] h-[34px] border flex items-center justify-center ${
-                            slot.certainty === 'eroded'
-                              ? 'border-black bg-white'
-                              : slot.certainty === 'uncertain'
-                              ? 'border-black bg-white'
-                              : 'border-black bg-white'
-                          }`}>
-                            {slot.image_url ? (
-                              <img src={slot.image_url} alt="" className="w-[40px] h-[28px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                            ) : (
-                              <span className="text-[8px] font-mono text-black">
-                                {slot.certainty === 'eroded' ? '---' : 'img'}
-                              </span>
-                            )}
-                          </div>
-                          <span className={`font-mono text-[10px] ${
-                            slot.certainty === 'eroded'
-                              ? 'text-black'
-                              : slot.certainty === 'uncertain'
-                              ? 'text-black'
-                              : 'text-black underline'
-                          }`}>
+        {/* TRANSCRIPTION */}
+        {activeTab === 'transcription' && (
+          hasTextContent ? (
+            <table className="w-auto">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Type</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hasValue(block.transcription_logosyll) && <tr><td className="px-3 py-1 text-xs font-[800]">Logosyll.</td><td className="px-3 py-1 text-xs">{block.transcription_logosyll}</td></tr>}
+                {hasValue(block.transcription_hyphen) && <tr><td className="px-3 py-1 text-xs font-[800]">Hyphen</td><td className="px-3 py-1 text-xs">{block.transcription_hyphen}</td></tr>}
+                {hasValue(block.transcription_1) && <tr><td className="px-3 py-1 text-xs font-[800]">Transcr. 1</td><td className="px-3 py-1 text-xs">{block.transcription_1}</td></tr>}
+                {hasValue(block.transcription_2) && <tr><td className="px-3 py-1 text-xs font-[800]">Transcr. 2</td><td className="px-3 py-1 text-xs">{block.transcription_2}</td></tr>}
+                {hasValue(block.block_english) && <tr><td className="px-3 py-1 text-xs font-[800]">English</td><td className="px-3 py-1 text-xs">"{block.block_english}"</td></tr>}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-xs px-3 py-8 text-center">No transcription data available</p>
+          )
+        )}
+
+        {/* DATES */}
+        {activeTab === 'dates' && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
+                <th className="px-3 py-1 text-left text-xs uppercase">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hasValue(block.event_calendar) && <tr><td className="px-3 py-1 text-xs font-[800]">Calendar</td><td className="px-3 py-1 text-xs">{block.event_calendar}</td></tr>}
+              {hasValue(block.event_long_count) && <tr><td className="px-3 py-1 text-xs font-[800]">Long Count</td><td className="px-3 py-1 text-xs">{block.event_long_count}</td></tr>}
+              {hasValue(block.event_260_day) && <tr><td className="px-3 py-1 text-xs font-[800]">260-day</td><td className="px-3 py-1 text-xs">{block.event_260_day}</td></tr>}
+              {hasValue(block.event_365_day) && <tr><td className="px-3 py-1 text-xs font-[800]">365-day</td><td className="px-3 py-1 text-xs">{block.event_365_day}</td></tr>}
+              {hasValue(block.event_gregorian) && <tr><td className="px-3 py-1 text-xs font-[800]">Gregorian</td><td className="px-3 py-1 text-xs">{block.event_gregorian}</td></tr>}
+            </tbody>
+          </table>
+        )}
+
+        {/* SIGNS */}
+        {activeTab === 'signs' && (
+          (signSlots.length > 0 || graphemes.length > 0) ? (
+            <table className="w-auto">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Code</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Reading</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Position</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Certainty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {signSlots.length > 0 ? (
+                  signSlots.map((slot) => (
+                    <tr key={slot.slot_id}>
+                      <td className="px-3 py-1 text-xs font-[800]">
+                        {slot.certainty === 'eroded' || slot.raw_code === '000' ? (
+                          <span>000</span>
+                        ) : slot.catalog_sign_id ? (
+                          <Link to={`/sign/${slot.catalog_sign_id}`} className="underline hover:no-underline">
                             {slot.catalog_code || slot.raw_code}
-                            {slot.certainty === 'uncertain' && '?'}
-                          </span>
-                        </div>
-                        {i < signSlots.length - 1 && (
-                          <span className="text-black text-lg mt-[-14px]">&rsaquo;</span>
+                          </Link>
+                        ) : (
+                          <span>{slot.catalog_code || slot.raw_code}</span>
                         )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                      </td>
+                      <td className="px-3 py-1 text-xs">
+                        {slot.certainty === 'eroded' ? 'eroded / undetermined' : slot.reading_value || '-'}
+                      </td>
+                      <td className="px-3 py-1 text-xs">
+                        {slot.position_in_block && slot.position_in_block !== 'eroded' ? slot.position_in_block : '-'}
+                      </td>
+                      <td className="px-3 py-1 text-xs">
+                        {slot.certainty === 'eroded' ? 'eroded' : slot.certainty === 'uncertain' ? 'uncertain' : 'certain'}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  graphemes.map((g) => (
+                    <tr key={g.id}>
+                      <td className="px-3 py-1 text-xs font-[800]">
+                        {g.catalog_sign_id ? (
+                          <Link to={`/sign/${g.catalog_sign_id}`} className="underline hover:no-underline">
+                            {g.graphcode || g.grapheme_code}
+                          </Link>
+                        ) : (
+                          <span>{g.graphcode || g.grapheme_code}</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1 text-xs">{g.syllabic_value || '-'}</td>
+                      <td className="px-3 py-1 text-xs">-</td>
+                      <td className="px-3 py-1 text-xs">-</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-xs px-3 py-8 text-center">No sign data available</p>
+          )
+        )}
 
-              {/* Detailed sign list — merges sign slots with grapheme data */}
-              {(signSlots.length > 0 || graphemes.length > 0) && (
-                <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-3">Sign detail</h3>
-                  <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto">
-                    {signSlots.length > 0 ? (
-                      signSlots.map((slot) => {
-                        if (slot.certainty === 'eroded' || slot.raw_code === '000') {
-                          return <ErodedRow key={slot.slot_id} />;
-                        }
-                        const matchedGrapheme = graphemes.find(
-                          g => (g.graphcode === slot.catalog_code) || (g.graphcode === slot.raw_code)
-                        );
-                        if (matchedGrapheme) {
-                          return <GraphemeRow key={slot.slot_id} grapheme={matchedGrapheme} slotInfo={{ certainty: slot.certainty, position_in_block: slot.position_in_block }} />;
-                        }
-                        // Slot with no matching grapheme — show raw code
-                        return (
-                          <div key={slot.slot_id} className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white">
-                            <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">img</div>
-                            <div className="flex flex-col gap-0.5">
-                              <div className={`font-mono text-sm font-[600] ${slot.certainty === 'uncertain' ? 'text-black' : 'text-black'}`}>
-                                {slot.catalog_code || slot.raw_code}{slot.certainty === 'uncertain' ? '?' : ''}
-                              </div>
-                              {slot.reading_value && <div className="italic text-sm">{slot.reading_value}</div>}
-                            </div>
-                            <div>
-                              {slot.certainty === 'uncertain' && (
-                                <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">uncertain</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      graphemes.map((g) => (
-                        <GraphemeRow key={g.id} grapheme={g} />
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
+        {/* PEOPLE */}
+        {activeTab === 'people' && (
+          people.length > 0 ? (
+            <table className="w-auto">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Name</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Role</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Certainty</th>
+                </tr>
+              </thead>
+              <tbody>
+                {people.map((p, i) => (
+                  <tr key={i}>
+                    <td className="px-3 py-1 text-xs font-[800]">{p.name}</td>
+                    <td className="px-3 py-1 text-xs">{p.role}</td>
+                    <td className="px-3 py-1 text-xs">{p.uncertain ? 'uncertain' : 'certain'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="text-xs px-3 py-8 text-center">No named individuals recorded</p>
+          )
+        )}
 
-              {signSlots.length === 0 && graphemes.length === 0 && (
-                <p className="text-center text-black py-12">No sign data available for this block</p>
-              )}
-            </div>
-          )}
-
-          {/* PEOPLE TAB */}
-          {activeTab === 'people' && (
-            <div>
-              <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-4">
-                Named individuals associated with this block
-              </h3>
-              {people.length > 0 ? (
-                <div className="flex flex-col gap-2">
-                  {people.map((p, i) => {
-                    const personId = p.role === 'scribe'
-                      ? `scribe-${p.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
-                      : `mhd-${p.name}`;
-                    return (
-                      <Link key={i} to={`/person/${encodeURIComponent(personId)}`} className="flex items-center gap-3 p-3 border-2 border-black bg-white hover:shadow-sm transition-all">
-                        <div className={`w-7 h-7 flex items-center justify-center text-xs shrink-0 ${
-                          p.uncertain ? 'bg-white text-black' : 'bg-white text-black'
-                        }`}>
-                          {p.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex-1 text-sm font-[600] text-black">
-                          {p.uncertain && <span className="text-black">?? </span>}
-                          {p.name}
-                        </div>
-                        <span className={`font-mono text-[10px] px-2 py-0.5 ${
-                          p.uncertain
-                            ? 'bg-white text-black border-2 border-black'
-                            : 'bg-white text-black'
-                        }`}>
-                          {p.role}{p.uncertain ? ' \u00B7 uncertain' : ''}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center text-black py-12">No named individuals recorded</p>
-              )}
-              <p className="text-xs text-black italic mt-4">
-                Attributions from MHD &ldquo;scribe&rdquo; and &ldquo;person_code&rdquo; fields. Uncertain identifications marked.
-              </p>
-            </div>
-          )}
-        </div>
       </div>
-    </div>
-  );
-}
-
-function DateRow({ label, value }: { label: string; value: string | null | undefined }) {
-  const hasVal = value && value !== '_' && value !== '-' && value !== 'N/A' && value !== '??';
-  return (
-    <div className="flex px-3 py-1.5 text-xs hover:bg-white">
-      <span className="text-black min-w-[80px] font-mono text-[11px]">{label}</span>
-      {hasVal ? (
-        <span className="text-black">{value}</span>
-      ) : (
-        <span className="text-black font-mono text-[11px]">{value === '??' ? '??' : '\u2014'}</span>
-      )}
     </div>
   );
 }
