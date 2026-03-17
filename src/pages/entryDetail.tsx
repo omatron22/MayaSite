@@ -115,19 +115,19 @@ export function EntryDetailPage() {
 
   const catalogCount = useMemo(() => new Set(crossRefs.map(r => r.catalog)).size, [crossRefs]);
 
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <ProgressBarLoader />
+      <div className="max-w-[80ch] mx-auto px-4 py-4">
+        <p className="text-sm">{error}</p>
+        <Link to="/search?mode=concordance" className="text-xs underline hover:no-underline">Back to concordance</Link>
       </div>
     );
   }
 
-  if (error || !entry) {
+  if (loading || !entry) {
     return (
-      <div className="max-w-[80ch] mx-auto px-4 py-4">
-        <p className="text-sm">{error || 'Entry not found'}</p>
-        <Link to="/search?mode=concordance" className="text-xs underline hover:no-underline">Back to concordance</Link>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <ProgressBarLoader />
       </div>
     );
   }

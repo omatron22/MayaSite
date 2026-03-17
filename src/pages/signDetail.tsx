@@ -83,19 +83,19 @@ export function SignDetailPage() {
     return new Set(crossRefs.map(r => r.catalog)).size;
   }, [crossRefs]);
 
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <ProgressBarLoader />
+      <div className="max-w-[80ch] mx-auto px-4 py-4">
+        <p className="text-sm">{error}</p>
+        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
       </div>
     );
   }
 
-  if (error || !sign) {
+  if (loading || !sign) {
     return (
-      <div className="max-w-[80ch] mx-auto px-4 py-4">
-        <p className="text-sm">{error || 'Sign not found'}</p>
-        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <ProgressBarLoader />
       </div>
     );
   }

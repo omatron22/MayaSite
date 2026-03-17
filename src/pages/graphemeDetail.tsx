@@ -40,19 +40,19 @@ export function GraphemeDetailPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>('information');
 
-  if (loading) {
+  if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <ProgressBarLoader />
+      <div className="max-w-[80ch] mx-auto px-4 py-4">
+        <p className="text-sm">{error}</p>
+        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
       </div>
     );
   }
 
-  if (error || !grapheme) {
+  if (loading || !grapheme) {
     return (
-      <div className="max-w-[80ch] mx-auto px-4 py-4">
-        <p className="text-sm">{error || 'Grapheme not found'}</p>
-        <Link to="/search" className="text-xs underline hover:no-underline">Back to search</Link>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <ProgressBarLoader />
       </div>
     );
   }
