@@ -41,8 +41,8 @@ export function SearchFiltersComponent({
   onViewModeChange,
   filters,
   updateFilter,
-  clearFilters,
-  activeFilterCount,
+  clearFilters: _clearFilters,
+  activeFilterCount: _activeFilterCount,
   searchRow,
 }: SearchFiltersProps) {
   const navigate = useNavigate();

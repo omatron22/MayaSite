@@ -98,7 +98,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'chart-vendor': ['recharts'],
         }
       }
     },
@@ -112,7 +111,7 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'recharts'],
+    include: ['react', 'react-dom', 'react-router-dom'],
   },
 
   esbuild: {
