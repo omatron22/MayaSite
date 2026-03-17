@@ -1,8 +1,13 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
+import { PopupSelect } from '../components/search/PopupSelect';
 
 import { fetchCmhi } from '../lib/api';
 import type { CmhiResponse } from '../lib/api';
+
+function toggle(arr: string[], val: string): string[] {
+  return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
+}
 
 function ToggleButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
@@ -17,63 +22,11 @@ function ToggleButton({ label, active, onClick }: { label: string; active: boole
   );
 }
 
-function SiteDropdown({ options, selected, onSelect }: {
-  options: { code: string; name: string }[];
-  selected: string;
-  onSelect: (v: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLTableCellElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handle = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, [open]);
-
-  const label = selected
-    ? options.find(o => o.code === selected)?.name || selected
-    : 'All Sites';
-
-  return (
-    <td className="px-3 py-1 relative cursor-pointer" ref={ref} onClick={() => setOpen(!open)}>
-      <span className="text-xs">
-        {selected ? <strong>[{label}]</strong> : label}
-      </span>
-      {open && (
-        <div
-          className="absolute left-0 top-full z-50 bg-white border-2 border-black mt-[-2px] max-h-[300px] overflow-y-auto min-w-[200px] flex flex-col"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div
-            className="px-3 py-1 cursor-pointer text-xs border-b border-black"
-            onClick={() => { onSelect(''); setOpen(false); }}
-          >
-            {!selected ? <strong>[All Sites]</strong> : 'All Sites'}
-          </div>
-          {options.map(opt => (
-            <div
-              key={opt.code}
-              className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0"
-              onClick={() => { onSelect(opt.code); setOpen(false); }}
-            >
-              {selected === opt.code ? <strong>[{opt.name}]</strong> : opt.name}
-            </div>
-          ))}
-        </div>
-      )}
-    </td>
-  );
-}
-
 export function CmhiPage() {
   const [data, setData] = useState<CmhiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSite, setSelectedSite] = useState('');
+  const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
 
   useEffect(() => {
@@ -82,7 +35,10 @@ export function CmhiPage() {
     setError(null);
 
     fetchCmhi(
-      { site: selectedSite || undefined, type: selectedType || undefined },
+      {
+        site: selectedSites.length > 0 ? selectedSites.join(',') : undefined,
+        type: selectedType || undefined,
+      },
       controller.signal,
     )
       .then(setData)
@@ -93,17 +49,27 @@ export function CmhiPage() {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [selectedSite, selectedType]);
+  }, [selectedSites, selectedType]);
 
-  const siteOptions = useMemo(() => {
+  const siteNames = useMemo(() => {
     if (!data) return [];
     const sites = new Map<string, string>();
     for (const s of data.sites) {
       if (!sites.has(s.site_code)) sites.set(s.site_code, s.site_name);
     }
     return Array.from(sites.entries())
-      .map(([code, name]) => ({ code, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([code]) => code);
+  }, [data]);
+
+  // Build a display map for site codes -> names
+  const siteDisplayMap = useMemo(() => {
+    if (!data) return new Map<string, string>();
+    const map = new Map<string, string>();
+    for (const s of data.sites) {
+      if (!map.has(s.site_code)) map.set(s.site_code, s.site_name);
+    }
+    return map;
   }, [data]);
 
   return (
@@ -113,21 +79,19 @@ export function CmhiPage() {
         <tbody>
           <tr>
             <td className="px-3 py-1 text-xs font-[800]">Site:</td>
-            <SiteDropdown
-              options={siteOptions}
-              selected={selectedSite}
-              onSelect={setSelectedSite}
+            <PopupSelect
+              label="Site:"
+              options={siteNames}
+              selected={selectedSites}
+              onToggle={(v) => setSelectedSites(toggle(selectedSites, v))}
+              onClear={() => setSelectedSites([])}
+              displayMap={siteDisplayMap}
             />
           </tr>
           <tr>
             <td className="px-3 py-1 text-xs font-[800]">Type:</td>
             <ToggleButton label="Drawing" active={selectedType === 'drawing'} onClick={() => setSelectedType(selectedType === 'drawing' ? '' : 'drawing')} />
             <ToggleButton label="Photo" active={selectedType === 'photo'} onClick={() => setSelectedType(selectedType === 'photo' ? '' : 'photo')} />
-            {(selectedSite || selectedType) && (
-              <td className="px-3 py-1 cursor-pointer" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>
-                <span className="text-xs font-[800]">[Clear]</span>
-              </td>
-            )}
           </tr>
         </tbody>
       </table>
@@ -140,7 +104,13 @@ export function CmhiPage() {
               <tr>
                 <td className="px-3 py-1 text-sm">
                   <strong>{data.images.length.toLocaleString()}</strong> images
-                  {selectedSite && <span> from {siteOptions.find(s => s.code === selectedSite)?.name || selectedSite}</span>}
+                  {selectedSites.length > 0 && (
+                    <span>
+                      {selectedSites.length === 1
+                        ? ` from ${siteDisplayMap.get(selectedSites[0]) || selectedSites[0]}`
+                        : `, ${selectedSites.length} sites`}
+                    </span>
+                  )}
                   {selectedType && <span>, {selectedType}s</span>}
                 </td>
               </tr>
@@ -154,7 +124,7 @@ export function CmhiPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">{error}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => { setSelectedSites([]); setSelectedType(''); }}>
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>

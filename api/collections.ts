@@ -73,8 +73,15 @@ async function handleCmhi(req: VercelRequest, res: VercelResponse) {
   const args: (string | number)[] = [];
 
   if (site) {
-    conditions.push('(site_code = ? OR site_name LIKE ?)');
-    args.push(site.toUpperCase(), `%${site}%`);
+    const sites = site.split(',').map(s => s.trim()).filter(Boolean);
+    if (sites.length === 1) {
+      conditions.push('(site_code = ? OR site_name LIKE ?)');
+      args.push(sites[0].toUpperCase(), `%${sites[0]}%`);
+    } else {
+      const placeholders = sites.map(() => '?').join(',');
+      conditions.push(`site_code IN (${placeholders})`);
+      args.push(...sites.map(s => s.toUpperCase()));
+    }
   }
 
   if (type) {

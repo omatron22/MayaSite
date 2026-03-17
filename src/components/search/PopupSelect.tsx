@@ -6,9 +6,11 @@ interface PopupSelectProps {
   selected: string[];
   onToggle: (value: string) => void;
   onClear?: () => void;
+  displayMap?: Map<string, string>;
 }
 
-export function PopupSelect({ label, options, selected, onToggle, onClear }: PopupSelectProps) {
+export function PopupSelect({ label, options, selected, onToggle, onClear, displayMap }: PopupSelectProps) {
+  const display = (v: string) => displayMap?.get(v) || v;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState('');
   const containerRef = useRef<HTMLTableCellElement>(null);
@@ -33,14 +35,14 @@ export function PopupSelect({ label, options, selected, onToggle, onClear }: Pop
   }, [open]);
 
   const filtered = filter
-    ? options.filter(o => o.toLowerCase().includes(filter.toLowerCase()))
+    ? options.filter(o => o.toLowerCase().includes(filter.toLowerCase()) || display(o).toLowerCase().includes(filter.toLowerCase()))
     : options;
 
   const summary = selected.length === 0
     ? '--'
     : selected.length <= 2
-      ? selected.map(s => `[${s}]`).join(' ')
-      : `[${selected[0]}] +${selected.length - 1}`;
+      ? selected.map(s => `[${display(s)}]`).join(' ')
+      : `[${display(selected[0])}] +${selected.length - 1}`;
 
   return (
     <td
@@ -91,7 +93,7 @@ export function PopupSelect({ label, options, selected, onToggle, onClear }: Pop
                       {row.map(option => (
                         <td key={option} className="px-3 py-1 cursor-pointer whitespace-nowrap" onClick={() => onToggle(option)}>
                           <span className="text-xs">
-                            {selected.includes(option) ? <strong>[{option}]</strong> : option}
+                            {selected.includes(option) ? <strong>[{display(option)}]</strong> : display(option)}
                           </span>
                         </td>
                       ))}
