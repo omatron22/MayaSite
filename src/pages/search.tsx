@@ -333,7 +333,7 @@ export function SearchPage() {
       <SearchFiltersComponent
         searchRow={
           <tr>
-            <td colSpan={4} className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
+            <td colSpan={5} className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
               <div className="flex items-center">
                 <span className="font-[800] select-none shrink-0">&gt;&nbsp;</span>
                 <input

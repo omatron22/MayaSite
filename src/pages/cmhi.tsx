@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 
 import { fetchCmhi } from '../lib/api';
@@ -82,6 +83,7 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
 }
 
 export function CmhiPage() {
+  const navigate = useNavigate();
   const [data, setData] = useState<CmhiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,7 +125,22 @@ export function CmhiPage() {
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      <table className="w-auto mb-2">
+      {/* Unified tabs + filters table */}
+      <table className="w-auto">
+        <tbody>
+          <tr>
+            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/kerr')}>
+              <span className="text-sm">Kerr Vases</span>
+            </td>
+            <td className="px-3 py-1">
+              <span className="text-sm font-[800]">[CMHI]</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {/* Filters */}
+      <table className="w-auto mt-2">
         <tbody>
           <tr>
             <td className="px-3 py-1 text-xs font-[800]">Site:</td>
@@ -144,7 +161,7 @@ export function CmhiPage() {
 
       {/* Results bar */}
       {!loading && data && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mt-4 mb-4">
           <table className="w-auto">
             <tbody>
               <tr>

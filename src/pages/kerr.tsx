@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 
 import { fetchKerr } from '../lib/api';
@@ -8,6 +9,7 @@ const PAGE_SIZE = 48;
 const DEBOUNCE_DELAY = 300;
 
 export function KerrPage() {
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [data, setData] = useState<KerrResponse | null>(null);
@@ -48,11 +50,11 @@ export function KerrPage() {
 
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
-      {/* Search bar — matches search page style */}
-      <table className="w-auto mb-2">
+      {/* Unified search + tabs table */}
+      <table className="w-auto">
         <tbody>
           <tr>
-            <td className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
+            <td colSpan={2} className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
               <div className="flex items-center">
                 <span className="font-[800] select-none shrink-0">&gt;&nbsp;</span>
                 <input
@@ -75,12 +77,20 @@ export function KerrPage() {
               </div>
             </td>
           </tr>
+          <tr>
+            <td className="px-3 py-1">
+              <span className="text-sm font-[800]">[Kerr Vases]</span>
+            </td>
+            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/cmhi')}>
+              <span className="text-sm">CMHI</span>
+            </td>
+          </tr>
         </tbody>
       </table>
 
       {/* Results bar */}
       {data && !loading && (
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mt-4 mb-4">
           <table className="w-auto">
             <tbody>
               <tr>
@@ -158,7 +168,6 @@ export function KerrPage() {
             ))}
           </div>
 
-          {/* Pagination — matches search page */}
           {totalPages > 1 && (
             <table className="w-auto mt-6">
               <tbody>
