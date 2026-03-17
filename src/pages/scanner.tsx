@@ -110,27 +110,19 @@ export function ScannerPage() {
 
         {/* Upload area */}
         {!imageDataUrl ? (
-          <table className="w-auto">
-            <tbody>
-              <tr>
-                <td className="px-3 py-1">
-                  <div
-                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                    onDragLeave={() => setDragOver(false)}
-                    onDrop={handleDrop}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={`border border-dashed p-12 max-md:p-8 text-center cursor-pointer ${
-                      dragOver ? 'border-black bg-gray-50' : 'border-gray-400 hover:border-black'
-                    }`}
-                  >
-                    <p className="text-sm font-[800] mb-1">Drop an image here or click to upload</p>
-                    <p className="text-xs">Supports JPG, PNG, WebP</p>
-                    <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} className="hidden" />
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border border-dashed p-12 max-md:p-8 text-center cursor-pointer ${
+              dragOver ? 'border-black bg-gray-50' : 'border-gray-400 hover:border-black'
+            }`}
+          >
+            <p className="text-sm font-[800] mb-1">Drop an image here or click to upload</p>
+            <p className="text-xs">Supports JPG, PNG, WebP</p>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileInput} className="hidden" />
+          </div>
         ) : (
           <>
             {/* Image + bounding boxes */}
