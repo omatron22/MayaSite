@@ -12,6 +12,7 @@ const CollectionsPage = lazy(() => import('./pages/collections').then(m => ({ de
 const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
 const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 const EntryDetailPage = lazy(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
+const ApiPage = lazy(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
 
 function PageLoader() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 <Route path="cmhi" element={<CmhiPage />} />
               </Route>
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/api" element={<ApiPage />} />
               {/* Redirects for old routes */}
               <Route path="/research" element={<Navigate to="/about" replace />} />
               <Route path="/tools" element={<Navigate to="/search" replace />} />
