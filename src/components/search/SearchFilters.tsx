@@ -1,5 +1,8 @@
-import { Image, Database, FileText, Calendar, X, Layers } from 'lucide-react';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { SearchFilters } from '../../hooks/useSearchFilters';
+import { PopupSelect } from './PopupSelect';
+import { getAllUniqueSites } from '../../lib/sites';
 
 interface SearchFiltersProps {
   viewMode: 'signs' | 'blocks' | 'graphemes' | 'concordance';
@@ -8,20 +11,30 @@ interface SearchFiltersProps {
   updateFilter: <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => void;
   clearFilters: () => void;
   activeFilterCount: number;
-  concordanceFilters?: Record<string, boolean>;
-  onConcordanceFilterToggle?: (key: string) => void;
+  searchRow?: React.ReactNode;
 }
 
-const selectClass = "flex-1 min-w-[150px] py-2 pr-8 pl-3 bg-white text-gray-700 border border-gray-300 rounded-md text-sm cursor-pointer transition-colors appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3E%3Cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27M6%208l4%204%204-4%27/%3E%3C/svg%3E')] bg-[position:right_0.5rem_center] bg-no-repeat bg-[length:1rem] hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+const inputClass = "bg-white text-black text-xs border-none outline-none w-[80px] placeholder:text-black";
 
-const inputClass = "flex-1 min-w-[150px] py-2 px-3 bg-white text-gray-700 border border-gray-300 rounded-md text-sm transition-colors hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-gray-400";
+const REGIONS = ['North', 'East', 'Central', 'Usmacinta', 'South'] as const;
 
-const CONCORDANCE_FILTERS = [
-  { key: 'hasThompson', label: 'Thompson' },
-  { key: 'hasZender', label: 'Zender' },
-  { key: 'hasKettunen', label: 'Kettunen' },
-  { key: 'hasGronemeyer', label: 'Gronemeyer' },
-] as const;
+function toggle(arr: string[], val: string): string[] {
+  return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
+}
+
+function ToggleButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <td className="px-3 py-1 text-center cursor-pointer" onClick={onClick}>
+      <span className="text-xs inline-grid">
+        {/* Invisible spacer reserves width for bracketed state */}
+        <span className="invisible col-start-1 row-start-1 font-[800]">[{label}]</span>
+        <span className="col-start-1 row-start-1">
+          {active ? <strong>[{label}]</strong> : label}
+        </span>
+      </span>
+    </td>
+  );
+}
 
 export function SearchFiltersComponent({
   viewMode,
@@ -30,175 +43,150 @@ export function SearchFiltersComponent({
   updateFilter,
   clearFilters,
   activeFilterCount,
-  concordanceFilters,
-  onConcordanceFilterToggle,
+  searchRow,
 }: SearchFiltersProps) {
-  const tabBtn = (mode: 'signs' | 'blocks' | 'graphemes' | 'concordance', label: string) => (
-    <button
-      className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-        viewMode === mode
-          ? 'border-gray-900 text-gray-900'
-          : 'border-transparent text-gray-500 hover:text-gray-700'
-      }`}
-      onClick={() => onViewModeChange(mode)}
-    >
-      {label}
-    </button>
-  );
-
-  const filterChip = (label: string, icon: React.ReactNode, active: boolean, onClick: () => void) => (
-    <button
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
-        active
-          ? 'bg-blue-50 text-blue-700 border-blue-200'
-          : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
-      }`}
-      onClick={onClick}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
+  const navigate = useNavigate();
+  const siteNames = useMemo(() => {
+    return Array.from(getAllUniqueSites().keys()).sort();
+  }, []);
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* View mode tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
-        {tabBtn('signs', 'Signs')}
-        {tabBtn('blocks', 'Blocks')}
-        {tabBtn('graphemes', 'Graphemes')}
-        {tabBtn('concordance', 'Concordance')}
-      </div>
+    <div className="flex flex-col gap-2">
+      {/* Search + View mode */}
+      <table className="w-auto">
+        <tbody>
+          {searchRow}
+          <tr>
+            {(['signs', 'blocks', 'graphemes', 'concordance'] as const).map(mode => {
+              const modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
+              return (
+                <td key={mode} className="px-3 py-1 cursor-pointer" onClick={() => onViewModeChange(mode)}>
+                  <span className="text-sm inline-grid">
+                    <span className="invisible col-start-1 row-start-1 font-[800]">[{modeLabel}]</span>
+                    <span className="col-start-1 row-start-1">
+                      {viewMode === mode ? <strong>[{modeLabel}]</strong> : modeLabel}
+                    </span>
+                  </span>
+                </td>
+              );
+            })}
+            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/search/scanner')}>
+              <span className="text-sm">Scanner</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      {/* Concordance mode filters */}
-      {viewMode === 'concordance' && (
-        <div className="flex gap-2 flex-wrap">
-          {CONCORDANCE_FILTERS.map(f => (
-            <button
-              key={f.key}
-              onClick={() => onConcordanceFilterToggle?.(f.key)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors cursor-pointer ${
-                concordanceFilters?.[f.key]
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
-              }`}
-            >
-              Has {f.label}
-            </button>
-          ))}
-        </div>
+      {/* Signs filters — staircase: fewest to most options */}
+      {viewMode === 'signs' && (
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Period:</td>
+              <ToggleButton label="Classic" active={filters.volumes.includes('Classic')} onClick={() => updateFilter('volumes', toggle(filters.volumes, 'Classic'))} />
+              <ToggleButton label="Codices" active={filters.volumes.includes('Codices')} onClick={() => updateFilter('volumes', toggle(filters.volumes, 'Codices'))} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Distrib:</td>
+              <ToggleButton label="Monuments" active={filters.distributions.includes('Monuments')} onClick={() => updateFilter('distributions', toggle(filters.distributions, 'Monuments'))} />
+              <ToggleButton label="Codices" active={filters.distributions.includes('Codices')} onClick={() => updateFilter('distributions', toggle(filters.distributions, 'Codices'))} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Technique:</td>
+              <ToggleButton label="Carved" active={filters.techniques.includes('Carved')} onClick={() => updateFilter('techniques', toggle(filters.techniques, 'Carved'))} />
+              <ToggleButton label="Painted" active={filters.techniques.includes('Painted')} onClick={() => updateFilter('techniques', toggle(filters.techniques, 'Painted'))} />
+              <ToggleButton label="Codical" active={filters.techniques.includes('Codical')} onClick={() => updateFilter('techniques', toggle(filters.techniques, 'Codical'))} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Data:</td>
+              <ToggleButton label="Image" active={filters.hasImage} onClick={() => updateFilter('hasImage', !filters.hasImage)} />
+              <ToggleButton label="ML" active={filters.hasRoboflow} onClick={() => updateFilter('hasRoboflow', !filters.hasRoboflow)} />
+              <ToggleButton label="Corpus" active={filters.hasInstances} onClick={() => updateFilter('hasInstances', !filters.hasInstances)} />
+              <ToggleButton label="Transl" active={filters.hasTranslation} onClick={() => updateFilter('hasTranslation', !filters.hasTranslation)} />
+              <ToggleButton label="Variants" active={filters.collapseVariants} onClick={() => updateFilter('collapseVariants', !filters.collapseVariants)} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Class:</td>
+              <ToggleButton label="Noun" active={filters.wordClasses.includes('noun')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'noun'))} />
+              <ToggleButton label="Trans-V" active={filters.wordClasses.includes('transitive verb')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'transitive verb'))} />
+              <ToggleButton label="Intrans-V" active={filters.wordClasses.includes('intransitive verb')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'intransitive verb'))} />
+              <ToggleButton label="Numeral" active={filters.wordClasses.includes('numeral')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'numeral'))} />
+              <ToggleButton label="Adj" active={filters.wordClasses.includes('adjective')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'adjective'))} />
+              <ToggleButton label="Positional" active={filters.wordClasses.includes('positional')} onClick={() => updateFilter('wordClasses', toggle(filters.wordClasses, 'positional'))} />
+            </tr>
+          </tbody>
+        </table>
       )}
 
-      {/* Sign/block/grapheme filters - inline bar */}
-      {viewMode !== 'concordance' && (
-        <div className="flex flex-col gap-3">
-          {/* Clear filters */}
-          {activeFilterCount > 0 && (
-            <button
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition-colors self-start"
-              onClick={clearFilters}
-            >
-              <X size={12} />
-              Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
-            </button>
-          )}
-
-          {/* Signs Filters */}
-          {viewMode === 'signs' && (
-            <>
-              <div className="flex gap-2 flex-wrap">
-                {filterChip('Has Image', <Image size={12} />, filters.hasImage, () => updateFilter('hasImage', !filters.hasImage))}
-                {filterChip('ML Training', <Database size={12} />, filters.hasRoboflow, () => updateFilter('hasRoboflow', !filters.hasRoboflow))}
-                {filterChip('Corpus Examples', <FileText size={12} />, filters.hasInstances, () => updateFilter('hasInstances', !filters.hasInstances))}
-                {filterChip('Has Translation', <FileText size={12} />, filters.hasTranslation, () => updateFilter('hasTranslation', !filters.hasTranslation))}
-                {filterChip('Collapse Variants', <Layers size={12} />, filters.collapseVariants, () => updateFilter('collapseVariants', !filters.collapseVariants))}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <select className={selectClass} value={filters.volume} onChange={(e) => updateFilter('volume', e.target.value)}>
-                  <option value="all">All Periods</option>
-                  <option value="Classic">Classic (1978)</option>
-                  <option value="Codices">Codices (568)</option>
-                </select>
-                <select className={selectClass} value={filters.wordClass} onChange={(e) => updateFilter('wordClass', e.target.value)}>
-                  <option value="all">All Word Classes</option>
-                  <option value="noun">Noun (733)</option>
-                  <option value="transitive verb">Transitive Verb (102)</option>
-                  <option value="intransitive verb">Intransitive Verb (95)</option>
-                  <option value="numeral">Numeral (101)</option>
-                  <option value="adjective">Adjective (49)</option>
-                  <option value="positional">Positional (14)</option>
-                </select>
-                <select className={selectClass} value={filters.technique} onChange={(e) => updateFilter('technique', e.target.value)}>
-                  <option value="all">All Techniques</option>
-                  <option value="carved">Carved (1268)</option>
-                  <option value="painted">Painted (710)</option>
-                  <option value="codical">Codical (568)</option>
-                </select>
-                <select className={selectClass} value={filters.distribution} onChange={(e) => updateFilter('distribution', e.target.value)}>
-                  <option value="all">All Distributions</option>
-                  <option value="both">Both (1211)</option>
-                  <option value="monuments">Monuments Only (1171)</option>
-                  <option value="codices">Codices Only (164)</option>
-                </select>
-              </div>
-              <div>
-                <select
-                  className={selectClass}
-                  value={filters.sortBy}
-                  onChange={(e) => updateFilter('sortBy', e.target.value as 'code' | 'frequency' | 'completeness')}
-                >
-                  <option value="code">Sort by Code</option>
-                  <option value="frequency">Sort by Frequency</option>
-                  <option value="completeness">Sort by Completeness</option>
-                </select>
-              </div>
-            </>
-          )}
-
-          {/* Blocks Filters */}
-          {viewMode === 'blocks' && (
-            <>
-              <div className="flex gap-2 flex-wrap">
-                {filterChip('Has Date', <Calendar size={12} />, filters.hasDate, () => updateFilter('hasDate', !filters.hasDate))}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <select className={selectClass} value={filters.region} onChange={(e) => updateFilter('region', e.target.value)}>
-                  <option value="all">All Regions</option>
-                  <option value="North">North (Yucatan)</option>
-                  <option value="East">East</option>
-                  <option value="Central">Central (Peten)</option>
-                  <option value="Usmacinta">Usmacinta</option>
-                  <option value="South">South</option>
-                </select>
-                <input type="text" className={inputClass} placeholder="Artifact code (e.g., PAL)" value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} />
-                <input type="text" className={inputClass} placeholder="Site name" value={filters.site} onChange={(e) => updateFilter('site', e.target.value)} />
-              </div>
-            </>
-          )}
-
-          {/* Graphemes Filters */}
-          {viewMode === 'graphemes' && (
-            <>
-              <div className="flex gap-2 flex-wrap">
-                {filterChip('Has Image', <Image size={12} />, filters.hasImage, () => updateFilter('hasImage', !filters.hasImage))}
-                {filterChip('Has Date', <Calendar size={12} />, filters.hasDate, () => updateFilter('hasDate', !filters.hasDate))}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <select className={selectClass} value={filters.region} onChange={(e) => updateFilter('region', e.target.value)}>
-                  <option value="all">All Regions</option>
-                  <option value="North">North (Yucatan)</option>
-                  <option value="East">East</option>
-                  <option value="Central">Central (Peten)</option>
-                  <option value="Usmacinta">Usmacinta</option>
-                  <option value="South">South</option>
-                </select>
-                <input type="text" className={inputClass} placeholder="Artifact code" value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} />
-                <input type="text" className={inputClass} placeholder="Site name" value={filters.site} onChange={(e) => updateFilter('site', e.target.value)} />
-              </div>
-            </>
-          )}
-        </div>
+      {/* Blocks filters — staircase */}
+      {viewMode === 'blocks' && (
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Data:</td>
+              <ToggleButton label="Dated" active={filters.hasDate} onClick={() => updateFilter('hasDate', !filters.hasDate)} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Artifact:</td>
+              <td className="px-3 py-1">
+                <div className="flex items-center text-xs"><span className="font-[800] select-none">&gt;&nbsp;</span><input type="text" className={inputClass} placeholder="code..." value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} /></div>
+              </td>
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Site:</td>
+              <PopupSelect
+                label="Site:"
+                options={siteNames}
+                selected={filters.sites}
+                onToggle={(v) => updateFilter('sites', toggle(filters.sites, v))}
+                onClear={() => updateFilter('sites', [])}
+              />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Region:</td>
+              {REGIONS.map(r => (
+                <ToggleButton key={r} label={r} active={filters.regions.includes(r)} onClick={() => updateFilter('regions', toggle(filters.regions, r))} />
+              ))}
+            </tr>
+          </tbody>
+        </table>
       )}
+
+      {/* Graphemes filters — staircase: fewest to most */}
+      {viewMode === 'graphemes' && (
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Artifact:</td>
+              <td className="px-3 py-1">
+                <div className="flex items-center text-xs"><span className="font-[800] select-none">&gt;&nbsp;</span><input type="text" className={inputClass} placeholder="code..." value={filters.artifact} onChange={(e) => updateFilter('artifact', e.target.value)} /></div>
+              </td>
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Site:</td>
+              <PopupSelect
+                label="Site:"
+                options={siteNames}
+                selected={filters.sites}
+                onToggle={(v) => updateFilter('sites', toggle(filters.sites, v))}
+                onClear={() => updateFilter('sites', [])}
+              />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Data:</td>
+              <ToggleButton label="Image" active={filters.hasImage} onClick={() => updateFilter('hasImage', !filters.hasImage)} />
+              <ToggleButton label="Dated" active={filters.hasDate} onClick={() => updateFilter('hasDate', !filters.hasDate)} />
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs font-[800]">Region:</td>
+              {REGIONS.map(r => (
+                <ToggleButton key={r} label={r} active={filters.regions.includes(r)} onClick={() => updateFilter('regions', toggle(filters.regions, r))} />
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      )}
+
     </div>
   );
 }

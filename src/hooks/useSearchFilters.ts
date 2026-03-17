@@ -9,16 +9,18 @@ export interface SearchFilters {
   hasInstances: boolean;
   collapseVariants: boolean;
 
-  // Dropdowns
-  volume: string;
-  wordClass: string;
-  technique: string;
-  distribution: string;
-  region: string;
+  // Multi-select
+  volumes: string[];
+  wordClasses: string[];
+  techniques: string[];
+  distributions: string[];
+  regions: string[];
+
+  // Multi-select
+  sites: string[];
 
   // Text inputs
   artifact: string;
-  site: string;
 
   // Sort (not a filter!)
   sortBy: 'code' | 'frequency' | 'completeness';
@@ -30,14 +32,14 @@ const defaultFilters: SearchFilters = {
   hasDate: false,
   hasTranslation: false,
   hasInstances: false,
-  collapseVariants: true,
-  volume: 'all',
-  wordClass: 'all',
-  technique: 'all',
-  distribution: 'all',
-  region: 'all',
+  collapseVariants: false,
+  volumes: [],
+  wordClasses: [],
+  techniques: [],
+  distributions: [],
+  regions: [],
+  sites: [],
   artifact: '',
-  site: '',
   sortBy: 'code',
 };
 
@@ -62,6 +64,7 @@ export function useSearchFilters(initialOverrides?: Partial<SearchFilters>) {
   const activeFilterCount = Object.entries(filters).filter(([key, value]) => {
     if (key === 'sortBy') return false;
     if (typeof value === 'boolean') return value;
+    if (Array.isArray(value)) return value.length > 0;
     if (typeof value === 'string') return value !== 'all' && value !== '';
     return false;
   }).length;

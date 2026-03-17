@@ -2,7 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from './lib/db.js';
 import type { SearchParams, SearchResponse, SignSearchResult, BlockSearchResult, GraphemeSearchResult } from './lib/types.js';
 
-const VALID_SORT_COLUMNS = ['mhd_code', 'graphcode', 'thompson_code', 'zender_code', 'kettunen_code', 'gronemeyer_code', 'syllabic_value', 'english_translation', 'bonn_sign_number'];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -33,7 +32,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } = req.query as Record<string, string>;
 
     if (mode === 'concordance') {
-      return handleConcordance(req, res);
+      return handleNewConcordance(req, res);
     }
 
     if (mode === 'entry_detail') {
@@ -125,20 +124,28 @@ async function searchSigns(
   }
 
   if (filters.volume && filters.volume !== 'all') {
-    conditions.push('volume = ?');
-    params.push(filters.volume);
+    const vals = filters.volume.split(',').filter(Boolean);
+    if (vals.length === 1) { conditions.push('volume = ?'); params.push(vals[0]); }
+    else if (vals.length > 1) { conditions.push(`volume IN (${vals.map(() => '?').join(',')})`); params.push(...vals); }
   }
   if (filters.wordClass && filters.wordClass !== 'all') {
-    conditions.push('word_class LIKE ?');
-    params.push(`%${filters.wordClass}%`);
+    const vals = filters.wordClass.split(',').filter(Boolean);
+    if (vals.length === 1) { conditions.push('word_class LIKE ?'); params.push(`%${vals[0]}%`); }
+    else if (vals.length > 1) { conditions.push(`(${vals.map(() => 'word_class LIKE ?').join(' OR ')})`); params.push(...vals.map(v => `%${v}%`)); }
   }
   if (filters.technique && filters.technique !== 'all') {
-    conditions.push('technique = ?');
-    params.push(filters.technique);
+    const vals = filters.technique.split(',').filter(Boolean).map(v => v.toLowerCase());
+    if (vals.length === 1) { conditions.push('LOWER(technique) = ?'); params.push(vals[0]); }
+    else if (vals.length > 1) { conditions.push(`LOWER(technique) IN (${vals.map(() => '?').join(',')})`); params.push(...vals); }
   }
   if (filters.distribution && filters.distribution !== 'all') {
-    conditions.push('distribution = ?');
-    params.push(filters.distribution);
+    const vals = filters.distribution.split(',').filter(Boolean).map(v => v.toLowerCase());
+    // Include 'both' when filtering by monuments or codices (signs with distribution='both' belong to both)
+    const expanded = new Set(vals);
+    if (expanded.has('monuments') || expanded.has('codices')) expanded.add('both');
+    const allVals = Array.from(expanded);
+    if (allVals.length === 1) { conditions.push('LOWER(distribution) = ?'); params.push(allVals[0]); }
+    else { conditions.push(`LOWER(distribution) IN (${allVals.map(() => '?').join(',')})`); params.push(...allVals); }
   }
   if (filters.hasImage) {
     conditions.push("primary_image_url IS NOT NULL AND primary_image_url != ''");
@@ -226,16 +233,28 @@ async function searchBlocks(
   }
 
   if (filters.region && filters.region !== 'all') {
-    conditions.push('region = ?');
-    params.push(filters.region);
+    const regions = filters.region.split(',').filter(Boolean);
+    if (regions.length === 1) {
+      conditions.push('region = ?');
+      params.push(regions[0]);
+    } else if (regions.length > 1) {
+      conditions.push(`region IN (${regions.map(() => '?').join(',')})`);
+      params.push(...regions);
+    }
   }
   if (filters.artifact && filters.artifact.trim()) {
     conditions.push('artifact_code LIKE ?');
     params.push(`%${filters.artifact}%`);
   }
   if (filters.site && filters.site.trim()) {
-    conditions.push('site_name LIKE ?');
-    params.push(`%${filters.site}%`);
+    const sites = filters.site.split(',').filter(Boolean);
+    if (sites.length === 1) {
+      conditions.push('site_name LIKE ?');
+      params.push(`%${sites[0]}%`);
+    } else if (sites.length > 1) {
+      conditions.push(`(${sites.map(() => 'site_name LIKE ?').join(' OR ')})`);
+      params.push(...sites.map(s => `%${s}%`));
+    }
   }
   if (filters.hasDate) {
     conditions.push("event_calendar IS NOT NULL AND event_calendar != ''");
@@ -252,15 +271,9 @@ async function searchBlocks(
   const blocksResult = await db.execute({
     sql: `
       SELECT
-        id,
+        *,
         mhd_block_id as block_id,
-        artifact_code,
-        block_maya1,
-        block_english,
-        event_calendar,
-        COALESCE(block_image1_url, block_image2_url) as block_img,
-        region,
-        site_name
+        COALESCE(block_image1_url, block_image2_url) as block_img
       FROM blocks
       ${whereClause}
       ORDER BY sort_order
@@ -302,16 +315,28 @@ async function searchGraphemes(
   }
 
   if (filters.region && filters.region !== 'all') {
-    conditions.push('b.region = ?');
-    params.push(filters.region);
+    const regions = filters.region.split(',').filter(Boolean);
+    if (regions.length === 1) {
+      conditions.push('b.region = ?');
+      params.push(regions[0]);
+    } else if (regions.length > 1) {
+      conditions.push(`b.region IN (${regions.map(() => '?').join(',')})`);
+      params.push(...regions);
+    }
   }
   if (filters.artifact && filters.artifact.trim()) {
     conditions.push('g.artifact_code LIKE ?');
     params.push(`%${filters.artifact}%`);
   }
   if (filters.site && filters.site.trim()) {
-    conditions.push('b.site_name LIKE ?');
-    params.push(`%${filters.site}%`);
+    const sites = filters.site.split(',').filter(Boolean);
+    if (sites.length === 1) {
+      conditions.push('b.site_name LIKE ?');
+      params.push(`%${sites[0]}%`);
+    } else if (sites.length > 1) {
+      conditions.push(`(${sites.map(() => 'b.site_name LIKE ?').join(' OR ')})`);
+      params.push(...sites.map(s => `%${s}%`));
+    }
   }
   if (filters.hasImage) {
     conditions.push("cs.primary_image_url IS NOT NULL AND cs.primary_image_url != ''");
@@ -376,18 +401,6 @@ function getSortClause(sortBy: 'code' | 'frequency' | 'completeness'): string {
   }
 }
 
-async function handleConcordance(req: VercelRequest, res: VercelResponse) {
-  const version = String(req.query.version || '');
-
-  // New concordance: query catalog_entries + concordance_links
-  if (version !== 'legacy') {
-    return handleNewConcordance(req, res);
-  }
-
-  // Legacy fallback: query catalog_signs directly
-  return handleLegacyConcordance(req, res);
-}
-
 const NEW_CONCORDANCE_SORT_COLS = ['catalog_code', 'catalog', 'reading_value', 'gloss_english', 'entry_id'];
 
 async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
@@ -410,8 +423,14 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
   }
 
   if (catalogFilter) {
-    conditions.push('ce.catalog = ?');
-    args.push(catalogFilter);
+    const catalogs = catalogFilter.split(',').filter(Boolean);
+    if (catalogs.length === 1) {
+      conditions.push('ce.catalog = ?');
+      args.push(catalogs[0]);
+    } else if (catalogs.length > 1) {
+      conditions.push(`ce.catalog IN (${catalogs.map(() => '?').join(',')})`);
+      args.push(...catalogs);
+    }
   }
 
   // Default: collapse variants to show parent entries only
@@ -498,64 +517,6 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ rows, total, page, pageSize });
   } catch (err) {
     console.error('New concordance error:', err);
-    return res.status(500).json({ error: 'Failed to load concordance data', details: String(err) });
-  }
-}
-
-async function handleLegacyConcordance(req: VercelRequest, res: VercelResponse) {
-  const q = String(req.query.q || '').trim();
-  const page = Math.max(1, parseInt(String(req.query.page || '1')));
-  const pageSize = Math.min(100, Math.max(1, parseInt(String(req.query.pageSize || '50'))));
-  const sortBy = VALID_SORT_COLUMNS.includes(String(req.query.sortBy)) ? String(req.query.sortBy) : 'mhd_code';
-  const sortDir = String(req.query.sortDir) === 'desc' ? 'DESC' : 'ASC';
-  const hasThompson = req.query.hasThompson === 'true';
-  const hasZender = req.query.hasZender === 'true';
-  const hasKettunen = req.query.hasKettunen === 'true';
-  const hasGronemeyer = req.query.hasGronemeyer === 'true';
-
-  const conditions: string[] = [];
-  const args: (string | number)[] = [];
-
-  if (q) {
-    conditions.push(`(mhd_code LIKE ? OR graphcode LIKE ? OR thompson_code LIKE ? OR zender_code LIKE ? OR kettunen_code LIKE ? OR gronemeyer_code LIKE ? OR syllabic_value LIKE ? OR english_translation LIKE ? OR CAST(bonn_sign_number AS TEXT) LIKE ?)`);
-    const like = `%${q}%`;
-    args.push(like, like, like, like, like, like, like, like, like);
-  }
-
-  if (hasThompson) conditions.push('thompson_code IS NOT NULL');
-  if (hasZender) conditions.push('zender_code IS NOT NULL');
-  if (hasKettunen) conditions.push('kettunen_code IS NOT NULL');
-  if (hasGronemeyer) conditions.push('gronemeyer_code IS NOT NULL');
-
-  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-  const offset = (page - 1) * pageSize;
-
-  try {
-    const [dataResult, countResult] = await Promise.all([
-      db.execute({
-        sql: `SELECT id, mhd_code, graphcode, primary_image_url, thompson_code, zender_code, kettunen_code, gronemeyer_code, syllabic_value, english_translation, bonn_sign_number
-              FROM catalog_signs ${where}
-              ORDER BY ${sortBy} ${sortDir}
-              LIMIT ? OFFSET ?`,
-        args: [...args, pageSize, offset],
-      }),
-      db.execute({
-        sql: `SELECT COUNT(*) as total FROM catalog_signs ${where}`,
-        args,
-      }),
-    ]);
-
-    const total = Number(countResult.rows[0].total);
-
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json({
-      rows: dataResult.rows,
-      total,
-      page,
-      pageSize,
-    });
-  } catch (err) {
-    console.error('Concordance error:', err);
     return res.status(500).json({ error: 'Failed to load concordance data', details: String(err) });
   }
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, ExternalLink } from 'lucide-react';
+import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
+
 import { fetchCmhi } from '../lib/api';
 import type { CmhiResponse } from '../lib/api';
 
@@ -40,104 +41,116 @@ export function CmhiPage() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [data]);
 
-  const selectClass = "py-2 pr-8 pl-3 bg-white text-gray-700 border border-gray-300 rounded-md text-sm cursor-pointer transition-colors appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3E%3Cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27M6%208l4%204%204-4%27/%3E%3C/svg%3E')] bg-[position:right_0.5rem_center] bg-no-repeat bg-[length:1rem] hover:border-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
-
   return (
-    <div className="p-6 max-md:p-4">
-      <div className="max-w-[1400px] mx-auto">
-        <h1 className="text-lg font-semibold text-gray-900 mb-1">Corpus of Maya Hieroglyphic Inscriptions</h1>
-        <p className="text-gray-500 text-sm mb-6">Line drawings and photographs from Harvard's Peabody Museum</p>
-
-        <div className="flex gap-3 mb-6 flex-wrap">
-          <select className={selectClass} value={selectedSite} onChange={e => setSelectedSite(e.target.value)}>
-            <option value="">All Sites</option>
-            {siteOptions.map(s => (
-              <option key={s.code} value={s.code}>{s.name} ({s.code})</option>
-            ))}
-          </select>
-          <select className={selectClass} value={selectedType} onChange={e => setSelectedType(e.target.value)}>
-            <option value="">All Types</option>
-            <option value="drawing">Drawings</option>
-            <option value="photo">Photos</option>
-          </select>
-          {(selectedSite || selectedType) && (
-            <button
-              className="px-3 py-2 text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
-              onClick={() => { setSelectedSite(''); setSelectedType(''); }}
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
-
-        {error && (
-          <div className="text-center py-8 text-red-600">
-            <p className="mb-4">{error}</p>
-            <button className="px-4 py-2 border border-red-200 text-red-600 rounded-md text-sm font-medium hover:bg-red-50" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>Retry</button>
-          </div>
-        )}
-
-        {loading && (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="border border-gray-200 rounded-lg overflow-hidden animate-pulse">
-                <div className="bg-gray-100 aspect-square" />
-                <div className="p-3"><div className="h-4 bg-gray-100 rounded w-2/3 mb-2" /><div className="h-3 bg-gray-100 rounded w-1/2" /></div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {!loading && !error && data && data.images.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
-            <Search size={40} className="mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium text-gray-600 mb-2">No images found</p>
-            <p className="text-gray-400 text-sm">Try adjusting your filters</p>
-          </div>
-        )}
-
-        {!loading && data && data.images.length > 0 && (
-          <>
-            <p className="text-sm text-gray-500 mb-4">{data.images.length.toLocaleString()} images</p>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
-              {data.images.map(img => (
-                <a
-                  key={img.id}
-                  href={img.image_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="border border-gray-200 rounded-lg overflow-hidden no-underline hover:shadow-md transition-shadow group"
+    <div className="max-w-[80ch] mx-auto px-4 py-4">
+      <table className="w-auto mb-4">
+        <thead>
+          <tr>
+            <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Corpus of Maya Hieroglyphic Inscriptions</th>
+            <th className="px-3 py-1 text-right text-xs">{!loading && data ? `${data.images.length.toLocaleString()} images` : ''}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="px-3 py-2">
+              <select
+                className="w-full py-1.5 px-2 bg-white border-2 border-black text-sm cursor-pointer focus:outline-none"
+                value={selectedSite}
+                onChange={e => setSelectedSite(e.target.value)}
+              >
+                <option value="">All Sites</option>
+                {siteOptions.map(s => (
+                  <option key={s.code} value={s.code}>{s.name} ({s.code})</option>
+                ))}
+              </select>
+            </td>
+            <td className="px-3 py-2">
+              <select
+                className="w-full py-1.5 px-2 bg-white border-2 border-black text-sm cursor-pointer focus:outline-none"
+                value={selectedType}
+                onChange={e => setSelectedType(e.target.value)}
+              >
+                <option value="">All Types</option>
+                <option value="drawing">Drawings</option>
+                <option value="photo">Photos</option>
+              </select>
+            </td>
+            <td className="px-3 py-2 text-right">
+              {(selectedSite || selectedType) && (
+                <span
+                  className="text-xs underline cursor-pointer hover:no-underline"
+                  onClick={() => { setSelectedSite(''); setSelectedType(''); }}
                 >
-                  <div className="bg-gray-50 aspect-square flex items-center justify-center overflow-hidden">
-                    <img
-                      src={img.image_url}
-                      alt={`${img.site_name} ${img.monument_type || ''} ${img.monument_number || ''}`}
-                      loading="lazy"
-                      width={200}
-                      height={200}
-                      className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform"
-                      onError={e => { e.currentTarget.style.display = 'none'; }}
-                    />
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-sm font-semibold text-gray-900">{img.site_name}</span>
-                      <ExternalLink size={12} className="text-gray-400 group-hover:text-blue-500" />
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {img.monument_type && <span>{img.monument_type} {img.monument_number}</span>}
-                      {img.monument_type && <span className="mx-1">&middot;</span>}
-                      <span className={img.image_type === 'drawing' ? 'text-blue-600' : 'text-amber-600'}>
-                        {img.image_type}
-                      </span>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+                  Clear
+                </span>
+              )}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      {error && (
+        <table className="w-auto mb-4">
+          <tbody>
+            <tr>
+              <td className="px-3 py-4 text-sm text-center">
+                {error}
+                <span className="ml-2 cursor-pointer underline" onClick={() => { setSelectedSite(''); setSelectedType(''); }}>Retry</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+
+      {loading && (
+        <div className="flex justify-center py-12">
+          <ProgressBarLoader />
+        </div>
+      )}
+
+      {!loading && !error && data && data.images.length === 0 && (
+        <table className="w-auto">
+          <tbody>
+            <tr>
+              <td className="px-3 py-8 text-sm text-center">No images found. Try adjusting your filters.</td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+
+      {!loading && data && data.images.length > 0 && (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black">
+          {data.images.map(img => (
+            <a
+              key={img.id}
+              href={img.image_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="border-r-2 border-b-2 border-black overflow-hidden no-underline block"
+            >
+              <div className="bg-white aspect-square flex items-center justify-center overflow-hidden">
+                <img
+                  src={img.image_url}
+                  alt={`${img.site_name} ${img.monument_type || ''} ${img.monument_number || ''}`}
+                  loading="lazy"
+                  width={200}
+                  height={200}
+                  className="w-full h-full object-contain p-2"
+                  onError={e => { e.currentTarget.style.display = 'none'; }}
+                />
+              </div>
+              <div className="px-2 py-1.5 border-t border-black">
+                <span className="text-xs font-[800] text-black">{img.site_name}</span>
+                <div className="text-[10px] text-black">
+                  {img.monument_type && <span>{img.monument_type} {img.monument_number}</span>}
+                  {img.monument_type && <span className="mx-1">&middot;</span>}
+                  <span>{img.image_type}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

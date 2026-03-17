@@ -107,17 +107,17 @@ export function HomePage() {
           <MayaCalendar />
         </div>
 
-        <h1 className="text-xl font-semibold text-gray-900 mb-2 glyph-reveal" style={{ animationDelay: '1.7s' }}>
+        <h1 className="text-xl font-[600] text-black mb-2 glyph-reveal" style={{ animationDelay: '1.7s' }}>
           Maya Database
         </h1>
 
-        <p className="text-gray-400 text-sm mb-8 glyph-reveal" style={{ animationDelay: '1.9s' }}>
+        <p className="text-black text-sm mb-8 glyph-reveal" style={{ animationDelay: '1.9s' }}>
           A Digital Archive of Hieroglyphic Writing
         </p>
 
         <Link
           to="/search"
-          className="glyph-reveal no-underline text-sm font-medium text-gray-600 border border-gray-200 rounded-lg px-6 py-2.5 transition-colors hover:text-gray-900 hover:border-gray-400"
+          className="glyph-reveal no-underline text-sm font-[600] text-black border-2 border-black rounded-sm px-6 py-2.5   "
           style={{ animationDelay: '2.1s' }}
         >
           Explore the Catalog

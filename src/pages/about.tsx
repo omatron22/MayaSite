@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
 import { fetchStats } from '../lib/api';
 import type { StatsResponse } from '../../api/lib/types';
 
@@ -35,143 +34,195 @@ export function AboutPage() {
   const unlinkedPct = s ? pct(s.totalGraphemes - s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
 
   const dataSources = [
-    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} catalog signs, ${fmt(s.totalBlocks)} glyph blocks, and ${fmt(s.totalGraphemes)} grapheme instances with images, dates, and translations` : 'Loading...', url: 'https://mayadatabase.org' },
-    { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM (Bonn), Thompson, CMGG mappings, pronunciations, and translations from all three concordance pages', url: 'https://mayaglyphs.org/LMGGC.html' },
-    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances linked to catalog signs for computer vision training` : 'Loading...', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs with K-numbers, iconographic descriptions, and high-resolution images` : 'Loading...', url: 'https://research.mayavase.com/kerrmaya.html' },
-    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} line drawings, ${fmt(s.totalCmhiPhotos)} photographs) from the Corpus of Maya Hieroglyphic Inscriptions` : 'Loading...', url: 'https://peabody.harvard.edu/cmhi' },
-    { title: 'Peabody Museum Site Codes', desc: '200+ archaeological site codes mapped to coordinates across 4 regions, covering 100% of all blocks in the database', url: 'https://peabody.harvard.edu/maya-site-codes' },
-    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs with 1,565 graph variants, 728 decipherments with confidence levels, Thompson concordance, and sign images from the Bonn sign catalog (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Reference Codes (via MHD + LMGG + Bonn)', desc: s ? `Thompson (${pct(s.thompsonCoverage, s.totalSigns)}), Zender/Bonn (${pct(s.zenderCoverage, s.totalSigns)}), Kettunen (${pct(s.kettunenCoverage, s.totalSigns)}), and Gronemeyer (${pct(s.gronemeyerCoverage, s.totalSigns)}) codes enriched with LMGG concordance and Bonn catalog data` : 'Loading...', url: null },
-  ];
-
-  const coverageTags = s ? [
-    `Thompson (${pct(s.thompsonCoverage, s.totalSigns)})`,
-    `Zender / Bonn (${pct(s.zenderCoverage, s.totalSigns)})`,
-    `Kettunen (${pct(s.kettunenCoverage, s.totalSigns)})`,
-    `Gronemeyer (${pct(s.gronemeyerCoverage, s.totalSigns)})`,
-    `Bonn sign images (${pct(s.bonnImageCoverage, s.totalSigns)})`,
-    'MHD 2003',
-    'TWKM (via LMGG + Bonn)',
-  ] : ['Loading...'];
-
-  const statCards = s ? [
-    { num: fmt(s.totalSigns), label: 'Catalog signs from MHD' },
-    { num: fmt(s.totalBlocks), label: 'Glyph blocks from inscriptions' },
-    { num: fmt(s.totalGraphemes), label: 'Grapheme instances in context' },
-    { num: fmt(s.totalRoboflow), label: 'ML annotated examples' },
-    { num: fmt(s.totalKerr), label: 'Kerr vessel photographs' },
-    { num: fmt(totalCmhi), label: 'CMHI images & drawings' },
-  ] : [
-    { num: '...', label: 'Catalog signs from MHD' },
-    { num: '...', label: 'Glyph blocks from inscriptions' },
-    { num: '...', label: 'Grapheme instances in context' },
-    { num: '...', label: 'ML annotated examples' },
-    { num: '...', label: 'Kerr vessel photographs' },
-    { num: '...', label: 'CMHI images & drawings' },
+    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} catalog signs, ${fmt(s.totalBlocks)} glyph blocks, and ${fmt(s.totalGraphemes)} grapheme instances` : 'Loading...', url: 'https://mayadatabase.org' },
+    { title: 'LMGG Concordance Table', desc: '1,236 cross-referenced MHD codes with TWKM, Thompson, CMGG mappings', url: 'https://mayaglyphs.org/LMGGC.html' },
+    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances for computer vision` : 'Loading...', url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
+    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs` : 'Loading...', url: 'https://research.mayavase.com/kerrmaya.html' },
+    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : 'Loading...', url: 'https://peabody.harvard.edu/cmhi' },
+    { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 4 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
+    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 728 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
+    { title: 'Cross-Reference Codes', desc: s ? `Thompson ${pct(s.thompsonCoverage, s.totalSigns)}, Zender ${pct(s.zenderCoverage, s.totalSigns)}, Kettunen ${pct(s.kettunenCoverage, s.totalSigns)}, Gronemeyer ${pct(s.gronemeyerCoverage, s.totalSigns)}` : 'Loading...', url: null },
   ];
 
   return (
-    <div className="bg-white p-6 md:p-8">
-      <div className="max-w-[800px] mx-auto">
-        <h1 className="text-xl font-bold text-gray-900 mb-2">About</h1>
-        <p className="text-gray-500 text-sm mb-8">
-          Unifying Maya hieroglyphic research through accessible, consolidated data
+    <div className="max-w-[80ch] mx-auto px-4 py-4">
+      <div className="flex flex-col gap-6">
+
+        {/* About */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase">About</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-3 py-2 text-sm">
+                Maya glyphs have been catalogued according to multiple, often incompatible classification
+                systems over the past century. This fragmentation forces researchers to cross-reference
+                multiple sources manually, slowing progress and creating barriers to entry.
+              </td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 text-sm">
+                This project unifies data from the Maya Hieroglyphic Database, the LMGG concordance tables,
+                the ClassicMayan.org Bonn sign catalog, and machine learning datasets into a single searchable interface.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Data Sources */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase">Source</th>
+              <th className="px-3 py-1 text-left text-xs uppercase">Description</th>
+              <th className="px-3 py-1 text-left text-xs uppercase"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {dataSources.map((ds) => (
+              <tr key={ds.title}>
+                <td className="px-3 py-1 text-sm font-[800] whitespace-nowrap align-top">{ds.title}</td>
+                <td className="px-3 py-1 text-xs align-top">{ds.desc}</td>
+                <td className="px-3 py-1 text-xs align-top whitespace-nowrap">
+                  {ds.url && (
+                    <a href={ds.url} target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+                      link
+                    </a>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Research Resources */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase">Resource</th>
+              <th className="px-3 py-1 text-left text-xs uppercase">Description</th>
+              <th className="px-3 py-1 text-left text-xs uppercase"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {RESEARCH_RESOURCES.map((r) => (
+              <tr key={r.title}>
+                <td className="px-3 py-1 text-sm font-[800] whitespace-nowrap align-top">{r.title}</td>
+                <td className="px-3 py-1 text-xs align-top">{r.desc}</td>
+                <td className="px-3 py-1 text-xs align-top">
+                  <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
+                    link
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Known Limitations */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase">Known Limitations</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-3 py-1 text-xs">Site/region mapping covers 100% of blocks across 200+ sites using Peabody CMHI site codes.</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs">{linkedPct} of graphemes linked to catalog signs. Remaining {unlinkedPct} are unidentified (code "000"), uncertain (?), or numerals.</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs">MHD data includes records through early 2022.</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-1 text-xs">737/1,075 Bonn signs matched to catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} MHD entries)` : ''}. Unmatched are mostly 1500+ series.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        {/* Database Overview — at bottom */}
+        {s && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase" colSpan={2}>Database</th>
+                <th className="px-3 py-1 text-right text-xs">
+                  {fmt(s.totalSigns + s.totalBlocks + s.totalGraphemes + s.totalRoboflow + s.totalKerr + totalCmhi)} total records
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalSigns)}</td>
+                <td className="px-3 py-1 text-sm">catalog signs</td>
+                <td className="px-3 py-1 text-xs">{fmt(s.signsWithImages)} with images</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalBlocks)}</td>
+                <td className="px-3 py-1 text-sm">inscription blocks</td>
+                <td className="px-3 py-1 text-xs">{fmt(s.blocksWithDates)} dated, {fmt(s.blocksWithTranslations)} translated</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalGraphemes)}</td>
+                <td className="px-3 py-1 text-sm">grapheme instances</td>
+                <td className="px-3 py-1 text-xs">{fmt(s.graphemesLinkedToCatalog)} linked to catalog</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalRoboflow)}</td>
+                <td className="px-3 py-1 text-sm">ML annotations</td>
+                <td className="px-3 py-1 text-xs">Roboflow detected instances</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(s.totalKerr)}</td>
+                <td className="px-3 py-1 text-sm">Kerr vessels</td>
+                <td className="px-3 py-1 text-xs">rollout photographs</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-1 text-sm font-[800]">{fmt(totalCmhi)}</td>
+                <td className="px-3 py-1 text-sm">CMHI images</td>
+                <td className="px-3 py-1 text-xs">{fmt(s.totalCmhiDrawings)} drawings, {fmt(s.totalCmhiPhotos)} photos</td>
+              </tr>
+            </tbody>
+          </table>
+        )}
+
+        {/* Top Sites — at bottom */}
+        {s && (
+          <table className="w-auto">
+            <thead>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs uppercase" colSpan={4}>Top Archaeological Sites</th>
+              </tr>
+              <tr>
+                <th className="px-3 py-1 text-left text-xs">#</th>
+                <th className="px-3 py-1 text-left text-xs">Site</th>
+                <th className="px-3 py-1 text-right text-xs">Instances</th>
+                <th className="px-3 py-1 text-right text-xs">Share</th>
+              </tr>
+            </thead>
+            <tbody>
+              {s.topSites.map((site, idx) => (
+                <tr key={site.site}>
+                  <td className="px-3 py-1 text-sm">{idx + 1}</td>
+                  <td className="px-3 py-1 text-sm font-[800]">{site.site}</td>
+                  <td className="px-3 py-1 text-sm text-right">{site.count.toLocaleString()}</td>
+                  <td className="px-3 py-1 text-xs text-right">{((site.count / s.totalGraphemes) * 100).toFixed(1)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <p className="text-xs italic text-center px-3 py-2">
+          This project consolidates publicly available scholarly resources.
+          All contributors will be credited as co-authors in resulting publications.
         </p>
 
-        <div className="flex flex-col gap-8">
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">The Challenge</h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Maya glyphs have been catalogued according to multiple, often incompatible classification
-              systems over the past century. This fragmentation forces researchers to cross-reference
-              multiple sources manually, slowing progress and creating barriers to entry.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Our Solution</h2>
-            <p className="text-gray-600 text-sm leading-relaxed mb-4">
-              We've unified data from the Maya Hieroglyphic Database (MHD), the LMGG concordance tables,
-              the ClassicMayan.org Bonn sign catalog, and machine learning datasets into a single searchable interface.
-            </p>
-
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
-              {statCards.map((f) => (
-                <div key={f.num + f.label} className="border border-gray-200 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-gray-900 mb-1">{f.num}</div>
-                  <div className="text-xs text-gray-500 leading-snug">{f.label}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Cross-Catalog Integration</h2>
-            <p className="text-gray-600 text-sm leading-relaxed mb-3">
-              We integrate multiple classification systems to help researchers navigate between catalogs.
-              Coverage varies by system{s ? ` (percentages indicate how many of ${fmt(s.totalSigns)} catalog signs have a code)` : ''}:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {coverageTags.map((tag) => (
-                <span key={tag} className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Data Sources</h2>
-            <div className="flex flex-col gap-3">
-              {dataSources.map((ds) => (
-                <div key={ds.title}>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-medium text-gray-900 text-sm">{ds.title}</span>
-                    {ds.url && (
-                      <a href={ds.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline shrink-0">
-                        <ExternalLink size={12} />
-                      </a>
-                    )}
-                  </div>
-                  <div className="text-gray-500 text-xs leading-relaxed">{ds.desc}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Research Resources</h2>
-            <div className="flex flex-col gap-3">
-              {RESEARCH_RESOURCES.map((r) => (
-                <div key={r.title}>
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="font-medium text-gray-900 text-sm">{r.title}</span>
-                    <a href={r.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline shrink-0">
-                      <ExternalLink size={12} />
-                    </a>
-                  </div>
-                  <div className="text-gray-500 text-xs leading-relaxed">{r.desc}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Known Limitations</h2>
-            <ul className="text-gray-600 text-sm leading-relaxed list-disc pl-5 flex flex-col gap-1">
-              <li>Site/region mapping covers 100% of blocks across 200+ archaeological sites using Peabody Museum CMHI site codes.</li>
-              <li>{linkedPct} of graphemes are linked to catalog signs. The remaining {unlinkedPct} are unidentified glyphs (code "000"), uncertain readings (marked with "?"), or numerals with no catalog entry.</li>
-              <li>MHD data includes records through early 2022 and may be missing records added since then.</li>
-              <li>ClassicMayan.org (Bonn) catalog is integrated: 737/1,075 Bonn signs matched to our catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} MHD entries)` : ''}. Unmatched Bonn signs are mostly newer entries (1500+ series) not present in MHD.</li>
-            </ul>
-          </section>
-
-          <p className="text-gray-400 text-xs italic text-center pt-4 border-t border-gray-100">
-            This project consolidates publicly available scholarly resources.
-            All contributors to this database will be credited as co-authors in resulting publications.
-          </p>
-        </div>
       </div>
     </div>
   );

@@ -4,9 +4,6 @@ import type {
   BlockDetailResponse,
   GraphemeDetailResponse,
   StatsResponse,
-  AnalyticsResponse,
-  AnalyticsDataSource,
-  ConcordanceResponse,
   InferenceResponse,
   SignLookupResponse,
   NewConcordanceResponse,
@@ -45,7 +42,7 @@ export interface SearchApiParams {
   hasInstances?: boolean;
   hasTranslation?: boolean;
   sortBy?: 'code' | 'frequency' | 'completeness';
-  region?: string;
+  region?: string; // comma-separated for multi-select
   artifact?: string;
   site?: string;
   hasDate?: boolean;
@@ -58,16 +55,16 @@ export function searchApi(params: SearchApiParams, signal?: AbortSignal): Promis
   if (params.q) searchParams.set('q', params.q);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
-  if (params.volume && params.volume !== 'all') searchParams.set('volume', params.volume);
-  if (params.wordClass && params.wordClass !== 'all') searchParams.set('wordClass', params.wordClass);
-  if (params.technique && params.technique !== 'all') searchParams.set('technique', params.technique);
-  if (params.distribution && params.distribution !== 'all') searchParams.set('distribution', params.distribution);
+  if (params.volume) searchParams.set('volume', params.volume);
+  if (params.wordClass) searchParams.set('wordClass', params.wordClass);
+  if (params.technique) searchParams.set('technique', params.technique);
+  if (params.distribution) searchParams.set('distribution', params.distribution);
   if (params.hasImage) searchParams.set('hasImage', 'true');
   if (params.hasRoboflow) searchParams.set('hasRoboflow', 'true');
   if (params.hasInstances) searchParams.set('hasInstances', 'true');
   if (params.hasTranslation) searchParams.set('hasTranslation', 'true');
   if (params.sortBy && params.sortBy !== 'code') searchParams.set('sortBy', params.sortBy);
-  if (params.region && params.region !== 'all') searchParams.set('region', params.region);
+  if (params.region) searchParams.set('region', params.region);
   if (params.artifact) searchParams.set('artifact', params.artifact);
   if (params.site) searchParams.set('site', params.site);
   if (params.hasDate) searchParams.set('hasDate', 'true');
@@ -96,19 +93,6 @@ export function fetchStats(signal?: AbortSignal): Promise<StatsResponse> {
   return fetchJson<StatsResponse>('/api/meta?type=stats', signal);
 }
 
-// Analytics
-export function fetchAnalytics(
-  source: AnalyticsDataSource,
-  period?: string,
-  region?: string,
-  signal?: AbortSignal,
-): Promise<AnalyticsResponse> {
-  const params = new URLSearchParams();
-  params.set('source', source);
-  if (period && period !== 'all') params.set('period', period);
-  if (region && region !== 'all') params.set('region', region);
-  return fetchJson<AnalyticsResponse>(`/api/analytics?${params}`, signal);
-}
 
 // Export search results as CSV/JSON
 export async function exportSearch(
@@ -119,16 +103,16 @@ export async function exportSearch(
   searchParams.set('mode', params.mode);
   searchParams.set('export', 'true');
   if (params.q) searchParams.set('q', params.q);
-  if (params.volume && params.volume !== 'all') searchParams.set('volume', params.volume);
-  if (params.wordClass && params.wordClass !== 'all') searchParams.set('wordClass', params.wordClass);
-  if (params.technique && params.technique !== 'all') searchParams.set('technique', params.technique);
-  if (params.distribution && params.distribution !== 'all') searchParams.set('distribution', params.distribution);
+  if (params.volume) searchParams.set('volume', params.volume);
+  if (params.wordClass) searchParams.set('wordClass', params.wordClass);
+  if (params.technique) searchParams.set('technique', params.technique);
+  if (params.distribution) searchParams.set('distribution', params.distribution);
   if (params.hasImage) searchParams.set('hasImage', 'true');
   if (params.hasRoboflow) searchParams.set('hasRoboflow', 'true');
   if (params.hasInstances) searchParams.set('hasInstances', 'true');
   if (params.hasTranslation) searchParams.set('hasTranslation', 'true');
   if (params.sortBy && params.sortBy !== 'code') searchParams.set('sortBy', params.sortBy);
-  if (params.region && params.region !== 'all') searchParams.set('region', params.region);
+  if (params.region) searchParams.set('region', params.region);
   if (params.artifact) searchParams.set('artifact', params.artifact);
   if (params.site) searchParams.set('site', params.site);
   if (params.hasDate) searchParams.set('hasDate', 'true');
@@ -172,32 +156,6 @@ export async function exportSearch(
   URL.revokeObjectURL(url);
 }
 
-// Concordance
-export interface ConcordanceApiParams {
-  q?: string;
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDir?: string;
-  hasThompson?: boolean;
-  hasZender?: boolean;
-  hasKettunen?: boolean;
-  hasGronemeyer?: boolean;
-}
-
-export function fetchConcordance(params: ConcordanceApiParams, signal?: AbortSignal): Promise<ConcordanceResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.q) searchParams.set('q', params.q);
-  if (params.page) searchParams.set('page', String(params.page));
-  if (params.pageSize) searchParams.set('pageSize', String(params.pageSize));
-  if (params.sortBy) searchParams.set('sortBy', params.sortBy);
-  if (params.sortDir) searchParams.set('sortDir', params.sortDir);
-  if (params.hasThompson) searchParams.set('hasThompson', 'true');
-  if (params.hasZender) searchParams.set('hasZender', 'true');
-  if (params.hasKettunen) searchParams.set('hasKettunen', 'true');
-  if (params.hasGronemeyer) searchParams.set('hasGronemeyer', 'true');
-  return fetchJson<ConcordanceResponse>(`/api/search?mode=concordance&${searchParams}`, signal);
-}
 
 // Inference
 export async function runInference(imageBase64: string, signal?: AbortSignal): Promise<InferenceResponse> {

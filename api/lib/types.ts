@@ -242,28 +242,6 @@ export interface AnalyticsResponse {
   total: number;
 }
 
-// Concordance
-export interface ConcordanceRow {
-  id: number;
-  mhd_code: string;
-  graphcode: string | null;
-  primary_image_url: string | null;
-  thompson_code: string | null;
-  zender_code: string | null;
-  kettunen_code: string | null;
-  gronemeyer_code: string | null;
-  syllabic_value: string | null;
-  english_translation: string | null;
-  bonn_sign_number: number | null;
-}
-
-export interface ConcordanceResponse {
-  rows: ConcordanceRow[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
 // Inference
 export interface InferencePrediction {
   x: number;

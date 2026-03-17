@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
 
 const links = [
   { path: '/search', label: 'Search' },
-  { path: '/research', label: 'Research' },
-  { path: '/tools', label: 'Tools' },
+  { path: '/collections', label: 'Collections' },
   { path: '/about', label: 'About' },
 ];
 
@@ -15,47 +13,77 @@ export function Navbar() {
 
   const isActive = (path: string) => {
     if (path === '/search') {
-      return location.pathname === '/search' || /^\/(sign|block|grapheme)\//.test(location.pathname);
+      return location.pathname === '/' || location.pathname === '/search' || /^\/(sign|block|grapheme|entry|person)\//.test(location.pathname);
     }
     return location.pathname.startsWith(path);
   };
 
-  const linkClass = (path: string) =>
-    `no-underline text-sm font-medium transition-colors ${
-      isActive(path) ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900'
-    }`;
-
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-[1400px] mx-auto px-8 max-md:px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-lg font-semibold text-gray-900 no-underline">
-          Maya Database
-        </Link>
-
-        <div className="flex gap-8 max-md:hidden">
-          {links.map(({ path, label }) => (
-            <Link key={path} to={path} className={linkClass(path)}>{label}</Link>
-          ))}
-        </div>
-
-        <button
-          className="hidden max-md:flex items-center justify-center w-10 h-10 text-gray-500 hover:text-gray-900 transition-colors"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+    <nav className="max-w-[80ch] mx-auto px-4 pt-6">
+      {/* Desktop */}
+      <div className="max-md:hidden">
+        <table className="w-auto mb-4">
+          <tbody>
+            <tr>
+              <td className="px-4 py-3" colSpan={links.length}>
+                <Link to="/" className="no-underline">
+                  <h1 className="text-2xl m-0 leading-tight">Maya Database</h1>
+                </Link>
+                <span className="text-xs">A unified hieroglyphic research interface</span>
+              </td>
+            </tr>
+            <tr>
+              {links.map(({ path, label }) => (
+                <td key={path} className="px-4 py-2 text-sm">
+                  <Link
+                    to={path}
+                    className={`no-underline ${isActive(path) ? 'font-[800]' : ''}`}
+                  >
+                    {isActive(path) ? `[${label}]` : label}
+                  </Link>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      {menuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white px-8 py-4 flex flex-col gap-4">
-          {links.map(({ path, label }) => (
-            <Link key={path} to={path} className={linkClass(path)} onClick={() => setMenuOpen(false)}>
-              {label}
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* Mobile */}
+      <div className="hidden max-md:block">
+        <table className="w-full mb-4">
+          <tbody>
+            <tr>
+              <td className="px-4 py-3">
+                <Link to="/" className="font-[800] uppercase tracking-wider no-underline text-lg">
+                  Maya Database
+                </Link>
+              </td>
+              <td className="px-4 py-3 text-right">
+                <button
+                  className="cursor-pointer font-[600] uppercase text-xs"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  aria-label="Toggle menu"
+                >
+                  {menuOpen ? '[Close]' : 'Menu'}
+                </button>
+              </td>
+            </tr>
+            {menuOpen && links.map(({ path, label }) => (
+              <tr key={path}>
+                <td className="px-4 py-1" colSpan={2}>
+                  <Link
+                    to={path}
+                    className={`no-underline ${isActive(path) ? 'font-[800]' : ''}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {isActive(path) ? `[${label}]` : label}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </nav>
   );
 }

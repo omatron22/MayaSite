@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
-import { User, ExternalLink } from 'lucide-react';
 import { fetchBlock } from '../lib/api';
 import type { Block } from '../types/database';
 import type { BlockGrapheme, BlockSignSlotDetail } from '../../api/lib/types';
@@ -13,41 +13,41 @@ interface SlotInfo {
 }
 
 const GraphemeRow = memo(({ grapheme, slotInfo }: { grapheme: BlockGrapheme; slotInfo?: SlotInfo }) => (
-  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border border-gray-200 rounded bg-white hover:border-gray-300 transition-colors">
+  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white ">
     <div>
       {grapheme.primary_image_url ? (
-        <img src={grapheme.primary_image_url} alt={grapheme.graphcode || grapheme.grapheme_code} loading="lazy" className="w-[44px] h-[32px] object-contain rounded border border-gray-200 bg-gray-50" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+        <img src={grapheme.primary_image_url} alt={grapheme.graphcode || grapheme.grapheme_code} loading="lazy" className="w-[44px] h-[32px] object-contain border-2 border-black bg-white" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
       ) : (
-        <div className="w-[44px] h-[32px] bg-gray-50 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-mono">img</div>
+        <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">img</div>
       )}
     </div>
     <div className="flex flex-col gap-0.5">
-      <div className="font-mono text-sm font-medium">
+      <div className="font-mono text-sm font-[600]">
         {grapheme.catalog_sign_id ? (
-          <Link to={`/sign/${grapheme.catalog_sign_id}`} className="text-blue-600 no-underline hover:underline">
+          <Link to={`/sign/${grapheme.catalog_sign_id}`} className="text-black underline no-underline hover:underline">
             {grapheme.graphcode || grapheme.grapheme_code}
           </Link>
         ) : (
-          <span className="text-gray-700">{grapheme.graphcode || grapheme.grapheme_code}</span>
+          <span className="text-black">{grapheme.graphcode || grapheme.grapheme_code}</span>
         )}
-        {slotInfo?.certainty === 'uncertain' && <span className="text-amber-600 ml-1 text-xs">?</span>}
+        {slotInfo?.certainty === 'uncertain' && <span className="text-black ml-1 text-xs">?</span>}
       </div>
-      {grapheme.syllabic_value && <div className="font-serif italic text-sm">{grapheme.syllabic_value}</div>}
+      {grapheme.syllabic_value && <div className="italic text-sm">{grapheme.syllabic_value}</div>}
       {grapheme.grapheme_english && grapheme.grapheme_english !== '_' && (
-        <div className="text-[11px] text-gray-400">{grapheme.english_translation || grapheme.grapheme_english}</div>
+        <div className="text-[11px] text-black">{grapheme.english_translation || grapheme.grapheme_english}</div>
       )}
     </div>
     <div className="flex flex-col items-end gap-1">
       {slotInfo?.position_in_block && slotInfo.position_in_block !== 'eroded' && (
-        <span className={`font-mono text-[10px] px-2 py-0.5 rounded border ${
-          slotInfo.position_in_block === 'main' ? 'bg-gray-50 text-gray-600 border-gray-200' :
-          slotInfo.position_in_block === 'prefix' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-          slotInfo.position_in_block === 'suffix' ? 'bg-green-50 text-green-600 border-green-200' :
-          'bg-gray-50 text-gray-500 border-gray-200'
+        <span className={`font-mono text-[10px] px-2 py-0.5 border ${
+          slotInfo.position_in_block === 'main' ? 'bg-white text-black border-black' :
+          slotInfo.position_in_block === 'prefix' ? 'bg-white text-black underline border-black' :
+          slotInfo.position_in_block === 'suffix' ? 'bg-white text-black border-black' :
+          'bg-white text-black border-black'
         }`}>{slotInfo.position_in_block === 'main' ? 'main sign' : slotInfo.position_in_block}</span>
       )}
       {slotInfo?.certainty === 'uncertain' && (
-        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">uncertain</span>
+        <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">uncertain</span>
       )}
     </div>
   </div>
@@ -55,14 +55,14 @@ const GraphemeRow = memo(({ grapheme, slotInfo }: { grapheme: BlockGrapheme; slo
 GraphemeRow.displayName = 'GraphemeRow';
 
 const ErodedRow = memo(() => (
-  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border border-gray-200 rounded bg-white">
-    <div className="w-[44px] h-[32px] bg-red-50 border border-dashed border-red-200 rounded flex items-center justify-center text-red-300 text-[8px] font-mono">---</div>
+  <div className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white">
+    <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">---</div>
     <div className="flex flex-col gap-0.5">
-      <div className="font-mono text-sm text-red-400">000</div>
-      <div className="text-[11px] text-gray-400">eroded / undetermined</div>
+      <div className="font-mono text-sm text-black">000</div>
+      <div className="text-[11px] text-black">eroded / undetermined</div>
     </div>
     <div>
-      <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-red-50 text-red-600 border border-red-200">eroded</span>
+      <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">eroded</span>
     </div>
   </div>
 ));
@@ -137,9 +137,8 @@ export function BlockDetailPage() {
   if (loading) {
     return (
       <div className="bg-white p-6">
-        <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <div className="loading-spinner mb-4"></div>
-          <p className="text-gray-500">Loading block...</p>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <ProgressBarLoader />
         </div>
       </div>
     );
@@ -149,8 +148,8 @@ export function BlockDetailPage() {
     return (
       <div className="bg-white p-6">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <p className="text-gray-600 mb-4">{error || 'Block not found'}</p>
-          <Link to="/search" className="text-blue-600 text-sm no-underline hover:underline">Back to search</Link>
+          <p className="text-black mb-4">{error || 'Block not found'}</p>
+          <Link to="/search" className="text-black underline text-sm no-underline hover:underline">Back to search</Link>
         </div>
       </div>
     );
@@ -158,21 +157,21 @@ export function BlockDetailPage() {
 
   const tabBtn = (tab: TabType, label: string, count?: number) => (
     <button
-      className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-        activeTab === tab ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-700'
+      className={`px-4 py-3 text-sm font-[600] border-b-2  whitespace-nowrap ${
+        activeTab === tab ? 'text-black border-black' : 'text-black border-transparent'
       }`}
       onClick={() => setActiveTab(tab)}
     >
       {label}
-      {count !== undefined && count > 0 && <span className="ml-1.5 font-mono text-xs text-gray-400">{count}</span>}
+      {count !== undefined && count > 0 && <span className="ml-1.5 font-mono text-xs text-black">{count}</span>}
     </button>
   );
 
   const metaRow = (label: string, value: string | null | undefined, mono?: boolean) => (
     hasValue(value) && (
       <div className="flex gap-0 text-sm">
-        <span className="text-gray-400 min-w-[120px] shrink-0">{label}</span>
-        <span className={`text-gray-900 ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
+        <span className="text-black min-w-[120px] shrink-0">{label}</span>
+        <span className={`text-black ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
       </div>
     )
   );
@@ -181,40 +180,40 @@ export function BlockDetailPage() {
     <div className="bg-white p-6 max-md:p-4">
       <div className="max-w-[1100px] mx-auto">
         {/* Breadcrumb with block nav */}
-        <div className="flex items-center gap-1 text-sm text-gray-400 mb-6">
-          <Link to="/search" className="text-blue-600 no-underline hover:underline">Search</Link>
+        <div className="flex items-center gap-1 text-sm text-black mb-6">
+          <Link to="/search" className="text-black underline no-underline hover:underline">Search</Link>
           <span>&rsaquo;</span>
           <span>Blocks</span>
           <span>&rsaquo;</span>
           {block.artifact_code && (
             <>
-              <span className="text-gray-500">{block.artifact_code}</span>
+              <span className="text-black">{block.artifact_code}</span>
               <span>&rsaquo;</span>
             </>
           )}
-          <span className="text-gray-700 font-medium">{block.mhd_block_id}</span>
+          <span className="text-black font-[600]">{block.mhd_block_id}</span>
           {block.coordinate && (
             <span className="ml-3 inline-flex items-center gap-1.5">
               {prevBlock ? (
-                <Link to={`/block/${prevBlock.id}`} className="text-blue-500 no-underline hover:text-blue-700" title={`Previous: ${prevBlock.coordinate}`}>&lsaquo;</Link>
+                <Link to={`/block/${prevBlock.id}`} className="text-black underline no-underline" title={`Previous: ${prevBlock.coordinate}`}>&lsaquo;</Link>
               ) : (
-                <span className="text-gray-300 select-none">&lsaquo;</span>
+                <span className="text-black select-none">&lsaquo;</span>
               )}
-              <span className="font-mono text-xs text-gray-400">{block.coordinate}</span>
+              <span className="font-mono text-xs text-black">{block.coordinate}</span>
               {nextBlock ? (
-                <Link to={`/block/${nextBlock.id}`} className="text-blue-500 no-underline hover:text-blue-700" title={`Next: ${nextBlock.coordinate}`}>&rsaquo;</Link>
+                <Link to={`/block/${nextBlock.id}`} className="text-black underline no-underline" title={`Next: ${nextBlock.coordinate}`}>&rsaquo;</Link>
               ) : (
-                <span className="text-gray-300 select-none">&rsaquo;</span>
+                <span className="text-black select-none">&rsaquo;</span>
               )}
             </span>
           )}
         </div>
 
         {/* Hero: Image + Dual-column metadata */}
-        <div className="border border-gray-200 rounded-t-lg overflow-hidden">
+        <div className="border-2 border-black overflow-hidden">
           <div className="grid grid-cols-[280px_1fr] max-md:grid-cols-1 gap-0">
             {/* Image panel */}
-            <div className="bg-gray-50 border-r border-gray-200 max-md:border-r-0 max-md:border-b flex flex-col items-center justify-center p-6 gap-3">
+            <div className="bg-white border-r-2 border-black max-md:border-r-0 max-md:border-b flex flex-col items-center justify-center p-6 gap-3">
               {(block.block_image1_url || block.block_image2_url) ? (
                 <img
                   src={block.block_image1_url || block.block_image2_url || ''}
@@ -224,23 +223,23 @@ export function BlockDetailPage() {
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               ) : (
-                <div className="w-[180px] h-[140px] bg-white border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-xs font-mono">
+                <div className="w-[180px] h-[140px] bg-white border border-dashed border-black flex items-center justify-center text-black text-xs font-mono">
                   no image
                 </div>
               )}
-              <div className="text-[10px] font-mono text-gray-400 text-center">
+              <div className="text-[10px] font-mono text-black text-center">
                 {block.mhd_block_id}
                 {block.coordinate && ` \u00B7 ${block.coordinate}`}
               </div>
               <div className="flex gap-2 flex-wrap">
                 <a href="https://mayadatabase.org" target="_blank" rel="noopener noreferrer"
-                  className="text-blue-600 text-[11px] no-underline px-2 py-0.5 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100 inline-flex items-center gap-1">
-                  MHD record <ExternalLink size={9} />
+                  className="text-black underline text-[11px] no-underline px-2 py-0.5 border-2 border-black bg-white inline-flex items-center gap-1">
+                  MHD record
                 </a>
                 {block.block_image2_url && block.block_image1_url && (
                   <a href={block.block_image2_url} target="_blank" rel="noopener noreferrer"
-                    className="text-blue-600 text-[11px] no-underline px-2 py-0.5 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100 inline-flex items-center gap-1">
-                    More images <ExternalLink size={9} />
+                    className="text-black underline text-[11px] no-underline px-2 py-0.5 border-2 border-black bg-white inline-flex items-center gap-1">
+                    More images
                   </a>
                 )}
               </div>
@@ -250,26 +249,26 @@ export function BlockDetailPage() {
             <div className="grid grid-cols-2 max-md:grid-cols-1 gap-6 p-6">
               {/* Left: Location & Object */}
               <div className="flex flex-col gap-3">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-gray-400 pb-1.5 border-b border-gray-200">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-black pb-1.5 border-b-2 border-black">
                   Location &amp; Object
                 </div>
                 {metaRow('Block ID', block.mhd_block_id, true)}
                 {metaRow('Coordinate', block.coordinate, true)}
                 {hasValue(block.artifact_code) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Artifact</span>
-                    <span className="text-gray-900">
+                    <span className="text-black min-w-[120px] shrink-0">Artifact</span>
+                    <span className="text-black">
                       {block.artifact_code}
                       {block.artifact_name && block.artifact_name !== block.artifact_code && (
-                        <span className="text-gray-500"> &mdash; {block.artifact_name.includes(',') ? block.artifact_name.split(',').slice(1).join(',').trim() : block.artifact_name}</span>
+                        <span className="text-black"> &mdash; {block.artifact_name.includes(',') ? block.artifact_name.split(',').slice(1).join(',').trim() : block.artifact_name}</span>
                       )}
                     </span>
                   </div>
                 )}
                 {hasValue(block.site_name) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Site</span>
-                    <Link to={`/search?mode=blocks&site=${encodeURIComponent(block.site_name!)}`} className="text-blue-600 no-underline hover:underline">{block.site_name}</Link>
+                    <span className="text-black min-w-[120px] shrink-0">Site</span>
+                    <Link to={`/search?mode=blocks&site=${encodeURIComponent(block.site_name!)}`} className="text-black underline no-underline hover:underline">{block.site_name}</Link>
                   </div>
                 )}
                 {metaRow('Region', block.region)}
@@ -277,35 +276,35 @@ export function BlockDetailPage() {
                 {metaRow('Frame', block.orientation_frame)}
                 {(hasValue(block.technique) || hasValue(block.material)) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Medium</span>
-                    <span className="text-gray-900">{[block.technique, block.material].filter(v => v && v !== '_' && v !== '-').join(' \u2013 ') || '\u2014'}</span>
+                    <span className="text-black min-w-[120px] shrink-0">Medium</span>
+                    <span className="text-black">{[block.technique, block.material].filter(v => v && v !== '_' && v !== '-').join(' \u2013 ') || '\u2014'}</span>
                   </div>
                 )}
               </div>
 
               {/* Right: Attribution & Semantic */}
               <div className="flex flex-col gap-3">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-gray-400 pb-1.5 border-b border-gray-200">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-black pb-1.5 border-b-2 border-black">
                   Attribution &amp; Semantic Context
                 </div>
                 {hasValue(block.scribe) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Scribe(s)</span>
-                    <span className="text-gray-900">{block.scribe}</span>
+                    <span className="text-black min-w-[120px] shrink-0">Scribe(s)</span>
+                    <span className="text-black">{block.scribe}</span>
                   </div>
                 )}
                 {hasValue(block.person_code) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Person</span>
-                    <span className="text-gray-900">{block.person_code}</span>
+                    <span className="text-black min-w-[120px] shrink-0">Person</span>
+                    <span className="text-black">{block.person_code}</span>
                   </div>
                 )}
                 {semanticTags.length > 0 && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Semantic</span>
+                    <span className="text-black min-w-[120px] shrink-0">Semantic</span>
                     <div className="flex flex-wrap gap-1">
                       {semanticTags.map((tag, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700">
+                        <span key={i} className="text-xs px-2 py-0.5 bg-white border-2 border-black text-black">
                           {tag}
                         </span>
                       ))}
@@ -317,15 +316,15 @@ export function BlockDetailPage() {
                 {metaRow('Description', block.object_description)}
                 {hasValue(block.image_notes) && (
                   <div className="flex gap-0 text-sm">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">Image notes</span>
-                    <span className="text-gray-500 italic text-xs">{block.image_notes}</span>
+                    <span className="text-black min-w-[120px] shrink-0">Image notes</span>
+                    <span className="text-black italic text-xs">{block.image_notes}</span>
                   </div>
                 )}
                 {/* MHD source ID (numeric suffix of mhd_block_id) */}
                 {block.mhd_block_id && block.mhd_block_id.includes('-') && (
                   <div className="flex gap-0 text-sm mt-1">
-                    <span className="text-gray-400 min-w-[120px] shrink-0">MHD source ID</span>
-                    <span className="text-gray-400 font-mono text-xs">{block.mhd_block_id.split('-').pop()}</span>
+                    <span className="text-black min-w-[120px] shrink-0">MHD source ID</span>
+                    <span className="text-black font-mono text-xs">{block.mhd_block_id.split('-').pop()}</span>
                   </div>
                 )}
               </div>
@@ -334,7 +333,7 @@ export function BlockDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 border-x border-gray-200 bg-gray-50 overflow-x-auto px-4">
+        <div className="flex gap-1 border-x border-black bg-white overflow-x-auto px-4">
           {tabBtn('transcription', 'Transcription')}
           {hasCalendarInfo && tabBtn('dates', 'Dates')}
           {tabBtn('signs', 'Signs', signSlots.length || graphemes.length)}
@@ -342,80 +341,80 @@ export function BlockDetailPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="border border-gray-200 rounded-b-lg p-6 min-h-[200px]">
+        <div className="border-2 border-black p-6 min-h-[200px]">
 
           {/* TRANSCRIPTION TAB */}
           {activeTab === 'transcription' && (
             hasTextContent ? (
               <div>
-                <h3 className="text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-4">Full block transcription</h3>
-                <div className="border border-gray-200 rounded overflow-hidden">
+                <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-4">Full block transcription</h3>
+                <div className="border-2 border-black overflow-hidden">
                   {hasValue(block.block_logosyll) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Logosyll.</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Logosyll.</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.block_logosyll}</div>
                     </div>
                   )}
                   {hasValue(block.block_hyphenated) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Hyphen</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Hyphen</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.block_hyphenated}</div>
                     </div>
                   )}
                   {hasValue(block.transcription_1) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Transcr. 1</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Transcr. 1</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_1}</div>
                     </div>
                   )}
                   {hasValue(block.transcription_2) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Transcr. 2</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Transcr. 2</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.transcription_2}</div>
                     </div>
                   )}
                   {hasValue(block.block_maya1) && !(block.block_maya1 === block.transcription_1) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Maya 1</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Maya 1</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.block_maya1}</div>
                     </div>
                   )}
                   {hasValue(block.block_maya2) && !(block.block_maya2 === block.transcription_2) && (
-                    <div className="grid grid-cols-[110px_1fr] border-b border-gray-200">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">Maya 2</div>
+                    <div className="grid grid-cols-[110px_1fr] border-b-2 border-black">
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">Maya 2</div>
                       <div className="p-3 font-mono text-sm tracking-wide">{block.block_maya2}</div>
                     </div>
                   )}
                   {hasValue(block.block_english) && (
                     <div className="grid grid-cols-[110px_1fr]">
-                      <div className="text-[10px] font-mono uppercase tracking-wide text-gray-400 p-3 bg-gray-50 border-r border-gray-200 flex items-center">English</div>
-                      <div className="p-3 font-serif italic text-sm text-gray-600">&ldquo;{block.block_english}&rdquo;</div>
+                      <div className="text-[10px] font-mono uppercase tracking-wide text-black p-3 bg-white border-r-2 border-black flex items-center">English</div>
+                      <div className="p-3 italic text-sm text-black">&ldquo;{block.block_english}&rdquo;</div>
                     </div>
                   )}
                 </div>
                 {block.notes && block.notes !== '' && (
-                  <div className="mt-4 p-3 bg-gray-50 rounded border border-gray-200">
-                    <span className="text-[10px] font-mono uppercase tracking-wide text-gray-400 block mb-1">Notes</span>
-                    <p className="text-sm text-gray-600 m-0 leading-relaxed">{block.notes}</p>
+                  <div className="mt-4 p-3 bg-white border-2 border-black">
+                    <span className="text-[10px] font-mono uppercase tracking-wide text-black block mb-1">Notes</span>
+                    <p className="text-sm text-black m-0 leading-relaxed">{block.notes}</p>
                   </div>
                 )}
               </div>
             ) : (
-              <p className="text-center text-gray-400 py-12">No transcription data available for this block</p>
+              <p className="text-center text-black py-12">No transcription data available for this block</p>
             )
           )}
 
           {/* DATES TAB */}
           {activeTab === 'dates' && (
             <div>
-              <h3 className="text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-2">Two date contexts &mdash; event date vs. object date</h3>
-              <p className="text-xs text-gray-400 italic mb-4">
+              <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-2">Two date contexts &mdash; event date vs. object date</h3>
+              <p className="text-xs text-black italic mb-4">
                 MHD records may contain event dates (the historical event described) and/or object dates (when the monument was created).
               </p>
               <div className="grid grid-cols-2 max-md:grid-cols-1 gap-4">
                 {/* Event date column */}
-                <div className="border border-gray-200 rounded overflow-hidden">
-                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-indigo-50 border-b border-gray-200 text-indigo-600">
+                <div className="border-2 border-black overflow-hidden">
+                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-white border-b-2 border-black text-black">
                     Event date (ev–)
                   </div>
                   <div className="py-2">
@@ -427,8 +426,8 @@ export function BlockDetailPage() {
                   </div>
                 </div>
                 {/* Object date column */}
-                <div className="border border-gray-200 rounded overflow-hidden">
-                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-green-50 border-b border-gray-200 text-green-700">
+                <div className="border-2 border-black overflow-hidden">
+                  <div className="text-[10px] font-mono uppercase tracking-wide px-3 py-2 bg-white border-b-2 border-black text-black">
                     Object date (obj–)
                   </div>
                   <div className="py-2">
@@ -443,13 +442,13 @@ export function BlockDetailPage() {
                         )}
                       </>
                     ) : (
-                      <div className="px-3 py-2 text-xs text-gray-300 italic">No separate object date available</div>
+                      <div className="px-3 py-2 text-xs text-black italic">No separate object date available</div>
                     )}
                   </div>
                 </div>
               </div>
               {!(block as unknown as Record<string, unknown>).object_date_start && (
-                <p className="text-xs text-gray-400 italic mt-3">
+                <p className="text-xs text-black italic mt-3">
                   Object dates (when the monument was made) are only available for artifacts documented in the TWKM corpus.
                 </p>
               )}
@@ -462,41 +461,41 @@ export function BlockDetailPage() {
               {/* Sign sequence strip */}
               {signSlots.length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-3">
+                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-3">
                     Sign sequence &mdash; {hasValue(block.block_graphcodes) ? block.block_graphcodes : `${signSlots.length} signs`}
                   </h3>
-                  <div className="flex items-center gap-1.5 p-4 bg-white border border-gray-200 rounded flex-wrap">
+                  <div className="flex items-center gap-1.5 p-4 bg-white border-2 border-black flex-wrap">
                     {signSlots.map((slot, i) => (
                       <div key={slot.slot_id} className="flex items-center gap-1.5">
                         <div className="flex flex-col items-center gap-1">
-                          <div className={`w-[48px] h-[34px] rounded border flex items-center justify-center ${
+                          <div className={`w-[48px] h-[34px] border flex items-center justify-center ${
                             slot.certainty === 'eroded'
-                              ? 'border-red-200 bg-red-50'
+                              ? 'border-black bg-white'
                               : slot.certainty === 'uncertain'
-                              ? 'border-amber-200 bg-amber-50'
-                              : 'border-gray-200 bg-gray-50'
+                              ? 'border-black bg-white'
+                              : 'border-black bg-white'
                           }`}>
                             {slot.image_url ? (
                               <img src={slot.image_url} alt="" className="w-[40px] h-[28px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                             ) : (
-                              <span className="text-[8px] font-mono text-gray-300">
+                              <span className="text-[8px] font-mono text-black">
                                 {slot.certainty === 'eroded' ? '---' : 'img'}
                               </span>
                             )}
                           </div>
                           <span className={`font-mono text-[10px] ${
                             slot.certainty === 'eroded'
-                              ? 'text-red-400'
+                              ? 'text-black'
                               : slot.certainty === 'uncertain'
-                              ? 'text-amber-600'
-                              : 'text-blue-600'
+                              ? 'text-black'
+                              : 'text-black underline'
                           }`}>
                             {slot.catalog_code || slot.raw_code}
                             {slot.certainty === 'uncertain' && '?'}
                           </span>
                         </div>
                         {i < signSlots.length - 1 && (
-                          <span className="text-gray-300 text-lg mt-[-14px]">&rsaquo;</span>
+                          <span className="text-black text-lg mt-[-14px]">&rsaquo;</span>
                         )}
                       </div>
                     ))}
@@ -507,7 +506,7 @@ export function BlockDetailPage() {
               {/* Detailed sign list — merges sign slots with grapheme data */}
               {(signSlots.length > 0 || graphemes.length > 0) && (
                 <div>
-                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-3">Sign detail</h3>
+                  <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-3">Sign detail</h3>
                   <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto">
                     {signSlots.length > 0 ? (
                       signSlots.map((slot) => {
@@ -522,17 +521,17 @@ export function BlockDetailPage() {
                         }
                         // Slot with no matching grapheme — show raw code
                         return (
-                          <div key={slot.slot_id} className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border border-gray-200 rounded bg-white">
-                            <div className="w-[44px] h-[32px] bg-gray-50 border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-300 text-[8px] font-mono">img</div>
+                          <div key={slot.slot_id} className="grid grid-cols-[44px_1fr_auto] gap-3 items-center p-3 border-2 border-black bg-white">
+                            <div className="w-[44px] h-[32px] bg-white border border-dashed border-black flex items-center justify-center text-black text-[8px] font-mono">img</div>
                             <div className="flex flex-col gap-0.5">
-                              <div className={`font-mono text-sm font-medium ${slot.certainty === 'uncertain' ? 'text-amber-600' : 'text-gray-700'}`}>
+                              <div className={`font-mono text-sm font-[600] ${slot.certainty === 'uncertain' ? 'text-black' : 'text-black'}`}>
                                 {slot.catalog_code || slot.raw_code}{slot.certainty === 'uncertain' ? '?' : ''}
                               </div>
-                              {slot.reading_value && <div className="font-serif italic text-sm">{slot.reading_value}</div>}
+                              {slot.reading_value && <div className="italic text-sm">{slot.reading_value}</div>}
                             </div>
                             <div>
                               {slot.certainty === 'uncertain' && (
-                                <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">uncertain</span>
+                                <span className="font-mono text-[10px] px-2 py-0.5 bg-white text-black border-2 border-black">uncertain</span>
                               )}
                             </div>
                           </div>
@@ -548,7 +547,7 @@ export function BlockDetailPage() {
               )}
 
               {signSlots.length === 0 && graphemes.length === 0 && (
-                <p className="text-center text-gray-400 py-12">No sign data available for this block</p>
+                <p className="text-center text-black py-12">No sign data available for this block</p>
               )}
             </div>
           )}
@@ -556,7 +555,7 @@ export function BlockDetailPage() {
           {/* PEOPLE TAB */}
           {activeTab === 'people' && (
             <div>
-              <h3 className="text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-4">
+              <h3 className="text-[10px] font-mono uppercase tracking-wider text-black mb-4">
                 Named individuals associated with this block
               </h3>
               {people.length > 0 ? (
@@ -566,20 +565,20 @@ export function BlockDetailPage() {
                       ? `scribe-${p.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
                       : `mhd-${p.name}`;
                     return (
-                      <Link key={i} to={`/person/${encodeURIComponent(personId)}`} className="flex items-center gap-3 p-3 border border-gray-200 rounded bg-white hover:border-indigo-300 hover:shadow-sm transition-all">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0 ${
-                          p.uncertain ? 'bg-amber-100 text-amber-600' : 'bg-gray-200 text-gray-500'
+                      <Link key={i} to={`/person/${encodeURIComponent(personId)}`} className="flex items-center gap-3 p-3 border-2 border-black bg-white hover:shadow-sm transition-all">
+                        <div className={`w-7 h-7 flex items-center justify-center text-xs shrink-0 ${
+                          p.uncertain ? 'bg-white text-black' : 'bg-white text-black'
                         }`}>
-                          <User size={12} />
+                          {p.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="flex-1 text-sm font-medium text-gray-900">
-                          {p.uncertain && <span className="text-gray-400">?? </span>}
+                        <div className="flex-1 text-sm font-[600] text-black">
+                          {p.uncertain && <span className="text-black">?? </span>}
                           {p.name}
                         </div>
-                        <span className={`font-mono text-[10px] px-2 py-0.5 rounded ${
+                        <span className={`font-mono text-[10px] px-2 py-0.5 ${
                           p.uncertain
-                            ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                            : 'bg-gray-100 text-gray-500'
+                            ? 'bg-white text-black border-2 border-black'
+                            : 'bg-white text-black'
                         }`}>
                           {p.role}{p.uncertain ? ' \u00B7 uncertain' : ''}
                         </span>
@@ -588,9 +587,9 @@ export function BlockDetailPage() {
                   })}
                 </div>
               ) : (
-                <p className="text-center text-gray-400 py-12">No named individuals recorded</p>
+                <p className="text-center text-black py-12">No named individuals recorded</p>
               )}
-              <p className="text-xs text-gray-400 italic mt-4">
+              <p className="text-xs text-black italic mt-4">
                 Attributions from MHD &ldquo;scribe&rdquo; and &ldquo;person_code&rdquo; fields. Uncertain identifications marked.
               </p>
             </div>
@@ -604,12 +603,12 @@ export function BlockDetailPage() {
 function DateRow({ label, value }: { label: string; value: string | null | undefined }) {
   const hasVal = value && value !== '_' && value !== '-' && value !== 'N/A' && value !== '??';
   return (
-    <div className="flex px-3 py-1.5 text-xs hover:bg-gray-50">
-      <span className="text-gray-400 min-w-[80px] font-mono text-[11px]">{label}</span>
+    <div className="flex px-3 py-1.5 text-xs hover:bg-white">
+      <span className="text-black min-w-[80px] font-mono text-[11px]">{label}</span>
       {hasVal ? (
-        <span className="text-gray-900">{value}</span>
+        <span className="text-black">{value}</span>
       ) : (
-        <span className="text-gray-300 font-mono text-[11px]">{value === '??' ? '??' : '\u2014'}</span>
+        <span className="text-black font-mono text-[11px]">{value === '??' ? '??' : '\u2014'}</span>
       )}
     </div>
   );
