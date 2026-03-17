@@ -13,7 +13,7 @@ export function Navbar() {
 
   const isActive = (path: string) => {
     if (path === '/search') {
-      return location.pathname === '/' || location.pathname === '/search' || /^\/(sign|block|grapheme|entry|person)\//.test(location.pathname);
+      return location.pathname === '/search' || /^\/(sign|block|grapheme|entry|person)\//.test(location.pathname);
     }
     return location.pathname.startsWith(path);
   };

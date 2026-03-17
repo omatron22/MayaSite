@@ -28,7 +28,7 @@ function Loading() {
 const RESEARCH_RESOURCES = [
   { title: 'Introduction to Maya Hieroglyphs', desc: 'Comprehensive introduction for students and researchers', url: 'https://www.mesoweb.com/resources/handbook/IMH2020.pdf' },
   { title: 'Visual Catalog of Maya Hieroglyphs', desc: 'Tokovinine\'s illustrated reference catalog', url: 'https://www.mesoweb.com/resources/catalog/Tokovinine_Catalog.pdf' },
-  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive sign catalog with phonetic values and concordances across 11 catalog systems', url: 'https://classicmayan.org' },
+  { title: 'ClassicMayan Sign Catalog', desc: 'Interactive sign catalog with phonetic values and concordances across 13 catalog systems', url: 'https://classicmayan.org' },
   { title: 'Updated Maya-English Vocabulary', desc: 'Comprehensive vocabulary list for decipherment', url: 'https://www.mesoweb.com/resources/vocabulary/Vocabulary-2009.01.pdf' },
 ];
 
@@ -52,9 +52,9 @@ export function AboutPage() {
     { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} annotated glyph instances for computer vision` : <Loading />, url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
     { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} vessel rollout photographs` : <Loading />, url: 'https://research.mayavase.com/kerrmaya.html' },
     { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
-    { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 4 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
-    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 728 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 11 catalog systems (MHD, TWKM, Thompson, CMGG, Grube, and others) with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
+    { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 5 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
+    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 727 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
+    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 13 catalog systems including MHD, TWKM, Thompson, CMGG, Grube, and 8 others with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
   ];
 
   return (
@@ -156,7 +156,7 @@ export function AboutPage() {
               <td className="px-3 py-1 text-xs">737/1,075 Bonn signs matched to MHD catalog{s ? ` (${pct(s.bonnImageCoverage, s.totalSigns)} of ${fmt(s.totalSigns)} entries)` : ''}. Unmatched are mostly newer 1500+ series not in MHD.</td>
             </tr>
             <tr>
-              <td className="px-3 py-1 text-xs">Site coordinates cover 200+ archaeological sites across 4 regions using Peabody CMHI codes.</td>
+              <td className="px-3 py-1 text-xs">Site coordinates cover 200+ archaeological sites across 5 regions using Peabody CMHI codes.</td>
             </tr>
           </tbody>
         </table>

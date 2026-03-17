@@ -31,10 +31,10 @@ interface GraphVariant {
 type TabType = 'concordance' | 'variants' | 'attestations' | 'info' | 'examples';
 
 const CATALOG_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  MHD: { bg: 'bg-white', text: 'text-black', border: 'border-black' },
+  MHD: { bg: 'bg-black', text: 'text-white', border: 'border-black' },
   TWKM: { bg: 'bg-white', text: 'text-black', border: 'border-black' },
-  Thompson: { bg: 'bg-white', text: 'text-black', border: 'border-black' },
-  CMGG: { bg: 'bg-white', text: 'text-black', border: 'border-black' },
+  Thompson: { bg: 'bg-black/10', text: 'text-black', border: 'border-black' },
+  CMGG: { bg: 'bg-white', text: 'text-black', border: 'border-black border-dashed' },
 };
 
 function catalogBadge(catalog: string) {

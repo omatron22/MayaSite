@@ -44,7 +44,7 @@ function apiRoutes(): Plugin {
           modulePath = `./api/${segments[0]}/[id].ts`;
           query.id = segments[1];
         } else if (segments.length === 1) {
-          // /api/search, /api/stats, /api/analytics, /api/concordance, /api/inference
+          // /api/search, /api/stats, /api/concordance, /api/inference
           modulePath = `./api/${segments[0]}.ts`;
         } else {
           return next();

@@ -653,8 +653,8 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
 
     const entry = entryResult.rows[0];
 
-    // Fetch cross-references, graphs, and legacy sign ID in parallel
-    const [crossRefResult, graphsResult] = await Promise.all([
+    // Fetch cross-references, graphs, and attestations in parallel
+    const [crossRefResult, graphsResult, graphemesResult] = await Promise.all([
       db.execute({
         sql: `SELECT ce2.entry_id, ce2.catalog, ce2.catalog_code,
                      ce2.reading_value, ce2.gloss_english, ce2.confidence_level,
@@ -674,6 +674,38 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
               ORDER BY variant_suffix`,
         args: [entryId],
       }),
+      // Fetch attestations (grapheme instances) via legacy_catalog_sign_id
+      entry.legacy_catalog_sign_id
+        ? db.execute({
+            sql: `
+              SELECT
+                g.id,
+                g.block_id,
+                g.grapheme_code,
+                b.block_english,
+                b.block_maya1,
+                b.block_logosyll,
+                b.artifact_code,
+                b.event_calendar,
+                b.event_long_count,
+                b.event_gregorian,
+                b.site_name,
+                b.region,
+                b.semantic_context,
+                b.mhd_block_id,
+                b.coordinate,
+                b.surface_page,
+                b.orientation_frame,
+                COALESCE(b.block_image1_url, b.block_image2_url) as block_img
+              FROM graphemes g
+              LEFT JOIN blocks b ON g.block_id = b.id
+              WHERE g.catalog_sign_id = ?
+              ORDER BY b.event_calendar DESC
+              LIMIT 200
+            `,
+            args: [entry.legacy_catalog_sign_id],
+          })
+        : Promise.resolve({ rows: [] }),
     ]);
 
     const crossRefs = crossRefResult.rows.map(r => ({
@@ -698,6 +730,8 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
       medium: r.medium,
     }));
 
+    const graphemes = graphemesResult.rows;
+
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({
       entry: {
@@ -706,6 +740,7 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
       },
       crossRefs,
       graphs,
+      graphemes,
     });
   } catch (err) {
     console.error('Entry detail error:', err);
