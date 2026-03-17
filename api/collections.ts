@@ -97,8 +97,14 @@ async function handleCmhi(req: VercelRequest, res: VercelResponse) {
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
   try {
+    const countResult = await db.execute({
+      sql: `SELECT COUNT(*) as total FROM cmhi_images ${where}`,
+      args,
+    });
+    const total = Number(countResult.rows[0].total);
+
     const result = await db.execute({
-      sql: `SELECT * FROM cmhi_images ${where} ORDER BY site_name, monument_type, monument_number LIMIT 200`,
+      sql: `SELECT * FROM cmhi_images ${where} ORDER BY site_name, monument_type, monument_number`,
       args,
     });
 
@@ -112,6 +118,7 @@ async function handleCmhi(req: VercelRequest, res: VercelResponse) {
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({
+      total,
       images: result.rows,
       sites: siteSummary.rows,
     });

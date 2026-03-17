@@ -208,6 +208,7 @@ export function fetchKerr(params: KerrSearchParams, signal?: AbortSignal): Promi
 
 // CMHI images
 export interface CmhiResponse {
+  total: number;
   images: Array<{
     id: number;
     site_name: string;

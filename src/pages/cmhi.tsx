@@ -149,7 +149,7 @@ export function CmhiPage() {
             <tbody>
               <tr>
                 <td className="px-3 py-1 text-sm">
-                  <strong>{data.images.length.toLocaleString()}</strong> images
+                  <strong>{data.total.toLocaleString()}</strong> images
                   {selectedSites.length > 0 && (
                     <span>
                       {selectedSites.length === 1
@@ -184,7 +184,7 @@ export function CmhiPage() {
         </div>
       )}
 
-      {!loading && !error && data && data.images.length === 0 && (
+      {!loading && !error && data && data.total === 0 && (
         <table className="w-auto mt-4">
           <tbody>
             <tr>
@@ -194,7 +194,7 @@ export function CmhiPage() {
         </table>
       )}
 
-      {!loading && data && data.images.length > 0 && (
+      {!loading && data && data.total > 0 && (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black">
           {data.images.map(img => (
             <a
