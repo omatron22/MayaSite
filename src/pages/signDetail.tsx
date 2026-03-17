@@ -129,7 +129,9 @@ export function SignDetailPage() {
             <tr>
               <th className="px-3 py-1 text-left text-xs" colSpan={2}>
                 <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
-                {' > Signs > '}
+                {' > '}
+                <Link to="/search?mode=signs" className="underline hover:no-underline font-normal">Signs</Link>
+                {' > '}
                 <span className="font-[800]">{displayCode}</span>
               </th>
             </tr>
@@ -379,17 +381,14 @@ export function SignDetailPage() {
               </tr>
             </thead>
             <tbody>
-              <tr><td className="px-3 py-1 text-xs font-[800]">MHD Code</td><td className="px-3 py-1 text-xs">{sign.mhd_code}</td></tr>
-              {sign.mhd_code_sub && <tr><td className="px-3 py-1 text-xs font-[800]">Display Code</td><td className="px-3 py-1 text-xs">{sign.mhd_code_sub}</td></tr>}
               {sign.graphcode && <tr><td className="px-3 py-1 text-xs font-[800]">Graph Code</td><td className="px-3 py-1 text-xs">{sign.graphcode}</td></tr>}
               {sign.logographic_value && <tr><td className="px-3 py-1 text-xs font-[800]">Logographic</td><td className="px-3 py-1 text-xs">{sign.logographic_value}</td></tr>}
-              {sign.syllabic_value && <tr><td className="px-3 py-1 text-xs font-[800]">Syllabic</td><td className="px-3 py-1 text-xs">{sign.syllabic_value}</td></tr>}
               {sign.word_class && <tr><td className="px-3 py-1 text-xs font-[800]">Word Class</td><td className="px-3 py-1 text-xs">{sign.word_class}</td></tr>}
               {sign.volume && <tr><td className="px-3 py-1 text-xs font-[800]">Period</td><td className="px-3 py-1 text-xs">{sign.volume}</td></tr>}
               {sign.technique && <tr><td className="px-3 py-1 text-xs font-[800]">Technique</td><td className="px-3 py-1 text-xs">{sign.technique}</td></tr>}
               {sign.distribution && <tr><td className="px-3 py-1 text-xs font-[800]">Distribution</td><td className="px-3 py-1 text-xs">{sign.distribution}</td></tr>}
               {sign.calendrical_name && <tr><td className="px-3 py-1 text-xs font-[800]">Calendrical</td><td className="px-3 py-1 text-xs">{sign.calendrical_name}</td></tr>}
-              {sign.picture_description && <tr><td className="px-3 py-1 text-xs font-[800]">Depicts</td><td className="px-3 py-1 text-xs">{sign.picture_description}</td></tr>}
+              {sign.picture_description && sign.picture_description !== '?' && <tr><td className="px-3 py-1 text-xs font-[800]">Depicts</td><td className="px-3 py-1 text-xs">{sign.picture_description}</td></tr>}
               {sign.bonn_sign_number && <tr><td className="px-3 py-1 text-xs font-[800]">Bonn/TWKM</td><td className="px-3 py-1 text-xs">Sign {sign.bonn_sign_number}{sign.bonn_confidence != null ? ` (confidence ${sign.bonn_confidence})` : ''}</td></tr>}
               {sign.notes && <tr><td className="px-3 py-1 text-xs font-[800]">Notes</td><td className="px-3 py-1 text-xs">{sign.notes}</td></tr>}
             </tbody>
