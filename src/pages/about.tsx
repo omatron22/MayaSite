@@ -54,7 +54,7 @@ export function AboutPage() {
     { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images (${fmt(s.totalCmhiDrawings)} drawings, ${fmt(s.totalCmhiPhotos)} photos)` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
     { title: 'Peabody Museum Site Codes', desc: '200+ site codes mapped to coordinates across 4 regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
     { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs, 1,565 graph variants, 728 decipherments (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries across MHD, TWKM, Thompson, and 11 other catalogs with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
+    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 11 catalog systems (MHD, TWKM, Thompson, CMGG, Grube, and others) with ${pct(s.thompsonCoverage, s.totalSigns)} Thompson, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
   ];
 
   return (

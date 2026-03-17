@@ -53,7 +53,7 @@ function ConfidenceBar({ level, max = 8 }: { level: number; max?: number }) {
             className={`w-2.5 h-2.5 ${
               i < level
                 ? level <= 3
-                  ? 'bg-white0'
+                  ? 'bg-black/30'
                   : 'bg-green-600'
                 : 'bg-white'
             }`}
@@ -295,7 +295,7 @@ export function SignDetailPage() {
             {/* External links */}
             <div className="flex flex-wrap gap-2 mb-3">
               {sign.zender_code && (
-                <a href="https://classicmayan.org/signCatalog.html" target="_blank" rel="noopener noreferrer"
+                <a href="https://classicmayan.org" target="_blank" rel="noopener noreferrer"
                   className="text-black underline text-xs px-2.5 py-1 border-2 border-black bg-white inline-flex items-center gap-1">
                   ClassicMayan.org
                 </a>
