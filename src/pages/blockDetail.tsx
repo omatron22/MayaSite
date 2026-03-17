@@ -115,30 +115,20 @@ export function BlockDetailPage() {
                 <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
                 {' > '}
                 <Link to="/search?mode=blocks" className="underline hover:no-underline font-normal">Blocks</Link>
-                {block.artifact_code && (
-                  <>
-                    {' > '}
-                    <span>{block.artifact_code}</span>
-                  </>
-                )}
                 {' > '}
                 <span className="font-[800]">{block.mhd_block_id}</span>
-                {block.coordinate && (
-                  <span className="ml-3">
-                    {prevBlock ? (
-                      <Link to={`/block/${prevBlock.id}`} className="underline hover:no-underline font-normal" title={`Previous: ${prevBlock.coordinate}`}>&lsaquo;</Link>
-                    ) : (
-                      <span className="select-none">&lsaquo;</span>
-                    )}
-                    {' '}
-                    <span className="text-xs">{block.coordinate}</span>
-                    {' '}
-                    {nextBlock ? (
-                      <Link to={`/block/${nextBlock.id}`} className="underline hover:no-underline font-normal" title={`Next: ${nextBlock.coordinate}`}>&rsaquo;</Link>
-                    ) : (
-                      <span className="select-none">&rsaquo;</span>
-                    )}
-                  </span>
+              </th>
+              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
+                {prevBlock ? (
+                  <Link to={`/block/${prevBlock.id}`} className="underline hover:no-underline" title={prevBlock.coordinate}>&lsaquo;</Link>
+                ) : (
+                  <span className="select-none">&lsaquo;</span>
+                )}
+                {block.coordinate && <> <span className="text-xs">{block.coordinate}</span> </>}
+                {nextBlock ? (
+                  <Link to={`/block/${nextBlock.id}`} className="underline hover:no-underline" title={nextBlock.coordinate}>&rsaquo;</Link>
+                ) : (
+                  <span className="select-none">&rsaquo;</span>
                 )}
               </th>
             </tr>

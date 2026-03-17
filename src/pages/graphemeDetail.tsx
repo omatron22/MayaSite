@@ -9,6 +9,8 @@ type TabType = 'information' | 'context' | 'catalog';
 export function GraphemeDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [grapheme, setGrapheme] = useState<GraphemeDetailResponse | null>(null);
+  const [prevGrapheme, setPrevGrapheme] = useState<{ id: number; code: string } | null>(null);
+  const [nextGrapheme, setNextGrapheme] = useState<{ id: number; code: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +24,11 @@ export function GraphemeDetailPage() {
     setError(null);
 
     fetchGrapheme(gId, controller.signal)
-      .then((data) => setGrapheme(data))
+      .then((data) => {
+        setGrapheme(data);
+        setPrevGrapheme((data as unknown as { prevGrapheme?: { id: number; code: string } }).prevGrapheme || null);
+        setNextGrapheme((data as unknown as { nextGrapheme?: { id: number; code: string } }).nextGrapheme || null);
+      })
       .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load grapheme'); })
       .finally(() => setLoading(false));
 
@@ -81,6 +87,19 @@ export function GraphemeDetailPage() {
                 <Link to="/search?mode=graphemes" className="underline hover:no-underline font-normal">Graphemes</Link>
                 {' > '}
                 <span className="font-[800]">{displayCode}</span>
+              </th>
+              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
+                {prevGrapheme ? (
+                  <Link to={`/grapheme/${prevGrapheme.id}`} className="underline hover:no-underline" title={prevGrapheme.code}>&lsaquo;</Link>
+                ) : (
+                  <span className="select-none">&lsaquo;</span>
+                )}
+                {' '}
+                {nextGrapheme ? (
+                  <Link to={`/grapheme/${nextGrapheme.id}`} className="underline hover:no-underline" title={nextGrapheme.code}>&rsaquo;</Link>
+                ) : (
+                  <span className="select-none">&rsaquo;</span>
+                )}
               </th>
             </tr>
           </thead>

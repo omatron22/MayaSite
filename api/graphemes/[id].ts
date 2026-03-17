@@ -61,8 +61,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: `No grapheme found with ID: ${graphemeId}` });
     }
 
+    const grapheme = result.rows[0] as Record<string, unknown>;
+
+    // Find prev/next grapheme within same block
+    let prevGrapheme: { id: number; code: string } | null = null;
+    let nextGrapheme: { id: number; code: string } | null = null;
+    if (grapheme.block_id) {
+      try {
+        const [prevResult, nextResult] = await Promise.all([
+          db.execute('SELECT id, grapheme_code as code FROM graphemes WHERE block_id = ? AND id < ? ORDER BY id DESC LIMIT 1', [grapheme.block_id as number, graphemeId]),
+          db.execute('SELECT id, grapheme_code as code FROM graphemes WHERE block_id = ? AND id > ? ORDER BY id ASC LIMIT 1', [grapheme.block_id as number, graphemeId]),
+        ]);
+        if (prevResult.rows.length > 0) prevGrapheme = { id: Number(prevResult.rows[0].id), code: String(prevResult.rows[0].code) };
+        if (nextResult.rows.length > 0) nextGrapheme = { id: Number(nextResult.rows[0].id), code: String(nextResult.rows[0].code) };
+      } catch { /* non-critical */ }
+    }
+
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
-    return res.status(200).json(result.rows[0]);
+    return res.status(200).json({ ...grapheme, prevGrapheme, nextGrapheme });
   } catch (err) {
     console.error('Grapheme detail error:', err);
     return res.status(500).json({ error: 'Failed to load grapheme', details: String(err) });

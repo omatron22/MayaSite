@@ -78,6 +78,8 @@ export function EntryDetailPage() {
   const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
   const [graphs, setGraphs] = useState<GraphVariant[]>([]);
   const [graphemes, setGraphemes] = useState<Attestation[]>([]);
+  const [prevEntry, setPrevEntry] = useState<{ entry_id: string; code: string } | null>(null);
+  const [nextEntry, setNextEntry] = useState<{ entry_id: string; code: string } | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('information');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +101,8 @@ export function EntryDetailPage() {
         setCrossRefs(data.crossRefs);
         setGraphs(data.graphs);
         setGraphemes(data.graphemes || []);
+        setPrevEntry((data as unknown as { prevEntry?: { entry_id: string; code: string } }).prevEntry || null);
+        setNextEntry((data as unknown as { nextEntry?: { entry_id: string; code: string } }).nextEntry || null);
       })
       .catch(err => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -152,11 +156,24 @@ export function EntryDetailPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
+                <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
+                {' > '}
                 <Link to="/search?mode=concordance" className="underline hover:no-underline font-normal">Concordance</Link>
                 {' > '}
-                <span>{entry.catalog}</span>
-                {' > '}
                 <span className="font-[800]">{entry.catalog_code}</span>
+              </th>
+              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
+                {prevEntry ? (
+                  <Link to={`/entry/${prevEntry.entry_id}`} className="underline hover:no-underline" title={prevEntry.code}>&lsaquo;</Link>
+                ) : (
+                  <span className="select-none">&lsaquo;</span>
+                )}
+                {' '}
+                {nextEntry ? (
+                  <Link to={`/entry/${nextEntry.entry_id}`} className="underline hover:no-underline" title={nextEntry.code}>&rsaquo;</Link>
+                ) : (
+                  <span className="select-none">&rsaquo;</span>
+                )}
               </th>
             </tr>
           </thead>

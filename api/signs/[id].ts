@@ -63,6 +63,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: `No sign found with ID: ${signId}` });
     }
 
+    // Find prev/next signs by id
+    let prevSign: { id: number; code: string } | null = null;
+    let nextSign: { id: number; code: string } | null = null;
+    try {
+      const [prevResult, nextResult] = await Promise.all([
+        db.execute('SELECT id, COALESCE(mhd_code_sub, graphcode, mhd_code) as code FROM catalog_signs WHERE id < ? ORDER BY id DESC LIMIT 1', [signId]),
+        db.execute('SELECT id, COALESCE(mhd_code_sub, graphcode, mhd_code) as code FROM catalog_signs WHERE id > ? ORDER BY id ASC LIMIT 1', [signId]),
+      ]);
+      if (prevResult.rows.length > 0) prevSign = { id: Number(prevResult.rows[0].id), code: String(prevResult.rows[0].code) };
+      if (nextResult.rows.length > 0) nextSign = { id: Number(nextResult.rows[0].id), code: String(nextResult.rows[0].code) };
+    } catch { /* non-critical */ }
+
     // Fetch concordance data if catalog_entries exist for this sign
     let crossRefs: unknown[] = [];
     let graphs: unknown[] = [];
@@ -109,6 +121,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       roboflow: roboflowResult.rows,
       crossRefs,
       graphs,
+      prevSign,
+      nextSign,
     });
   } catch (err) {
     console.error('Sign detail error:', err);

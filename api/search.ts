@@ -611,6 +611,20 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
 
     const graphemes = graphemesResult.rows;
 
+    // Find prev/next entry within same catalog
+    let prevEntry: { entry_id: string; code: string } | null = null;
+    let nextEntry: { entry_id: string; code: string } | null = null;
+    try {
+      const catalog = String(entry.catalog);
+      const code = String(entry.catalog_code);
+      const [prevResult, nextResult] = await Promise.all([
+        db.execute({ sql: 'SELECT entry_id, catalog_code as code FROM catalog_entries WHERE catalog = ? AND catalog_code < ? ORDER BY catalog_code DESC LIMIT 1', args: [catalog, code] }),
+        db.execute({ sql: 'SELECT entry_id, catalog_code as code FROM catalog_entries WHERE catalog = ? AND catalog_code > ? ORDER BY catalog_code ASC LIMIT 1', args: [catalog, code] }),
+      ]);
+      if (prevResult.rows.length > 0) prevEntry = { entry_id: String(prevResult.rows[0].entry_id), code: String(prevResult.rows[0].code) };
+      if (nextResult.rows.length > 0) nextEntry = { entry_id: String(nextResult.rows[0].entry_id), code: String(nextResult.rows[0].code) };
+    } catch { /* non-critical */ }
+
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
     return res.status(200).json({
       entry: {
@@ -620,6 +634,8 @@ async function handleEntryDetail(req: VercelRequest, res: VercelResponse) {
       crossRefs,
       graphs,
       graphemes,
+      prevEntry,
+      nextEntry,
     });
   } catch (err) {
     console.error('Entry detail error:', err);

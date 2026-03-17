@@ -37,9 +37,11 @@ export function SignDetailPage() {
   const [roboflow, setRoboflow] = useState<SignRoboflowInstance[]>([]);
   const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
   const [graphVariants, setGraphVariants] = useState<GraphVariant[]>([]);
+  const [prevSign, setPrevSign] = useState<{ id: number; code: string } | null>(null);
+  const [nextSign, setNextSign] = useState<{ id: number; code: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('concordance');
+  const [activeTab, setActiveTab] = useState<TabType>('info');
 
   useEffect(() => {
     if (!id) { setError('No ID provided'); setLoading(false); return; }
@@ -57,18 +59,14 @@ export function SignDetailPage() {
         setRoboflow(data.roboflow);
         setCrossRefs((data as unknown as { crossRefs?: CrossRef[] }).crossRefs || []);
         setGraphVariants((data as unknown as { graphs?: GraphVariant[] }).graphs || []);
+        setPrevSign((data as unknown as { prevSign?: { id: number; code: string } }).prevSign || null);
+        setNextSign((data as unknown as { nextSign?: { id: number; code: string } }).nextSign || null);
       })
       .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load sign'); })
       .finally(() => setLoading(false));
 
     return () => controller.abort();
   }, [id]);
-
-  useEffect(() => {
-    if (crossRefs.length > 0) setActiveTab('concordance');
-    else if (graphemes.length > 0) setActiveTab('attestations');
-    else setActiveTab('info');
-  }, [crossRefs.length, graphemes.length]);
 
   const confidenceLevel = useMemo(() => {
     if (sign?.bonn_confidence) return Math.min(8, Math.round(sign.bonn_confidence));
@@ -127,12 +125,25 @@ export function SignDetailPage() {
         <table className="w-auto">
           <thead>
             <tr>
-              <th className="px-3 py-1 text-left text-xs" colSpan={2}>
+              <th className="px-3 py-1 text-left text-xs">
                 <Link to="/search" className="underline hover:no-underline font-normal">Search</Link>
                 {' > '}
                 <Link to="/search?mode=signs" className="underline hover:no-underline font-normal">Signs</Link>
                 {' > '}
                 <span className="font-[800]">{displayCode}</span>
+              </th>
+              <th className="px-3 py-1 text-right text-xs font-normal whitespace-nowrap">
+                {prevSign ? (
+                  <Link to={`/sign/${prevSign.id}`} className="underline hover:no-underline" title={prevSign.code}>&lsaquo;</Link>
+                ) : (
+                  <span className="select-none">&lsaquo;</span>
+                )}
+                {' '}
+                {nextSign ? (
+                  <Link to={`/sign/${nextSign.id}`} className="underline hover:no-underline" title={nextSign.code}>&rsaquo;</Link>
+                ) : (
+                  <span className="select-none">&rsaquo;</span>
+                )}
               </th>
             </tr>
           </thead>
@@ -157,10 +168,10 @@ export function SignDetailPage() {
         <table className="w-auto">
           <tbody>
             <tr>
+              {tabLabel('info', 'Information')}
               {tabLabel('concordance', 'Concordance', catalogCount > 0 ? catalogCount : undefined)}
               {graphVariants.length > 0 && tabLabel('variants', 'Variants', graphVariants.length)}
               {tabLabel('attestations', 'Attestations', graphemes.length)}
-              {tabLabel('info', 'Information')}
               {roboflow.length > 0 && tabLabel('examples', 'ML Examples', roboflow.length)}
             </tr>
           </tbody>
