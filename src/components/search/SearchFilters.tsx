@@ -53,7 +53,7 @@ export function SearchFiltersComponent({
   return (
     <div className="flex flex-col gap-2">
       {/* Search + View mode */}
-      <table className="w-auto">
+      <table className="w-full">
         <tbody>
           {searchRow}
           <tr>

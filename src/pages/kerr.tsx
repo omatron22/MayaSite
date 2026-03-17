@@ -51,7 +51,7 @@ export function KerrPage() {
   return (
     <div className="max-w-[80ch] mx-auto px-4 py-4">
       {/* Unified search + tabs table */}
-      <table className="w-auto">
+      <table className="w-full">
         <tbody>
           <tr>
             <td colSpan={2} className="px-3 py-2 cursor-text" onClick={() => searchInputRef.current?.focus()}>
