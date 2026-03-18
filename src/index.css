@@ -9,6 +9,16 @@
   :root {
     --border-thickness: 2px;
     --line-height: 1.20rem;
+    color-scheme: light dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html {
+      filter: invert(1);
+    }
+    img, video {
+      filter: invert(1);
+    }
   }
 
   html {
