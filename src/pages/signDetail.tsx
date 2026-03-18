@@ -159,7 +159,7 @@ export function SignDetailPage() {
                 ) : sign.bonn_image_url ? (
                   <img src={sign.bonn_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
-                  <span className="text-xs">no image</span>
+                  <span className="text-xs italic">no image</span>
                 )}
                 {sign.bonn_image_url && <div className="text-[9px] mt-1">Drawn: C. Prager / TWKM</div>}
                 {sign.english_translation && <div className="text-xs mt-2">"{sign.english_translation}"</div>}

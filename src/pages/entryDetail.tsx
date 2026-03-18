@@ -187,7 +187,7 @@ export function EntryDetailPage() {
                 {entry.image_url ? (
                   <img src={entry.image_url} alt={entry.catalog_code} className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
-                  <span className="text-xs">no image</span>
+                  <span className="text-xs italic">no image</span>
                 )}
                 {entry.gloss_english && <div className="text-xs mt-2">"{entry.gloss_english}"</div>}
               </td>

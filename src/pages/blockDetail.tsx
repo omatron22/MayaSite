@@ -149,7 +149,7 @@ export function BlockDetailPage() {
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                 ) : (
-                  <span className="text-xs">no image</span>
+                  <span className="text-xs italic">no image</span>
                 )}
                 {hasValue(block.block_english) && <div className="text-xs mt-2">"{block.block_english}"</div>}
               </td>

@@ -113,7 +113,7 @@ export function GraphemeDetailPage() {
                 {grapheme.primary_image_url ? (
                   <img src={grapheme.primary_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
-                  <span className="text-xs">no image</span>
+                  <span className="text-xs italic">no image</span>
                 )}
                 {hasValue(grapheme.grapheme_english) && <div className="text-xs mt-2">"{grapheme.grapheme_english}"</div>}
               </td>
