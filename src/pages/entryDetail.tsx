@@ -247,7 +247,7 @@ export function EntryDetailPage() {
         {/* CROSS-REFERENCES */}
         {activeTab === 'crossrefs' && (
           crossRefs.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No cross-catalog links found</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No cross-catalog links found</td></tr></tbody></table>
           ) : (
             <table className="w-full">
               <thead>
@@ -283,7 +283,7 @@ export function EntryDetailPage() {
         {/* VARIANTS */}
         {activeTab === 'variants' && (
           graphs.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No graph variants found</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No graph variants found</td></tr></tbody></table>
           ) : (
             <table className="w-full">
               <thead>
@@ -319,7 +319,7 @@ export function EntryDetailPage() {
         {/* ATTESTATIONS */}
         {activeTab === 'attestations' && (
           graphemes.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No instances found in corpus</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No instances found in corpus</td></tr></tbody></table>
           ) : (
             <>
               <table className="w-full">

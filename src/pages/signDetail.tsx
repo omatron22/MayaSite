@@ -184,7 +184,7 @@ export function SignDetailPage() {
         {/* CONCORDANCE */}
         {activeTab === 'concordance' && (
           crossRefs.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No cross-references found in concordance tables</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No cross-references found in concordance tables</td></tr></tbody></table>
           ) : (
             <table className="w-full">
               <thead>
@@ -227,7 +227,7 @@ export function SignDetailPage() {
         {/* VARIANTS */}
         {activeTab === 'variants' && (
           graphVariants.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No visual variants available</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No visual variants available</td></tr></tbody></table>
           ) : (
             <table className="w-full">
               <thead>
@@ -265,7 +265,7 @@ export function SignDetailPage() {
         {/* ATTESTATIONS */}
         {activeTab === 'attestations' && (
           graphemes.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No instances found in corpus</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No instances found in corpus</td></tr></tbody></table>
           ) : (
             <>
               <table className="w-full">
@@ -380,7 +380,7 @@ export function SignDetailPage() {
         {/* ML EXAMPLES */}
         {activeTab === 'examples' && (
           roboflow.length === 0 ? (
-            <p className="text-xs px-3 py-8 text-center">No ML training examples available</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No ML training examples available</td></tr></tbody></table>
           ) : (
             <table className="w-full">
               <thead>

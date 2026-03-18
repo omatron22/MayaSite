@@ -253,7 +253,7 @@ export function BlockDetailPage() {
               </tbody>
             </table>
           ) : (
-            <p className="text-xs px-3 py-8 text-center">No transcription data available</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No transcription data available</td></tr></tbody></table>
           )
         )}
 
@@ -335,7 +335,7 @@ export function BlockDetailPage() {
               </tbody>
             </table>
           ) : (
-            <p className="text-xs px-3 py-8 text-center">No sign data available</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No sign data available</td></tr></tbody></table>
           )
         )}
 
@@ -361,7 +361,7 @@ export function BlockDetailPage() {
               </tbody>
             </table>
           ) : (
-            <p className="text-xs px-3 py-8 text-center">No named individuals recorded</p>
+            <table className="w-full"><tbody><tr><td className="px-3 py-8 text-xs text-center">No named individuals recorded</td></tr></tbody></table>
           )
         )}
 
