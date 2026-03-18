@@ -3,16 +3,24 @@ import { ProgressBarLoader } from './components/ui/ProgressBarLoader';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 
-const SearchPage = lazy(() => import('./pages/search').then(m => ({ default: m.SearchPage })));
-const SignDetailPage = lazy(() => import('./pages/signDetail').then(m => ({ default: m.SignDetailPage })));
-const BlockDetailPage = lazy(() => import('./pages/blockDetail').then(m => ({ default: m.BlockDetailPage })));
-const GraphemeDetailPage = lazy(() => import('./pages/graphemeDetail').then(m => ({ default: m.GraphemeDetailPage })));
-const AboutPage = lazy(() => import('./pages/about').then(m => ({ default: m.AboutPage })));
-const CollectionsPage = lazy(() => import('./pages/collections').then(m => ({ default: m.CollectionsPage })));
-const KerrPage = lazy(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
-const CmhiPage = lazy(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
-const EntryDetailPage = lazy(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
-const ApiPage = lazy(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
+// Retry dynamic imports once on failure (handles stale chunks after deploy)
+function lazyRetry<T extends { [key: string]: unknown }>(fn: () => Promise<T>) {
+  return lazy(() => fn().catch(() => {
+    window.location.reload();
+    return new Promise<{ default: React.ComponentType }>(() => {});
+  }) as Promise<{ default: React.ComponentType }>);
+}
+
+const SearchPage = lazyRetry(() => import('./pages/search').then(m => ({ default: m.SearchPage })));
+const SignDetailPage = lazyRetry(() => import('./pages/signDetail').then(m => ({ default: m.SignDetailPage })));
+const BlockDetailPage = lazyRetry(() => import('./pages/blockDetail').then(m => ({ default: m.BlockDetailPage })));
+const GraphemeDetailPage = lazyRetry(() => import('./pages/graphemeDetail').then(m => ({ default: m.GraphemeDetailPage })));
+const AboutPage = lazyRetry(() => import('./pages/about').then(m => ({ default: m.AboutPage })));
+const CollectionsPage = lazyRetry(() => import('./pages/collections').then(m => ({ default: m.CollectionsPage })));
+const KerrPage = lazyRetry(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
+const CmhiPage = lazyRetry(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
+const EntryDetailPage = lazyRetry(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
+const ApiPage = lazyRetry(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
 
 function PageLoader() {
   return (
