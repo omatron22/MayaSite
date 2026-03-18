@@ -340,6 +340,7 @@ export function SearchPage() {
                   ref={searchInputRef}
                   type="text"
                   className="absolute opacity-0 pointer-events-none"
+                  style={{ caretColor: 'transparent', fontSize: '16px' }}
                   value={query}
                   onChange={handleQueryChange}
                   onFocus={() => setInputFocused(true)}
