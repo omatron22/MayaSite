@@ -122,7 +122,7 @@ export function SignDetailPage() {
       <div className="flex flex-col gap-4">
 
         {/* Header */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
@@ -169,7 +169,7 @@ export function SignDetailPage() {
         </table>
 
         {/* Tabs */}
-        <table className="w-auto">
+        <table className="w-full">
           <tbody>
             <tr>
               {tabLabel('info', 'Information')}
@@ -186,7 +186,7 @@ export function SignDetailPage() {
           crossRefs.length === 0 ? (
             <p className="text-xs px-3 py-8 text-center">No cross-references found in concordance tables</p>
           ) : (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Catalog</th>
@@ -229,7 +229,7 @@ export function SignDetailPage() {
           graphVariants.length === 0 ? (
             <p className="text-xs px-3 py-8 text-center">No visual variants available</p>
           ) : (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Image</th>
@@ -268,7 +268,7 @@ export function SignDetailPage() {
             <p className="text-xs px-3 py-8 text-center">No instances found in corpus</p>
           ) : (
             <>
-              <table className="w-auto">
+              <table className="w-full">
                 <thead>
                   <tr>
                     <th className="px-3 py-1 text-left text-xs uppercase">Block</th>
@@ -328,7 +328,7 @@ export function SignDetailPage() {
 
         {/* INFORMATION */}
         {activeTab === 'info' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -382,7 +382,7 @@ export function SignDetailPage() {
           roboflow.length === 0 ? (
             <p className="text-xs px-3 py-8 text-center">No ML training examples available</p>
           ) : (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Image</th>

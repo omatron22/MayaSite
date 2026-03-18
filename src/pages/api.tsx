@@ -106,7 +106,7 @@ export function ApiPage() {
       <div className="flex flex-col gap-4">
 
         {/* Header */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
@@ -129,7 +129,7 @@ export function ApiPage() {
 
         {/* Endpoints */}
         {endpoints.map((ep) => (
-          <table key={ep.path} className="w-auto">
+          <table key={ep.path} className="w-full">
             <thead>
               <tr>
                 <th colSpan={2} className="px-3 py-1 text-left text-xs">
@@ -166,7 +166,7 @@ export function ApiPage() {
         ))}
 
         {/* Data summary */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th colSpan={2} className="px-3 py-1 text-left text-xs uppercase">Current Data</th>

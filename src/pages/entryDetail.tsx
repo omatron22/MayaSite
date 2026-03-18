@@ -152,7 +152,7 @@ export function EntryDetailPage() {
       <div className="flex flex-col gap-4">
 
         {/* Header */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
@@ -196,7 +196,7 @@ export function EntryDetailPage() {
         </table>
 
         {/* Tabs */}
-        <table className="w-auto">
+        <table className="w-full">
           <tbody>
             <tr>
               {tabLabel('information', 'Information')}
@@ -209,7 +209,7 @@ export function EntryDetailPage() {
 
         {/* INFORMATION */}
         {activeTab === 'information' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -249,7 +249,7 @@ export function EntryDetailPage() {
           crossRefs.length === 0 ? (
             <p className="text-xs px-3 py-8 text-center">No cross-catalog links found</p>
           ) : (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Catalog</th>
@@ -285,7 +285,7 @@ export function EntryDetailPage() {
           graphs.length === 0 ? (
             <p className="text-xs px-3 py-8 text-center">No graph variants found</p>
           ) : (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Image</th>
@@ -322,7 +322,7 @@ export function EntryDetailPage() {
             <p className="text-xs px-3 py-8 text-center">No instances found in corpus</p>
           ) : (
             <>
-              <table className="w-auto">
+              <table className="w-full">
                 <thead>
                   <tr>
                     <th className="px-3 py-1 text-left text-xs uppercase">Block</th>

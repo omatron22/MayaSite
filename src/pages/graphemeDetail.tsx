@@ -78,7 +78,7 @@ export function GraphemeDetailPage() {
       <div className="flex flex-col gap-4">
 
         {/* Header */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
@@ -122,7 +122,7 @@ export function GraphemeDetailPage() {
         </table>
 
         {/* Tabs */}
-        <table className="w-auto">
+        <table className="w-full">
           <tbody>
             <tr>
               {tabLabel('information', 'Information')}
@@ -134,7 +134,7 @@ export function GraphemeDetailPage() {
 
         {/* INFORMATION */}
         {activeTab === 'information' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -165,7 +165,7 @@ export function GraphemeDetailPage() {
 
         {/* BLOCK CONTEXT */}
         {activeTab === 'context' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -181,7 +181,7 @@ export function GraphemeDetailPage() {
 
         {/* CATALOG */}
         {activeTab === 'catalog' && grapheme.catalog_sign_id && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>

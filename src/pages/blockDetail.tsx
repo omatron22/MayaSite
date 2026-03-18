@@ -108,7 +108,7 @@ export function BlockDetailPage() {
       <div className="flex flex-col gap-4">
 
         {/* Header */}
-        <table className="w-auto">
+        <table className="w-full">
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs">
@@ -158,7 +158,7 @@ export function BlockDetailPage() {
         </table>
 
         {/* Tabs */}
-        <table className="w-auto">
+        <table className="w-full">
           <tbody>
             <tr>
               {tabLabel('information', 'Information')}
@@ -172,7 +172,7 @@ export function BlockDetailPage() {
 
         {/* INFORMATION */}
         {activeTab === 'information' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -237,7 +237,7 @@ export function BlockDetailPage() {
         {/* TRANSCRIPTION */}
         {activeTab === 'transcription' && (
           hasTextContent ? (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Type</th>
@@ -259,7 +259,7 @@ export function BlockDetailPage() {
 
         {/* DATES */}
         {activeTab === 'dates' && (
-          <table className="w-auto">
+          <table className="w-full">
             <thead>
               <tr>
                 <th className="px-3 py-1 text-left text-xs uppercase">Field</th>
@@ -279,7 +279,7 @@ export function BlockDetailPage() {
         {/* SIGNS */}
         {activeTab === 'signs' && (
           (signSlots.length > 0 || graphemes.length > 0) ? (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Code</th>
@@ -342,7 +342,7 @@ export function BlockDetailPage() {
         {/* PEOPLE */}
         {activeTab === 'people' && (
           people.length > 0 ? (
-            <table className="w-auto">
+            <table className="w-full">
               <thead>
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Name</th>
