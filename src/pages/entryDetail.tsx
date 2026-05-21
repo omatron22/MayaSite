@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 
@@ -74,44 +75,32 @@ async function fetchEntryDetail(entryId: string, signal?: AbortSignal): Promise<
 
 export function EntryDetailPage() {
   const { entryId } = useParams<{ entryId: string }>();
-  const [entry, setEntry] = useState<EntryData | null>(null);
-  const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
-  const [graphs, setGraphs] = useState<GraphVariant[]>([]);
-  const [graphemes, setGraphemes] = useState<Attestation[]>([]);
-  const [prevEntry, setPrevEntry] = useState<{ entry_id: string; code: string } | null>(null);
-  const [nextEntry, setNextEntry] = useState<{ entry_id: string; code: string } | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('information');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
+  // Legacy numeric entry IDs redirect to /sign/<id>. Handle the redirect
+  // outside the query so the fetch never runs for those routes.
+  const isLegacyNumeric = !!entryId && /^\d+$/.test(entryId);
   useEffect(() => {
-    if (!entryId) { setError('No entry ID provided'); setLoading(false); return; }
-    if (/^\d+$/.test(entryId)) {
-      window.location.replace(`/sign/${entryId}`);
-      return;
-    }
+    if (isLegacyNumeric) window.location.replace(`/sign/${entryId}`);
+  }, [isLegacyNumeric, entryId]);
 
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const idError = !entryId ? 'No entry ID provided' : null;
+  const enabled = !!entryId && !isLegacyNumeric;
 
-    fetchEntryDetail(entryId, controller.signal)
-      .then(data => {
-        setEntry(data.entry);
-        setCrossRefs(data.crossRefs);
-        setGraphs(data.graphs);
-        setGraphemes(data.graphemes || []);
-        setPrevEntry((data as unknown as { prevEntry?: { entry_id: string; code: string } }).prevEntry || null);
-        setNextEntry((data as unknown as { nextEntry?: { entry_id: string; code: string } }).nextEntry || null);
-      })
-      .catch(err => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setError(err instanceof Error ? err.message : 'Failed to load entry');
-      })
-      .finally(() => setLoading(false));
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: ['entry', entryId],
+    queryFn: ({ signal }) => fetchEntryDetail(entryId!, signal),
+    enabled,
+  });
 
-    return () => controller.abort();
-  }, [entryId]);
+  const loading = enabled && isPending;
+  const error = idError ?? (queryError ? queryError.message || 'Failed to load entry' : null);
+  const entry = data?.entry ?? null;
+  const crossRefs = useMemo(() => data?.crossRefs ?? [], [data]);
+  const graphs = data?.graphs ?? [];
+  const graphemes = data?.graphemes ?? [];
+  const prevEntry = (data as unknown as { prevEntry?: { entry_id: string; code: string } } | undefined)?.prevEntry ?? null;
+  const nextEntry = (data as unknown as { nextEntry?: { entry_id: string; code: string } } | undefined)?.nextEntry ?? null;
 
   const catalogCount = useMemo(() => new Set(crossRefs.map(r => r.catalog)).size, [crossRefs]);
 

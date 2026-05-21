@@ -1,9 +1,8 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 import { fetchSign } from '../lib/api';
-import type { CatalogSign } from '../types/database';
-import type { SignGrapheme, SignRoboflowInstance } from '../../api/lib/types';
 
 interface CrossRef {
   entry_id: string;
@@ -32,41 +31,34 @@ type TabType = 'concordance' | 'variants' | 'attestations' | 'info' | 'examples'
 
 export function SignDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [sign, setSign] = useState<CatalogSign | null>(null);
-  const [graphemes, setGraphemes] = useState<SignGrapheme[]>([]);
-  const [roboflow, setRoboflow] = useState<SignRoboflowInstance[]>([]);
-  const [crossRefs, setCrossRefs] = useState<CrossRef[]>([]);
-  const [graphVariants, setGraphVariants] = useState<GraphVariant[]>([]);
-  const [prevSign, setPrevSign] = useState<{ id: number; code: string } | null>(null);
-  const [nextSign, setNextSign] = useState<{ id: number; code: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('info');
 
-  useEffect(() => {
-    if (!id) { setError('No ID provided'); setLoading(false); return; }
-    const signId = parseInt(id);
-    if (isNaN(signId)) { setError('Invalid sign ID'); setLoading(false); return; }
+  const signId = id ? parseInt(id) : NaN;
+  const idValid = !isNaN(signId);
+  const idError = !id ? 'No ID provided' : !idValid ? 'Invalid sign ID' : null;
 
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: ['sign', signId],
+    queryFn: ({ signal }) => fetchSign(signId, signal),
+    enabled: idValid,
+  });
 
-    fetchSign(signId, controller.signal)
-      .then((data) => {
-        setSign(data.sign);
-        setGraphemes(data.graphemes);
-        setRoboflow(data.roboflow);
-        setCrossRefs((data as unknown as { crossRefs?: CrossRef[] }).crossRefs || []);
-        setGraphVariants((data as unknown as { graphs?: GraphVariant[] }).graphs || []);
-        setPrevSign((data as unknown as { prevSign?: { id: number; code: string } }).prevSign || null);
-        setNextSign((data as unknown as { nextSign?: { id: number; code: string } }).nextSign || null);
-      })
-      .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load sign'); })
-      .finally(() => setLoading(false));
+  const loading = idValid && isPending;
+  const error = idError ?? (queryError ? queryError.message || 'Failed to load sign' : null);
 
-    return () => controller.abort();
-  }, [id]);
+  const sign = data?.sign ?? null;
+  const graphemes = useMemo(() => data?.graphemes ?? [], [data]);
+  const roboflow = useMemo(() => data?.roboflow ?? [], [data]);
+  const crossRefs = useMemo(
+    () => (data as unknown as { crossRefs?: CrossRef[] } | undefined)?.crossRefs ?? [],
+    [data]
+  );
+  const graphVariants = useMemo(
+    () => (data as unknown as { graphs?: GraphVariant[] } | undefined)?.graphs ?? [],
+    [data]
+  );
+  const prevSign = (data as unknown as { prevSign?: { id: number; code: string } } | undefined)?.prevSign ?? null;
+  const nextSign = (data as unknown as { nextSign?: { id: number; code: string } } | undefined)?.nextSign ?? null;
 
   const confidenceLevel = useMemo(() => {
     if (sign?.bonn_confidence) return Math.min(8, Math.round(sign.bonn_confidence));

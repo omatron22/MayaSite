@@ -1,44 +1,33 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 import { fetchGrapheme } from '../lib/api';
-import type { GraphemeDetailResponse } from '../../api/lib/types';
 
 type TabType = 'information' | 'context' | 'catalog';
 
 export function GraphemeDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [grapheme, setGrapheme] = useState<GraphemeDetailResponse | null>(null);
-  const [prevGrapheme, setPrevGrapheme] = useState<{ id: number; code: string } | null>(null);
-  const [nextGrapheme, setNextGrapheme] = useState<{ id: number; code: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('information');
 
-  useEffect(() => {
-    if (!id) { setError('No ID provided'); setLoading(false); return; }
-    const gId = parseInt(id);
-    if (isNaN(gId)) { setError('Invalid grapheme ID'); setLoading(false); return; }
+  const gId = id ? parseInt(id) : NaN;
+  const idValid = !isNaN(gId);
+  const idError = !id ? 'No ID provided' : !idValid ? 'Invalid grapheme ID' : null;
 
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: ['grapheme', gId],
+    queryFn: ({ signal }) => fetchGrapheme(gId, signal),
+    enabled: idValid,
+  });
 
-    fetchGrapheme(gId, controller.signal)
-      .then((data) => {
-        setGrapheme(data);
-        setPrevGrapheme((data as unknown as { prevGrapheme?: { id: number; code: string } }).prevGrapheme || null);
-        setNextGrapheme((data as unknown as { nextGrapheme?: { id: number; code: string } }).nextGrapheme || null);
-      })
-      .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load grapheme'); })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [id]);
+  const loading = idValid && isPending;
+  const error = idError ?? (queryError ? queryError.message || 'Failed to load grapheme' : null);
+  const grapheme = data ?? null;
+  const prevGrapheme = (data as unknown as { prevGrapheme?: { id: number; code: string } } | undefined)?.prevGrapheme ?? null;
+  const nextGrapheme = (data as unknown as { nextGrapheme?: { id: number; code: string } } | undefined)?.nextGrapheme ?? null;
 
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasBlockContext = useMemo(() => hasValue(grapheme?.transcription_1) || hasValue(grapheme?.block_english), [grapheme, hasValue]);
-
-  const [activeTab, setActiveTab] = useState<TabType>('information');
 
   if (error) {
     return (

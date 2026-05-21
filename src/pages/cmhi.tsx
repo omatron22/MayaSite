@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 
 import { fetchCmhi } from '../lib/api';
-import type { CmhiResponse } from '../lib/api';
 
 function toggle(arr: string[], val: string): string[] {
   return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
@@ -84,33 +84,21 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
 
 export function CmhiPage() {
   const navigate = useNavigate();
-  const [data, setData] = useState<CmhiResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    fetchCmhi(
-      {
-        site: selectedSites.length > 0 ? selectedSites.join(',') : undefined,
-        type: selectedType || undefined,
-      },
-      controller.signal,
-    )
-      .then(setData)
-      .catch(err => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setError(err instanceof Error ? err.message : 'Failed to load CMHI data');
-      })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [selectedSites, selectedType]);
+  const { data, isPending: loading, error, refetch } = useQuery({
+    queryKey: ['cmhi', selectedSites, selectedType],
+    queryFn: ({ signal }) =>
+      fetchCmhi(
+        {
+          site: selectedSites.length > 0 ? selectedSites.join(',') : undefined,
+          type: selectedType || undefined,
+        },
+        signal,
+      ),
+    placeholderData: keepPreviousData,
+  });
 
   const siteOptions = useMemo(() => {
     if (!data) return [];
@@ -186,8 +174,8 @@ export function CmhiPage() {
         <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-2 text-sm">{error}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => { setSelectedSites([]); setSelectedType(''); }}>
+              <td className="px-3 py-2 text-sm">{error.message || 'Failed to load CMHI data'}</td>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => refetch()}>
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>

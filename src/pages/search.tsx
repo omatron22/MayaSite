@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { SignCard } from '../components/search/SignCard';
 import { BlockCard } from '../components/search/BlockCard';
@@ -9,7 +10,7 @@ import { useSearchFilters } from '../hooks/useSearchFilters';
 import type { SearchFilters } from '../hooks/useSearchFilters';
 import { useSearch } from '../hooks/useSearch';
 import { exportSearch, fetchNewConcordance } from '../lib/api';
-import type { SignSearchResult, BlockSearchResult, GraphemeSearchResult, NewConcordanceRow } from '../../api/lib/types';
+import type { SignSearchResult, BlockSearchResult, GraphemeSearchResult } from '../../api/lib/types';
 
 type ViewMode = 'signs' | 'blocks' | 'graphemes' | 'concordance';
 
@@ -164,11 +165,7 @@ export function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Concordance state
-  const [concordanceTotal, setConcordanceTotal] = useState(0);
   const [concordancePage, setConcordancePage] = useState(1);
-  const [concordanceLoading, setConcordanceLoading] = useState(false);
-  const [concordanceError, setConcordanceError] = useState<string | null>(null);
-  const [concordanceRows, setConcordanceRows] = useState<NewConcordanceRow[]>([]);
   const [catalogFilters, setCatalogFilters] = useState<string[]>(() => {
     const c = searchParams.get('catalog');
     return c ? c.split(',') : [];
@@ -217,6 +214,24 @@ export function SearchPage() {
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // Concordance fetch via TanStack Query (cancellation + caching free).
+  const { data: concordanceData, isPending: concordancePending, error: concordanceQueryError, refetch: refetchConcordance } = useQuery({
+    queryKey: ['concordance', debouncedQuery, concordancePage, catalogFilters],
+    queryFn: ({ signal }) =>
+      fetchNewConcordance({
+        q: debouncedQuery, page: concordancePage, pageSize: CONCORDANCE_PAGE_SIZE,
+        catalog: catalogFilters.length > 0 ? catalogFilters.join(',') : undefined,
+        sortBy: 'catalog_code', sortDir: 'asc',
+      }, signal),
+    enabled: viewMode === 'concordance',
+    placeholderData: keepPreviousData,
+  });
+  const concordanceLoading = viewMode === 'concordance' && concordancePending;
+  const concordanceError = concordanceQueryError ? (concordanceQueryError.message || 'Failed to load concordance data') : null;
+  const concordanceRows = concordanceData?.rows ?? [];
+  const concordanceTotal = concordanceData?.total ?? 0;
+  useEffect(() => { if (concordanceData) setHasSearched(true); }, [concordanceData]);
+
   const totalPages = viewMode === 'concordance'
     ? Math.ceil(concordanceTotal / CONCORDANCE_PAGE_SIZE)
     : Math.ceil(totalResults / PAGE_SIZE);
@@ -240,33 +255,6 @@ export function SearchPage() {
       search().then(() => setHasSearched(true));
     }
   }, [search, viewMode]);
-
-  // Concordance fetch
-  useEffect(() => {
-    if (viewMode !== 'concordance') return;
-
-    setConcordanceLoading(true);
-    setConcordanceError(null);
-    const controller = new AbortController();
-
-    fetchNewConcordance({
-      q: debouncedQuery, page: concordancePage, pageSize: CONCORDANCE_PAGE_SIZE,
-      catalog: catalogFilters.length > 0 ? catalogFilters.join(',') : undefined,
-      sortBy: 'catalog_code', sortDir: 'asc',
-    }, controller.signal)
-      .then(data => {
-        setConcordanceRows(data.rows);
-        setConcordanceTotal(data.total);
-        setHasSearched(true);
-      })
-      .catch(err => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setConcordanceError(err instanceof Error ? err.message : 'Failed to load concordance data');
-      })
-      .finally(() => setConcordanceLoading(false));
-
-    return () => controller.abort();
-  }, [viewMode, debouncedQuery, concordancePage, catalogFilters]);
 
   // Sync state to URL
   useEffect(() => {
@@ -375,7 +363,7 @@ export function SearchPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">{error || concordanceError}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => viewMode === 'concordance' ? setConcordanceError(null) : search()}>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => viewMode === 'concordance' ? refetchConcordance() : search()}>
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>

@@ -1,45 +1,32 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
 import { fetchBlock } from '../lib/api';
-import type { Block } from '../types/database';
-import type { BlockGrapheme, BlockSignSlotDetail } from '../../api/lib/types';
 
 type TabType = 'information' | 'transcription' | 'dates' | 'signs' | 'people';
 
 export function BlockDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [block, setBlock] = useState<Block | null>(null);
-  const [graphemes, setGraphemes] = useState<BlockGrapheme[]>([]);
-  const [signSlots, setSignSlots] = useState<BlockSignSlotDetail[]>([]);
-  const [prevBlock, setPrevBlock] = useState<{ id: number; coordinate: string } | null>(null);
-  const [nextBlock, setNextBlock] = useState<{ id: number; coordinate: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('information');
 
-  useEffect(() => {
-    if (!id) { setError('No ID provided'); setLoading(false); return; }
-    const blockId = parseInt(id);
-    if (isNaN(blockId)) { setError('Invalid block ID'); setLoading(false); return; }
+  const blockId = id ? parseInt(id) : NaN;
+  const idValid = !isNaN(blockId);
+  const idError = !id ? 'No ID provided' : !idValid ? 'Invalid block ID' : null;
 
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+  const { data, isPending, error: queryError } = useQuery({
+    queryKey: ['block', blockId],
+    queryFn: ({ signal }) => fetchBlock(blockId, signal),
+    enabled: idValid,
+  });
 
-    fetchBlock(blockId, controller.signal)
-      .then((data) => {
-        setBlock(data.block);
-        setGraphemes(data.graphemes);
-        setSignSlots(data.signSlots || []);
-        setPrevBlock(data.prevBlock || null);
-        setNextBlock(data.nextBlock || null);
-      })
-      .catch((err) => { if (err instanceof DOMException && err.name === 'AbortError') return; setError(err instanceof Error ? err.message : 'Failed to load block'); })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [id]);
+  const loading = idValid && isPending;
+  const error = idError ?? (queryError ? queryError.message || 'Failed to load block' : null);
+  const block = data?.block ?? null;
+  const graphemes = data?.graphemes ?? [];
+  const signSlots = data?.signSlots ?? [];
+  const prevBlock = data?.prevBlock ?? null;
+  const nextBlock = data?.nextBlock ?? null;
 
   const hasValue = useCallback((val: string | null | undefined) => val && val !== '_' && val !== '-' && val !== 'N/A', []);
   const hasCalendarInfo = useMemo(() => hasValue(block?.event_calendar) || hasValue(block?.event_long_count) || hasValue(block?.event_gregorian) || hasValue(block?.event_260_day) || hasValue(block?.event_365_day), [block, hasValue]);

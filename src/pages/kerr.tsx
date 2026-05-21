@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 
 import { fetchKerr } from '../lib/api';
-import type { KerrResponse } from '../lib/api';
 
 const PAGE_SIZE = 48;
 const DEBOUNCE_DELAY = 300;
@@ -12,10 +12,7 @@ export function KerrPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [data, setData] = useState<KerrResponse | null>(null);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [inputFocused, setInputFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -26,21 +23,12 @@ export function KerrPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    fetchKerr({ q: debouncedQuery || undefined, page, pageSize: PAGE_SIZE }, controller.signal)
-      .then(setData)
-      .catch(err => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        setError(err instanceof Error ? err.message : 'Failed to load Kerr vessels');
-      })
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [debouncedQuery, page]);
+  const { data, isPending: loading, error, refetch } = useQuery({
+    queryKey: ['kerr', debouncedQuery, page, PAGE_SIZE],
+    queryFn: ({ signal }) =>
+      fetchKerr({ q: debouncedQuery || undefined, page, pageSize: PAGE_SIZE }, signal),
+    placeholderData: keepPreviousData,
+  });
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
   const hasNextPage = page < totalPages;
@@ -114,8 +102,8 @@ export function KerrPage() {
         <table className="w-auto mt-4">
           <tbody>
             <tr>
-              <td className="px-3 py-2 text-sm">{error}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => setPage(1)}>
+              <td className="px-3 py-2 text-sm">{error.message || 'Failed to load Kerr vessels'}</td>
+              <td className="px-3 py-2 cursor-pointer" onClick={() => refetch()}>
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>
