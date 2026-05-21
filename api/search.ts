@@ -101,6 +101,12 @@ async function searchSigns(
   const conditions: string[] = [];
   const params: (string | number)[] = [];
 
+  // Always filter out "shell" entries — catalog_signs rows with no
+  // graphcode and no readings/translation. These are upstream MHD code
+  // placeholders with no actual sign data; ~19% of the table. Surfacing
+  // them in search confuses users.
+  conditions.push(`(graphcode IS NOT NULL AND graphcode != '')`);
+
   if (query) {
     conditions.push(`(
       graphcode LIKE ? OR

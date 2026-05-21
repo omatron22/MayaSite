@@ -107,7 +107,7 @@ async function main() {
       AND event_long_count != ''
       AND event_long_count != '-'
       AND event_long_count != '??'
-      AND event_gregorian IS NULL
+      AND (event_gregorian IS NULL OR event_gregorian = '')
   `);
 
   console.log(`\nFound ${distinctLC.rows.length} distinct Long Count values to convert.\n`);
@@ -123,7 +123,7 @@ async function main() {
 
     if (greg) {
       updates.push({
-        sql: `UPDATE blocks SET event_gregorian = ? WHERE event_long_count = ? AND event_gregorian IS NULL`,
+        sql: `UPDATE blocks SET event_gregorian = ? WHERE event_long_count = ? AND (event_gregorian IS NULL OR event_gregorian = '')`,
         args: [greg, lc],
       });
       converted++;
