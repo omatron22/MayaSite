@@ -121,3 +121,10 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Visible focus ring for non-native clickable cells (td/div with role=button). */
+.focus-cell:focus,
+.focus-cell:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: -2px;
+}

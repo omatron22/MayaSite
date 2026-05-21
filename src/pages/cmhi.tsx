@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
+import { clickableProps } from '../components/ui/ClickableCell';
+import { useDropdownKeyboard } from '../hooks/useDropdownKeyboard';
 
 import { fetchCmhi } from '../lib/api';
 
@@ -11,7 +13,7 @@ function toggle(arr: string[], val: string): string[] {
 
 function ToggleButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <td className="px-3 py-1 text-center cursor-pointer" onClick={onClick}>
+    <td {...clickableProps(onClick, { ariaPressed: active })} className="px-3 py-1 text-center cursor-pointer focus-cell">
       <span className="text-xs inline-grid">
         <span className="invisible col-start-1 row-start-1 font-[800]">[{label}]</span>
         <span className="col-start-1 row-start-1">
@@ -40,6 +42,8 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
     return () => document.removeEventListener('mousedown', handle);
   }, [open]);
 
+  useDropdownKeyboard(open, () => setOpen(false));
+
   const summary = selected.length === 0
     ? '--'
     : selected.length <= 2
@@ -50,7 +54,13 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
       : `[${options.find(o => o.code === selected[0])?.name || selected[0]}] +${selected.length - 1}`;
 
   return (
-    <td className="px-3 py-1 relative cursor-pointer" ref={ref} onClick={() => setOpen(!open)}>
+    <td
+      {...clickableProps(() => setOpen(!open), { ariaLabel: 'Filter by site' })}
+      aria-expanded={open}
+      aria-haspopup="listbox"
+      className="px-3 py-1 relative cursor-pointer focus-cell"
+      ref={ref}
+    >
       <div className="w-[200px] overflow-hidden">
         <span className="text-xs block truncate">
           {selected.length > 0 ? <strong>{summary}</strong> : summary}
@@ -61,9 +71,13 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
           className="absolute -left-[2px] -right-[2px] top-full z-50 bg-white border-2 border-black mt-[-2px] max-h-[300px] overflow-y-auto flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          <div>
+          <div role="listbox" aria-label="Sites">
             {options.map(opt => (
-              <div key={opt.code} className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0" onClick={() => onToggle(opt.code)}>
+              <div
+                key={opt.code}
+                {...clickableProps(() => onToggle(opt.code), { role: 'option', ariaSelected: selected.includes(opt.code) })}
+                className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0 focus-cell"
+              >
                 {selected.includes(opt.code) ? <strong>[{opt.name}]</strong> : opt.name}
               </div>
             ))}
@@ -117,7 +131,7 @@ export function CmhiPage() {
       <table className="w-auto">
         <tbody>
           <tr>
-            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/kerr')}>
+            <td {...clickableProps(() => navigate('/collections/kerr'))} className="px-3 py-1 cursor-pointer focus-cell">
               <span className="text-sm">Kerr Vases</span>
             </td>
             <td className="px-3 py-1">
@@ -175,7 +189,7 @@ export function CmhiPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">{error.message || 'Failed to load CMHI data'}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => refetch()}>
+              <td {...clickableProps(() => refetch(), { ariaLabel: 'Retry' })} className="px-3 py-2 cursor-pointer focus-cell">
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>

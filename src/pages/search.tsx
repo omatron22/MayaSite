@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
+import { clickableProps } from '../components/ui/ClickableCell';
+import { useDropdownKeyboard } from '../hooks/useDropdownKeyboard';
 import { SignCard } from '../components/search/SignCard';
 import { BlockCard } from '../components/search/BlockCard';
 import { GraphemeCard } from '../components/search/GraphemeCard';
@@ -70,21 +72,36 @@ function ExportDropdown({ count, label, onExport }: {
     return () => document.removeEventListener('mousedown', handle);
   }, [open]);
 
+  useDropdownKeyboard(open, () => setOpen(false));
+
   return (
-    <td className="px-3 py-1 relative cursor-pointer" ref={ref} onClick={() => setOpen(!open)}>
+    <td
+      {...clickableProps(() => setOpen(!open), { ariaLabel: 'Export results' })}
+      aria-expanded={open}
+      aria-haspopup="menu"
+      ref={ref}
+      className="px-3 py-1 relative cursor-pointer focus-cell"
+    >
       <span className="text-xs">Export</span>
       {open && (
         <div
+          role="menu"
           className="absolute right-0 top-full z-50 bg-white border-2 border-black mt-[-2px] whitespace-nowrap flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="px-3 py-1 text-xs border-b border-black">
             {count.toLocaleString()} {label}
           </div>
-          <div className="px-3 py-1 text-xs cursor-pointer border-b border-black" onClick={() => { onExport('csv'); setOpen(false); }}>
+          <div
+            {...clickableProps(() => { onExport('csv'); setOpen(false); }, { role: 'menuitem' })}
+            className="px-3 py-1 text-xs cursor-pointer border-b border-black focus-cell"
+          >
             Download CSV
           </div>
-          <div className="px-3 py-1 text-xs cursor-pointer" onClick={() => { onExport('json'); setOpen(false); }}>
+          <div
+            {...clickableProps(() => { onExport('json'); setOpen(false); }, { role: 'menuitem' })}
+            className="px-3 py-1 text-xs cursor-pointer focus-cell"
+          >
             Download JSON
           </div>
         </div>
@@ -108,6 +125,8 @@ function CatalogDropdown({ options, selected, onToggle, onClear }: {
     return () => document.removeEventListener('mousedown', handle);
   }, [open]);
 
+  useDropdownKeyboard(open, () => setOpen(false));
+
   const summary = selected.length === 0
     ? '--'
     : selected.length <= 2
@@ -115,7 +134,13 @@ function CatalogDropdown({ options, selected, onToggle, onClear }: {
       : `[${selected[0]}] +${selected.length - 1}`;
 
   return (
-    <td className="px-3 py-1 relative cursor-pointer" ref={ref} onClick={() => setOpen(!open)}>
+    <td
+      {...clickableProps(() => setOpen(!open), { ariaLabel: 'Filter by catalog' })}
+      aria-expanded={open}
+      aria-haspopup="listbox"
+      ref={ref}
+      className="px-3 py-1 relative cursor-pointer focus-cell"
+    >
       <div className="w-[200px] overflow-hidden">
         <span className="text-xs block truncate">
           {selected.length > 0 ? <strong>{summary}</strong> : summary}
@@ -126,9 +151,13 @@ function CatalogDropdown({ options, selected, onToggle, onClear }: {
           className="absolute -left-[2px] -right-[2px] top-full z-50 bg-white border-2 border-black mt-[-2px] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          <div>
+          <div role="listbox" aria-label="Catalogs">
             {options.map(option => (
-              <div key={option} className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0" onClick={() => onToggle(option)}>
+              <div
+                key={option}
+                {...clickableProps(() => onToggle(option), { role: 'option', ariaSelected: selected.includes(option) })}
+                className="px-3 py-1 cursor-pointer text-xs border-b border-black last:border-b-0 focus-cell"
+              >
                 {selected.includes(option) ? <strong>[{option}]</strong> : option}
               </div>
             ))}
@@ -363,7 +392,7 @@ export function SearchPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">{error || concordanceError}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => viewMode === 'concordance' ? refetchConcordance() : search()}>
+              <td {...clickableProps(() => viewMode === 'concordance' ? refetchConcordance() : search(), { ariaLabel: 'Retry' })} className="px-3 py-2 cursor-pointer focus-cell">
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>
@@ -388,7 +417,7 @@ export function SearchPage() {
                 {query || activeFilterCount > 0 ? ' Try adjusting your search or filters.' : ''}
               </td>
               {(query || activeFilterCount > 0) && (
-                <td className="px-3 py-2 cursor-pointer" onClick={() => { setQuery(''); clearFilters(); }}>
+                <td {...clickableProps(() => { setQuery(''); clearFilters(); }, { ariaLabel: 'Clear all filters' })} className="px-3 py-2 cursor-pointer focus-cell">
                   <span className="text-xs font-[800]">[Clear All]</span>
                 </td>
               )}
@@ -492,37 +521,37 @@ export function SearchPage() {
               <tbody>
                 <tr>
                   {hasPrevPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(currentPage - 1)}>
+                    <td {...clickableProps(() => handlePageChange(currentPage - 1), { ariaLabel: 'Previous page' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">Prev</span>
                     </td>
                   )}
                   {currentPage > 2 && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(1)}>
+                    <td {...clickableProps(() => handlePageChange(1), { ariaLabel: 'Page 1' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">1</span>
                     </td>
                   )}
                   {currentPage > 3 && <td className="px-1 py-1 text-sm">...</td>}
                   {hasPrevPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(currentPage - 1)}>
+                    <td {...clickableProps(() => handlePageChange(currentPage - 1), { ariaLabel: `Page ${currentPage - 1}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{currentPage - 1}</span>
                     </td>
                   )}
-                  <td className="px-3 py-1">
+                  <td className="px-3 py-1" aria-current="page">
                     <strong>[{currentPage}]</strong>
                   </td>
                   {hasNextPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(currentPage + 1)}>
+                    <td {...clickableProps(() => handlePageChange(currentPage + 1), { ariaLabel: `Page ${currentPage + 1}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{currentPage + 1}</span>
                     </td>
                   )}
                   {currentPage < totalPages - 2 && <td className="px-1 py-1 text-sm">...</td>}
                   {currentPage < totalPages - 1 && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(totalPages)}>
+                    <td {...clickableProps(() => handlePageChange(totalPages), { ariaLabel: `Page ${totalPages}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{totalPages}</span>
                     </td>
                   )}
                   {hasNextPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => handlePageChange(currentPage + 1)}>
+                    <td {...clickableProps(() => handlePageChange(currentPage + 1), { ariaLabel: 'Next page' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">Next</span>
                     </td>
                   )}
@@ -557,7 +586,7 @@ export function SearchPage() {
                     { value: 'frequency', label: 'Freq' },
                     { value: 'completeness', label: 'Compl' },
                   ] as const).map(opt => (
-                    <td key={opt.value} className="px-3 py-1 text-center cursor-pointer" onClick={() => updateFilter('sortBy', opt.value)}>
+                    <td key={opt.value} {...clickableProps(() => updateFilter('sortBy', opt.value), { ariaPressed: filters.sortBy === opt.value, ariaLabel: `Sort by ${opt.label}` })} className="px-3 py-1 text-center cursor-pointer focus-cell">
                       <span className="text-xs inline-grid">
                         <span className="invisible col-start-1 row-start-1 font-[800]">[{opt.label}]</span>
                         <span className="col-start-1 row-start-1">

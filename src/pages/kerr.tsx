@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
+import { clickableProps } from '../components/ui/ClickableCell';
 
 import { fetchKerr } from '../lib/api';
 
@@ -45,7 +46,7 @@ export function KerrPage() {
             <td className="px-3 py-1">
               <span className="text-sm font-[800]">[Kerr Vases]</span>
             </td>
-            <td className="px-3 py-1 cursor-pointer" onClick={() => navigate('/collections/cmhi')}>
+            <td {...clickableProps(() => navigate('/collections/cmhi'))} className="px-3 py-1 cursor-pointer focus-cell">
               <span className="text-sm">CMHI</span>
             </td>
           </tr>
@@ -103,7 +104,7 @@ export function KerrPage() {
           <tbody>
             <tr>
               <td className="px-3 py-2 text-sm">{error.message || 'Failed to load Kerr vessels'}</td>
-              <td className="px-3 py-2 cursor-pointer" onClick={() => refetch()}>
+              <td {...clickableProps(() => refetch(), { ariaLabel: 'Retry' })} className="px-3 py-2 cursor-pointer focus-cell">
                 <span className="text-xs font-[800]">[Retry]</span>
               </td>
             </tr>
@@ -167,37 +168,37 @@ export function KerrPage() {
               <tbody>
                 <tr>
                   {hasPrevPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => Math.max(1, p - 1))}>
+                    <td {...clickableProps(() => setPage(p => Math.max(1, p - 1)), { ariaLabel: 'Previous page' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">Prev</span>
                     </td>
                   )}
                   {page > 2 && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(1)}>
+                    <td {...clickableProps(() => setPage(1), { ariaLabel: 'Page 1' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">1</span>
                     </td>
                   )}
                   {page > 3 && <td className="px-1 py-1 text-sm">...</td>}
                   {hasPrevPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => p - 1)}>
+                    <td {...clickableProps(() => setPage(p => p - 1), { ariaLabel: `Page ${page - 1}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{page - 1}</span>
                     </td>
                   )}
-                  <td className="px-3 py-1">
+                  <td className="px-3 py-1" aria-current="page">
                     <strong>[{page}]</strong>
                   </td>
                   {hasNextPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => p + 1)}>
+                    <td {...clickableProps(() => setPage(p => p + 1), { ariaLabel: `Page ${page + 1}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{page + 1}</span>
                     </td>
                   )}
                   {page < totalPages - 2 && <td className="px-1 py-1 text-sm">...</td>}
                   {page < totalPages - 1 && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(totalPages)}>
+                    <td {...clickableProps(() => setPage(totalPages), { ariaLabel: `Page ${totalPages}` })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">{totalPages}</span>
                     </td>
                   )}
                   {hasNextPage && (
-                    <td className="px-3 py-1 cursor-pointer" onClick={() => setPage(p => Math.min(totalPages, p + 1))}>
+                    <td {...clickableProps(() => setPage(p => Math.min(totalPages, p + 1)), { ariaLabel: 'Next page' })} className="px-3 py-1 cursor-pointer focus-cell">
                       <span className="text-sm">Next</span>
                     </td>
                   )}

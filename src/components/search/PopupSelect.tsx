@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { clickableProps } from '../ui/ClickableCell';
+import { useDropdownKeyboard } from '../../hooks/useDropdownKeyboard';
 
 interface PopupSelectProps {
   label: string;
@@ -16,18 +18,24 @@ export function PopupSelect({ label, options, selected, onToggle, onClear, displ
   const containerRef = useRef<HTMLTableCellElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const close = useCallback(() => {
+    setOpen(false);
+    setFilter('');
+  }, []);
+
   // Close on click outside
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-        setFilter('');
+        close();
       }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [open]);
+  }, [open, close]);
+
+  useDropdownKeyboard(open, close);
 
   // Focus input when opened
   useEffect(() => {
@@ -44,16 +52,26 @@ export function PopupSelect({ label, options, selected, onToggle, onClear, displ
       ? selected.map(s => `[${display(s)}]`).join(' ')
       : `[${display(selected[0])}] +${selected.length - 1}`;
 
+  const handleToggle = useCallback(
+    (e: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => {
+      // Only toggle open if clicking the cell itself, not the popup content.
+      const target = e.target as HTMLElement;
+      const cell = containerRef.current;
+      if (cell && (target === cell || target.closest('td') === cell)) {
+        setOpen((o) => !o);
+      }
+    },
+    []
+  );
+
   return (
     <td
-      className="px-3 py-1 relative cursor-pointer"
+      // eslint-disable-next-line react-hooks/refs -- containerRef.current is read inside a click handler, not during render
+      {...clickableProps(handleToggle, { ariaLabel: label })}
+      aria-expanded={open}
+      aria-haspopup="listbox"
       ref={containerRef}
-      onClick={(e) => {
-        // Only toggle open if clicking the cell itself, not the popup content
-        if (e.target === e.currentTarget || (e.target as HTMLElement).closest('td') === containerRef.current && !open) {
-          setOpen(!open);
-        }
-      }}
+      className="px-3 py-1 relative cursor-pointer focus-cell"
     >
       <div className="w-[200px] overflow-hidden">
         <span className="text-xs block truncate">
@@ -91,7 +109,11 @@ export function PopupSelect({ label, options, selected, onToggle, onClear, displ
                   chunkArray(filtered, 3).map((row, i) => (
                     <tr key={i}>
                       {row.map(option => (
-                        <td key={option} className="px-3 py-1 cursor-pointer whitespace-nowrap" onClick={() => onToggle(option)}>
+                        <td
+                          key={option}
+                          {...clickableProps(() => onToggle(option), { role: 'option', ariaSelected: selected.includes(option) })}
+                          className="px-3 py-1 cursor-pointer whitespace-nowrap focus-cell"
+                        >
                           <span className="text-xs">
                             {selected.includes(option) ? <strong>[{display(option)}]</strong> : display(option)}
                           </span>

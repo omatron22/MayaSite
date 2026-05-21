@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressBarLoader } from '../components/ui/ProgressBarLoader';
 import { useParams, Link } from 'react-router-dom';
+import { clickableProps } from '../components/ui/ClickableCell';
 
 interface EntryData {
   entry_id: string;
@@ -125,7 +126,7 @@ export function EntryDetailPage() {
     const isActive = activeTab === tab;
     const text = count !== undefined ? `${label} ${count}` : label;
     return (
-      <td className="px-3 py-1 cursor-pointer" onClick={() => setActiveTab(tab)}>
+      <td {...clickableProps(() => setActiveTab(tab), { ariaSelected: isActive })} className="px-3 py-1 cursor-pointer focus-cell">
         <span className="text-sm inline-grid">
           <span className="invisible col-start-1 row-start-1 font-[800]">[{text}]</span>
           <span className="col-start-1 row-start-1">
