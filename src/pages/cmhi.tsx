@@ -70,6 +70,7 @@ function SiteDropdown({ options, selected, onToggle, onClear }: {
         <div
           className="absolute -left-[2px] -right-[2px] top-full z-50 bg-white border-2 border-black mt-[-2px] max-h-[300px] overflow-y-auto flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           <div role="listbox" aria-label="Sites">
             {options.map(opt => (
@@ -101,7 +102,7 @@ export function CmhiPage() {
   const [selectedSites, setSelectedSites] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState('');
 
-  const { data, isPending: loading, error, refetch } = useQuery({
+  const { data, isPending: loading, isFetching, error, refetch } = useQuery({
     queryKey: ['cmhi', selectedSites, selectedType],
     queryFn: ({ signal }) =>
       fetchCmhi(
@@ -113,6 +114,7 @@ export function CmhiPage() {
       ),
     placeholderData: keepPreviousData,
   });
+  const refreshing = isFetching && !loading;
 
   const siteOptions = useMemo(() => {
     if (!data) return [];
@@ -214,7 +216,7 @@ export function CmhiPage() {
       )}
 
       {!loading && data && data.total > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black">
+        <div className={`grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
           {data.images.map(img => (
             <a
               key={img.id}

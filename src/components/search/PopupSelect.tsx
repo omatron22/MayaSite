@@ -83,6 +83,7 @@ export function PopupSelect({ label, options, selected, onToggle, onClear, displ
         <div
           className="absolute left-0 top-full z-50 bg-white border-2 border-black mt-[-2px] min-w-[280px] max-h-[320px] flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           {/* Filter input */}
           <div className="flex items-center px-3 py-2 border-b-2 border-black">

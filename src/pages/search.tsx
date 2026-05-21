@@ -88,6 +88,7 @@ function ExportDropdown({ count, label, onExport }: {
           role="menu"
           className="absolute right-0 top-full z-50 bg-white border-2 border-black mt-[-2px] whitespace-nowrap flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           <div className="px-3 py-1 text-xs border-b border-black">
             {count.toLocaleString()} {label}
@@ -150,6 +151,7 @@ function CatalogDropdown({ options, selected, onToggle, onClear }: {
         <div
           className="absolute -left-[2px] -right-[2px] top-full z-50 bg-white border-2 border-black mt-[-2px] flex flex-col"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
         >
           <div role="listbox" aria-label="Catalogs">
             {options.map(option => (
@@ -244,7 +246,7 @@ export function SearchPage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Concordance fetch via TanStack Query (cancellation + caching free).
-  const { data: concordanceData, isPending: concordancePending, error: concordanceQueryError, refetch: refetchConcordance } = useQuery({
+  const { data: concordanceData, isPending: concordancePending, isFetching: concordanceFetching, error: concordanceQueryError, refetch: refetchConcordance } = useQuery({
     queryKey: ['concordance', debouncedQuery, concordancePage, catalogFilters],
     queryFn: ({ signal }) =>
       fetchNewConcordance({
@@ -256,6 +258,7 @@ export function SearchPage() {
     placeholderData: keepPreviousData,
   });
   const concordanceLoading = viewMode === 'concordance' && concordancePending;
+  const concordanceRefreshing = viewMode === 'concordance' && concordanceFetching && !concordancePending;
   const concordanceError = concordanceQueryError ? (concordanceQueryError.message || 'Failed to load concordance data') : null;
   const concordanceRows = concordanceData?.rows ?? [];
   const concordanceTotal = concordanceData?.total ?? 0;
@@ -467,7 +470,7 @@ export function SearchPage() {
       {viewMode === 'concordance' && (
         <div>
 
-          <div className={`overflow-x-auto ${concordanceLoading && concordanceRows.length > 0 ? 'opacity-40' : ''}`}>
+          <div className={`overflow-x-auto transition-opacity ${concordanceRefreshing ? 'opacity-60' : ''}`}>
             <table className="w-full text-sm">
               <thead>
                 <tr>

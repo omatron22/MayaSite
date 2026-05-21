@@ -24,12 +24,15 @@ export function KerrPage() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query]);
 
-  const { data, isPending: loading, error, refetch } = useQuery({
+  const { data, isPending: loading, isFetching, error, refetch } = useQuery({
     queryKey: ['kerr', debouncedQuery, page, PAGE_SIZE],
     queryFn: ({ signal }) =>
       fetchKerr({ q: debouncedQuery || undefined, page, pageSize: PAGE_SIZE }, signal),
     placeholderData: keepPreviousData,
   });
+  // Subtle "refreshing" cue when page/filter changes refetch while keeping
+  // the previous data on screen.
+  const refreshing = isFetching && !loading;
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
   const hasNextPage = page < totalPages;
@@ -133,7 +136,7 @@ export function KerrPage() {
 
       {!loading && data && data.results.length > 0 && (
         <>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black">
+          <div className={`grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-0 border-t-2 border-l-2 border-black transition-opacity ${refreshing ? 'opacity-60' : ''}`}>
             {data.results.map(vessel => (
               <a
                 key={vessel.id}
