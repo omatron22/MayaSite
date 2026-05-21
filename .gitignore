@@ -33,3 +33,4 @@ data/
 yax-1/
 *.coco.json
 public/instances/
+.env*
