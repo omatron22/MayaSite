@@ -1,6 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { db } from './lib/db.js';
-import type { SearchParams, SearchResponse, SignSearchResult, BlockSearchResult, GraphemeSearchResult } from './lib/types.js';
+import type { SearchResponse, SignSearchResult, BlockSearchResult, GraphemeSearchResult } from './lib/types.js';
+
+// UI/Region map fixed the spelling to "Usumacinta" but the DB still stores
+// the historical typo "Usmacinta". Map UI → DB until a one-time migration
+// updates the stored values.
+function normalizeRegion(r: string): string {
+  return r === 'Usumacinta' ? 'Usmacinta' : r;
+}
 
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -225,7 +232,7 @@ async function searchBlocks(
   }
 
   if (filters.region && filters.region !== 'all') {
-    const regions = filters.region.split(',').filter(Boolean);
+    const regions = filters.region.split(',').filter(Boolean).map(normalizeRegion);
     if (regions.length === 1) {
       conditions.push('region = ?');
       params.push(regions[0]);
@@ -461,7 +468,7 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
 
     // Fetch cross-references for the returned entries
     const entryIds = dataResult.rows.map(r => String(r.entry_id));
-    let crossRefs: Record<string, { entry_id: string; catalog: string; catalog_code: string; correspondence: string }[]> = {};
+    const crossRefs: Record<string, { entry_id: string; catalog: string; catalog_code: string; correspondence: string }[]> = {};
 
     if (entryIds.length > 0) {
       const placeholders = entryIds.map(() => '?').join(',');

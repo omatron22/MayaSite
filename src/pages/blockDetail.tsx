@@ -197,7 +197,7 @@ export function BlockDetailPage() {
                 <tr>
                   <td className="px-3 py-1 text-xs font-[800]">Site</td>
                   <td className="px-3 py-1 text-xs">
-                    <Link to={`/search?mode=blocks&site=${encodeURIComponent(block.site_name!)}`} className="underline hover:no-underline">{block.site_name}</Link>
+                    <Link to={`/search?mode=blocks&sites=${encodeURIComponent(block.site_name!)}`} className="underline hover:no-underline">{block.site_name}</Link>
                   </td>
                 </tr>
               )}

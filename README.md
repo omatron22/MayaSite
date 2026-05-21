@@ -1,73 +1,34 @@
-# React + TypeScript + Vite
+# Maya Database
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal research project consolidating Mayan hieroglyph data into one searchable web app. Live at [mayasite.vercel.app](https://mayasite.vercel.app).
 
-Currently, two official plugins are available:
+Pulls together sign catalogs, block transcriptions, grapheme annotations, photographic concordances, and AI-assisted inference on uploaded images. Built to make cross-referencing across published Mayanist sources less painful.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## React Compiler
+- Vite + React 19 + TypeScript
+- React Router (SPA)
+- Tailwind via classnames
+- Turso (libSQL) database, accessed through Vercel Serverless Functions in `api/`
+- Roboflow-hosted inference model for the `/scanner` upload tool
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Local dev
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
+# → http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Requires `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` (or the `VITE_*` variants) in `.env.local` to talk to the live DB.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Layout
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `src/` — Vite/React app (search UI, detail pages, scanner)
+- `api/` — Vercel serverless functions backing the SPA
+- `scripts/` — One-off data import / migration / scraping scripts (run with `tsx`). Not part of the deployed app.
+- `docs/` — Architecture notes and the ML pipeline overview
+
+## Data sources
+
+This is a research synthesis, not an original dataset. Source attribution lives in the relevant import scripts and on `/about`.

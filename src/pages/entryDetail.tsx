@@ -356,7 +356,7 @@ export function EntryDetailPage() {
                       </td>
                       <td className="px-3 py-1 align-top text-xs">
                         {g.site_name && (
-                          <Link to={`/search?mode=blocks&site=${encodeURIComponent(g.site_name)}`} className="underline hover:no-underline">{g.site_name}</Link>
+                          <Link to={`/search?mode=blocks&sites=${encodeURIComponent(g.site_name)}`} className="underline hover:no-underline">{g.site_name}</Link>
                         )}
                         {g.artifact_code && <span> · {g.artifact_code}</span>}
                         {g.coordinate && <div className="text-[10px]">{g.coordinate}</div>}

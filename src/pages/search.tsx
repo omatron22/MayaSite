@@ -174,7 +174,10 @@ export function SearchPage() {
     return c ? c.split(',') : [];
   });
 
-  const initialFilterOverrides = useRef(parseFiltersFromURL(searchParams)).current;
+  // Init filter overrides from URL exactly once on first render. Lazy
+  // useState avoids re-parsing on subsequent renders and satisfies the
+  // React 19 "no refs during render" rule.
+  const [initialFilterOverrides] = useState(() => parseFiltersFromURL(searchParams));
   const { filters, updateFilter, clearFilters } = useSearchFilters(initialFilterOverrides);
 
   // Count only filters relevant to the current view mode
@@ -288,6 +291,7 @@ export function SearchPage() {
     if (filters.regions.length > 0) params.set('regions', filters.regions.join(','));
     if (filters.artifact) params.set('artifact', filters.artifact);
     if (filters.sites.length > 0) params.set('sites', filters.sites.join(','));
+    if (filters.collapseVariants === false) params.set('showVariants', '1');
     if (filters.sortBy !== 'code') params.set('sort', filters.sortBy);
     setSearchParams(params, { replace: true });
   }, [debouncedQuery, viewMode, page, filters, concordancePage, catalogFilters, setSearchParams]);
@@ -338,7 +342,8 @@ export function SearchPage() {
                 <span className="font-[800] select-none shrink-0">&gt;&nbsp;</span>
                 <input
                   ref={searchInputRef}
-                  type="text"
+                  type="search"
+                  aria-label="Search signs, blocks, translations"
                   className="absolute opacity-0 pointer-events-none"
                   style={{ caretColor: 'transparent', fontSize: '16px' }}
                   value={query}
@@ -362,8 +367,6 @@ export function SearchPage() {
         onViewModeChange={handleViewModeChange}
         filters={filters}
         updateFilter={updateFilter}
-        clearFilters={clearFilters}
-        activeFilterCount={activeFilterCount}
       />
 
       {/* Error */}

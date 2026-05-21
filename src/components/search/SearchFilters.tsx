@@ -8,14 +8,12 @@ interface SearchFiltersProps {
   onViewModeChange: (mode: 'signs' | 'blocks' | 'graphemes' | 'concordance') => void;
   filters: SearchFilters;
   updateFilter: <K extends keyof SearchFilters>(key: K, value: SearchFilters[K]) => void;
-  clearFilters: () => void;
-  activeFilterCount: number;
   searchRow?: React.ReactNode;
 }
 
 const inputClass = "bg-white text-black text-xs border-none outline-none w-[80px] placeholder:text-black";
 
-const REGIONS = ['North', 'East', 'Central', 'Usmacinta', 'South'] as const;
+const REGIONS = ['North', 'East', 'Central', 'Usumacinta', 'South'] as const;
 
 function toggle(arr: string[], val: string): string[] {
   return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
@@ -23,7 +21,19 @@ function toggle(arr: string[], val: string): string[] {
 
 function ToggleButton({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <td className="px-3 py-1 text-center cursor-pointer" onClick={onClick}>
+    <td
+      role="button"
+      tabIndex={0}
+      aria-pressed={active}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className="px-3 py-1 text-center cursor-pointer focus:outline focus:outline-2 focus:outline-blue-500"
+    >
       <span className="text-xs inline-grid">
         {/* Invisible spacer reserves width for bracketed state */}
         <span className="invisible col-start-1 row-start-1 font-[800]">[{label}]</span>
@@ -40,8 +50,6 @@ export function SearchFiltersComponent({
   onViewModeChange,
   filters,
   updateFilter,
-  clearFilters: _clearFilters,
-  activeFilterCount: _activeFilterCount,
   searchRow,
 }: SearchFiltersProps) {
   const siteNames = useMemo(() => {
@@ -58,7 +66,20 @@ export function SearchFiltersComponent({
             {(['signs', 'blocks', 'graphemes', 'concordance'] as const).map(mode => {
               const modeLabel = mode.charAt(0).toUpperCase() + mode.slice(1);
               return (
-                <td key={mode} className="px-3 py-1 cursor-pointer" onClick={() => onViewModeChange(mode)}>
+                <td
+                  key={mode}
+                  role="tab"
+                  tabIndex={0}
+                  aria-selected={viewMode === mode}
+                  onClick={() => onViewModeChange(mode)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onViewModeChange(mode);
+                    }
+                  }}
+                  className="px-3 py-1 cursor-pointer focus:outline focus:outline-2 focus:outline-blue-500"
+                >
                   <span className="text-sm inline-grid">
                     <span className="invisible col-start-1 row-start-1 font-[800]">[{modeLabel}]</span>
                     <span className="col-start-1 row-start-1">

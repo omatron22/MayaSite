@@ -21,6 +21,7 @@ const KerrPage = lazyRetry(() => import('./pages/kerr').then(m => ({ default: m.
 const CmhiPage = lazyRetry(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 const EntryDetailPage = lazyRetry(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
 const ApiPage = lazyRetry(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
+const ScannerPage = lazyRetry(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
 
 function PageLoader() {
   return (
@@ -51,6 +52,7 @@ function App() {
               </Route>
               <Route path="/about" element={<AboutPage />} />
               <Route path="/api" element={<ApiPage />} />
+              <Route path="/scanner" element={<ScannerPage />} />
               {/* Redirects for old routes */}
               <Route path="/research" element={<Navigate to="/about" replace />} />
               <Route path="/tools" element={<Navigate to="/search" replace />} />

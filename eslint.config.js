@@ -19,5 +19,23 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // React 19's new strict rule flags legitimate fetch-reset patterns
+      // (set loading/error before kicking off a fetch in useEffect). Downgrade
+      // to warn rather than block the build until those effects are migrated
+      // to a query lib (TanStack Query / SWR).
+      'react-hooks/set-state-in-effect': 'warn',
+    },
+  },
+  // One-off data import / migration scripts. Relaxed because they deal with
+  // loosely-typed external data (DB rows, scraped HTML, third-party JSON)
+  // and aren't part of the deployed app.
+  {
+    files: ['scripts/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'prefer-const': 'off',
+    },
   },
 ])
