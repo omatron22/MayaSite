@@ -97,6 +97,11 @@ export function KerrPage() {
                   {query && <span> matching &quot;{query}&quot;</span>}
                 </td>
               </tr>
+              <tr>
+                <td className="px-3 py-1 text-[10px] text-gray-700">
+                  Images linked from the Maya Vase Database / Mayavase.com. Photographs © Justin Kerr; courtesy of the Kerr family and FAMSI Kerr Collections.
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

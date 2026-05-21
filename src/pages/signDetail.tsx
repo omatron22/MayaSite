@@ -154,7 +154,7 @@ export function SignDetailPage() {
                 ) : (
                   <span className="text-xs italic">no image</span>
                 )}
-                {sign.bonn_image_url && <div className="text-[9px] mt-1">Drawn: C. Prager / TWKM</div>}
+                {sign.bonn_image_url && <div className="text-[9px] mt-1">Drawing: Christian Prager / TWKM, Textdatenbank und Wörterbuch des Klassischen Maya. CC BY 4.0.</div>}
                 {sign.english_translation && <div className="text-xs mt-2">"{sign.english_translation}"</div>}
               </td>
             </tr>

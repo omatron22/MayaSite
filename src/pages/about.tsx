@@ -46,15 +46,79 @@ export function AboutPage() {
   const linkedPct = s ? pct(s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
   const unlinkedPct = s ? pct(s.totalGraphemes - s.graphemesLinkedToCatalog, s.totalGraphemes) : '...';
 
-  const dataSources: { title: string; desc: string | React.ReactNode; url: string | null }[] = [
-    { title: 'Maya Hieroglyphic Database (MHD)', desc: s ? `${fmt(s.totalSigns)} signs, ${fmt(s.totalBlocks)} inscription blocks, and ${fmt(s.totalGraphemes)} individual glyph occurrences from the largest Maya epigraphy database` : <Loading />, url: 'https://mayadatabase.org' },
-    { title: 'LMGG Concordance Table', desc: '1,236 signs cross-referenced between Thompson, TWKM, and CMGG numbering systems — lets you look up the same sign across different catalogs', url: 'https://mayaglyphs.org/LMGGC.html' },
-    { title: 'Roboflow ML Dataset', desc: s ? `${fmt(s.totalRoboflow)} machine-learning-annotated glyph images for automated sign recognition` : <Loading />, url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k' },
-    { title: 'Kerr Maya Vase Database', desc: s ? `${fmt(s.totalKerr)} rollout photographs of painted Maya ceramic vessels` : <Loading />, url: 'https://research.mayavase.com/kerrmaya.html' },
-    { title: 'Harvard CMHI', desc: s ? `${fmt(totalCmhi)} images from the Corpus of Maya Hieroglyphic Inscriptions — ${fmt(s.totalCmhiDrawings)} line drawings and ${fmt(s.totalCmhiPhotos)} photographs` : <Loading />, url: 'https://peabody.harvard.edu/cmhi' },
-    { title: 'Peabody Museum Site Codes', desc: '200+ archaeological site abbreviations mapped to GPS coordinates across 5 Maya regions', url: 'https://peabody.harvard.edu/maya-site-codes' },
-    { title: 'ClassicMayan.org (Bonn/TWKM)', desc: '1,075 signs with 1,565 visual variants and 727 proposed readings from the University of Bonn (CC BY 4.0)', url: 'https://classicmayan.org' },
-    { title: 'Cross-Catalog Concordance', desc: s ? `${fmt(s.totalSigns)} entries linked across 13 catalog systems (MHD, TWKM, Thompson, CMGG, Grube, and 8 others) — ${pct(s.thompsonCoverage, s.totalSigns)} Thompson coverage, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage` : <Loading />, url: null },
+  type Source = {
+    title: string;
+    desc: string | React.ReactNode;
+    license: string;
+    attribution: string;
+    images: 'linked' | 'hosted' | 'none';
+    url: string | null;
+  };
+  const dataSources: Source[] = [
+    {
+      title: 'Maya Hieroglyphic Database (MHD)',
+      desc: s ? `${fmt(s.totalSigns)} signs, ${fmt(s.totalBlocks)} inscription blocks, and ${fmt(s.totalGraphemes)} individual glyph occurrences from the largest Maya epigraphy database.` : <Loading />,
+      license: 'No open reuse license. Scholarly use only. Cite: tDAR id 514652, doi:10.48512/XCV8514652.',
+      attribution: 'Drawings by Matthew Looper, with codical examples by Martha Macri.',
+      images: 'linked',
+      url: 'https://mayadatabase.org',
+    },
+    {
+      title: 'ClassicMayan / Bonn / TWKM Sign Catalog',
+      desc: '1,075 signs with 1,565 visual variants and 727 proposed readings from the University of Bonn TWKM project.',
+      license: 'Creative Commons Attribution 4.0 International (CC BY 4.0). https://creativecommons.org/licenses/by/4.0/',
+      attribution: 'Drawings by Christian Prager / TWKM, Rheinische Friedrich-Wilhelms-Universität Bonn.',
+      images: 'linked',
+      url: 'https://classicmayan.org',
+    },
+    {
+      title: 'Learner’s Maya Glyph Guide (LMGG)',
+      desc: '1,236 signs cross-referenced between Thompson, TWKM, and CMGG numbering systems.',
+      license: 'No open license found. Treated as scholarly / noncommercial attribution-only reference data.',
+      attribution: 'Sim Lee (guide); John Pedersen (website and concordance work). mayaglyphs.org',
+      images: 'none',
+      url: 'https://mayaglyphs.org/LMGGC.html',
+    },
+    {
+      title: 'Kerr Maya Vase Database',
+      desc: s ? `${fmt(s.totalKerr)} rollout photographs of painted Maya ceramic vessels.` : <Loading />,
+      license: 'Copyright / permission-required. Use inquiries: mayavase@aol.com.',
+      attribution: 'Photographs © Justin Kerr; courtesy of the Kerr family and FAMSI Kerr Collections.',
+      images: 'linked',
+      url: 'https://research.mayavase.com/kerrmaya.html',
+    },
+    {
+      title: 'Harvard CMHI',
+      desc: s ? `${fmt(totalCmhi)} images from the Corpus of Maya Hieroglyphic Inscriptions — ${fmt(s.totalCmhiDrawings)} line drawings and ${fmt(s.totalCmhiPhotos)} photographs.` : <Loading />,
+      license: 'Copyright / permission-required. Personal scholarly research/study use only unless permission is granted.',
+      attribution: 'Peabody Museum of Archaeology & Ethnology, Harvard University.',
+      images: 'linked',
+      url: 'https://peabody.harvard.edu/cmhi',
+    },
+    {
+      title: 'Roboflow Maya glyph dataset',
+      desc: s ? `${fmt(s.totalRoboflow)} machine-learning-annotated glyph images for automated sign recognition.` : <Loading />,
+      license: 'CC BY-NC-SA 4.0. https://creativecommons.org/licenses/by-nc-sa/4.0/',
+      attribution: '“yax” Dataset by utz’ib, Roboflow Universe (maya-glyphs/yax project).',
+      images: 'hosted',
+      url: 'https://universe.roboflow.com/maya-glyphs/yax-w4l6k',
+    },
+    {
+      title: 'Site coordinates',
+      desc: '200+ archaeological site abbreviations mapped to GPS coordinates across 5 Maya regions.',
+      license: 'MayaSite project data. Not copied from Peabody CMHI site-code pages.',
+      attribution: 'Hand-compiled from academic and archaeological references (src/lib/sites.ts).',
+      images: 'none',
+      url: null,
+    },
+    {
+      title: 'Cross-Catalog Concordance (derived)',
+      desc: s ? `${fmt(s.totalSigns)} entries linked across 13 catalog systems (MHD, TWKM, Thompson, CMGG, Grube, and 8 others) — ${pct(s.thompsonCoverage, s.totalSigns)} Thompson coverage, ${pct(s.zenderCoverage, s.totalSigns)} Zender coverage. Derived from MHD + TWKM + LMGG imports; not an independent source.` : <Loading />,
+      license: 'MayaSite-derived data. Each link inherits the terms of its source.',
+      attribution: 'See contributing sources above.',
+      images: 'none',
+      url: null,
+    },
   ];
 
   return (
@@ -79,11 +143,10 @@ export function AboutPage() {
             </tr>
             <tr>
               <td className="px-3 py-2 text-sm">
-                This project brings together 8 major data sources into one searchable interface:
-                the MHD epigraphy database, the Bonn/TWKM sign catalog, the LMGG concordance table,
-                Kerr vase photography, Harvard CMHI drawings, Peabody site coordinates, a machine
-                learning glyph dataset, and a unified cross-catalog concordance linking signs across
-                13 numbering systems.
+                This project brings together 7 scholarly data sources into one searchable
+                interface — MHD, the Bonn/TWKM sign catalog, LMGG, Kerr vase photography, Harvard
+                CMHI, a Roboflow ML glyph dataset, and hand-compiled site coordinates — plus a
+                MayaSite-derived concordance layer linking signs across 13 numbering systems.
               </td>
             </tr>
           </tbody>
@@ -94,16 +157,26 @@ export function AboutPage() {
           <thead>
             <tr>
               <th className="px-3 py-1 text-left text-xs uppercase">Source</th>
-              <th className="px-3 py-1 text-left text-xs uppercase">Description</th>
+              <th className="px-3 py-1 text-left text-xs uppercase">Description, attribution, license</th>
+              <th className="px-3 py-1 text-left text-xs uppercase">Images</th>
               <th className="px-3 py-1 text-left text-xs uppercase"></th>
             </tr>
           </thead>
           <tbody>
             {dataSources.map((ds) => (
-              <tr key={ds.title}>
-                <td className="px-3 py-1 text-sm font-[800] whitespace-nowrap align-top">{ds.title}</td>
-                <td className="px-3 py-1 text-xs align-top">{ds.desc}</td>
-                <td className="px-3 py-1 text-xs align-top whitespace-nowrap">
+              <tr key={ds.title} className="align-top">
+                <td className="px-3 py-2 text-sm font-[800] whitespace-nowrap">{ds.title}</td>
+                <td className="px-3 py-2 text-xs space-y-1">
+                  <div>{ds.desc}</div>
+                  <div><span className="font-[800]">Credit:</span> {ds.attribution}</div>
+                  <div><span className="font-[800]">License:</span> {ds.license}</div>
+                </td>
+                <td className="px-3 py-2 text-xs whitespace-nowrap">
+                  {ds.images === 'linked' && 'linked from source'}
+                  {ds.images === 'hosted' && 'hosted by MayaSite'}
+                  {ds.images === 'none' && '—'}
+                </td>
+                <td className="px-3 py-2 text-xs whitespace-nowrap">
                   {ds.url && (
                     <a href={ds.url} target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
                       link
@@ -112,6 +185,36 @@ export function AboutPage() {
                 </td>
               </tr>
             ))}
+          </tbody>
+        </table>
+
+        {/* Corrections / takedown */}
+        <table className="w-auto">
+          <thead>
+            <tr>
+              <th className="px-3 py-1 text-left text-xs uppercase">Corrections &amp; rights inquiries</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="px-3 py-2 text-xs">
+                MayaSite is a noncommercial scholarly reference tool. It links to images from the
+                source servers above (Kerr, Harvard CMHI, MHD, ClassicMayan) rather than re-hosting
+                them. Roboflow training data is the one exception and is hosted under its
+                CC BY-NC-SA license.
+              </td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 text-xs">
+                If you are a rights holder and believe any image, metadata, or attribution should
+                be corrected, restricted, or removed, please email{' '}
+                <a href="mailto:omaresp35@gmail.com" className="underline hover:no-underline">
+                  omaresp35@gmail.com
+                </a>{' '}
+                with the source URL and the affected MayaSite page. Requests are reviewed
+                promptly.
+              </td>
+            </tr>
           </tbody>
         </table>
 
@@ -148,7 +251,7 @@ export function AboutPage() {
           </thead>
           <tbody>
             <tr>
-              <td className="px-3 py-1 text-xs">Data current through early 2022 — recent discoveries or reclassifications may not be reflected.</td>
+              <td className="px-3 py-1 text-xs">Source vintage varies per data source — see the Source table above. Some sources (LMGG, ClassicMayan, Roboflow) are updated upstream more frequently than the MayaSite import cycle.</td>
             </tr>
             <tr>
               <td className="px-3 py-1 text-xs">{s ? `${linkedPct} of individual glyphs are identified and linked to a catalog sign. The remaining ${unlinkedPct} are either eroded/unreadable (code "000"), uncertain readings (?), or bare numerals.` : <Loading />}</td>

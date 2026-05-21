@@ -181,6 +181,11 @@ export function CmhiPage() {
                   {selectedType && <span>, {selectedType}s</span>}
                 </td>
               </tr>
+              <tr>
+                <td className="px-3 py-1 text-[10px] text-gray-700">
+                  Images linked from the Corpus of Maya Hieroglyphic Inscriptions, Peabody Museum of Archaeology &amp; Ethnology, Harvard University. For personal scholarly use only unless separately permitted.
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
