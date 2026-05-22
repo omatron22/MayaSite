@@ -260,6 +260,40 @@ export function fetchNewConcordance(params: NewConcordanceApiParams, signal?: Ab
   return fetchJson<NewConcordanceResponse>(`/api/search?${searchParams}`, signal);
 }
 
+// Entity search
+export interface EntitySearchParams {
+  q?: string;
+  entityType?: string; // person, place, scribe, deity
+  page?: number;
+  pageSize?: number;
+}
+
+export interface EntityResult {
+  entity_id: string;
+  entity_type: string;
+  canonical_name: string;
+  description: string | null;
+  block_count: number;
+  aliases: string | null;
+}
+
+export interface EntitySearchResponse {
+  results: EntityResult[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export function fetchEntities(params: EntitySearchParams, signal?: AbortSignal): Promise<EntitySearchResponse> {
+  const sp = new URLSearchParams();
+  sp.set('mode', 'entities');
+  if (params.q) sp.set('q', params.q);
+  if (params.entityType) sp.set('entityType', params.entityType);
+  if (params.page) sp.set('page', String(params.page));
+  if (params.pageSize) sp.set('pageSize', String(params.pageSize));
+  return fetchJson<EntitySearchResponse>(`/api/search?${sp}`, signal);
+}
+
 // Catalog entry detail (via sign endpoint with legacy ID)
 export interface CatalogEntryDetail {
   entry_id: string;

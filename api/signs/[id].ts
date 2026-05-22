@@ -78,8 +78,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Fetch concordance data if catalog_entries exist for this sign
     let crossRefs: unknown[] = [];
     let graphs: unknown[] = [];
+    let readings: unknown[] = [];
+    let topEntities: unknown[] = [];
     try {
-      const [crossRefResult, graphsResult] = await Promise.all([
+      const [crossRefResult, graphsResult, readingsResult, entitiesResult] = await Promise.all([
         db.execute({
           sql: `SELECT ce2.entry_id, ce2.catalog, ce2.catalog_code,
                        ce2.reading_value, ce2.gloss_english, ce2.part_of_speech,
@@ -94,11 +96,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           args: [signId],
         }),
         db.execute({
-          sql: `SELECT g.graph_id, g.variant_suffix, g.variant_type_label, g.medium, g.image_url, g.iconographic_tags, g.notes
+          sql: `SELECT g.graph_id, g.variant_suffix, g.variant_type_label, g.medium,
+                       g.image_url, g.iconographic_tags, g.notes,
+                       g.allograph_group, g.visual_category,
+                       g.is_head_variant, g.is_full_figure_variant,
+                       g.twkm_occurrence_count, g.twkm_artefacts_json
                 FROM graphs g
                 JOIN catalog_entries ce ON g.catalog_entry = ce.entry_id
                 WHERE ce.legacy_catalog_sign_id = ?
-                ORDER BY g.variant_suffix`,
+                ORDER BY g.is_head_variant DESC, g.is_full_figure_variant DESC, g.variant_suffix`,
+          args: [signId],
+        }),
+        db.execute({
+          sql: `SELECT reading_id, source_collection_id, reading_value, reading_type,
+                       gloss_english, confidence_level, criteria_json,
+                       is_primary, notes, source_url
+                FROM sign_readings
+                WHERE catalog_sign_id = ?
+                ORDER BY is_primary DESC, confidence_level DESC, reading_type, reading_value`,
+          args: [signId],
+        }),
+        db.execute({
+          sql: `SELECT e.entity_id, e.entity_type, e.canonical_name,
+                       COUNT(DISTINCT m.block_id) AS block_count
+                FROM entity_mentions m
+                JOIN entities e ON e.entity_id = m.entity_id
+                JOIN graphemes g ON g.block_id = m.block_id
+                WHERE g.catalog_sign_id = ?
+                GROUP BY e.entity_id
+                ORDER BY block_count DESC
+                LIMIT 20`,
           args: [signId],
         }),
       ]);
@@ -109,9 +136,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       graphs = graphsResult.rows.map(r => ({
         ...r,
         iconographic_tags: r.iconographic_tags ? JSON.parse(String(r.iconographic_tags)) : null,
+        twkm_artefacts: r.twkm_artefacts_json ? JSON.parse(String(r.twkm_artefacts_json)) : null,
       }));
-    } catch {
-      // Tables may not exist yet — gracefully degrade
+      readings = readingsResult.rows.map(r => ({
+        ...r,
+        criteria: r.criteria_json ? JSON.parse(String(r.criteria_json)) : null,
+      }));
+      topEntities = entitiesResult.rows;
+    } catch (e) {
+      console.warn('Sign detail enrichment partial fail:', e);
     }
 
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
@@ -121,6 +154,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       roboflow: roboflowResult.rows,
       crossRefs,
       graphs,
+      readings,
+      topEntities,
       prevSign,
       nextSign,
     });

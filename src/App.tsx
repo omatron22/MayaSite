@@ -22,6 +22,7 @@ const CmhiPage = lazyRetry(() => import('./pages/cmhi').then(m => ({ default: m.
 const EntryDetailPage = lazyRetry(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
 const ApiPage = lazyRetry(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
 const ScannerPage = lazyRetry(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
+const EntitiesPage = lazyRetry(() => import('./pages/entities').then(m => ({ default: m.EntitiesPage })));
 
 function PageLoader() {
   return (
@@ -53,6 +54,7 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/api" element={<ApiPage />} />
               <Route path="/scanner" element={<ScannerPage />} />
+              <Route path="/entities" element={<EntitiesPage />} />
               {/* Redirects for old routes */}
               <Route path="/research" element={<Navigate to="/about" replace />} />
               <Route path="/tools" element={<Navigate to="/search" replace />} />

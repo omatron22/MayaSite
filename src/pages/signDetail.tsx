@@ -26,9 +26,35 @@ interface GraphVariant {
   image_url: string | null;
   iconographic_tags: string[] | null;
   notes: string | null;
+  allograph_group: string | null;
+  visual_category: string | null;
+  is_head_variant: number | null;
+  is_full_figure_variant: number | null;
+  twkm_occurrence_count: number | null;
+  twkm_artefacts: string[] | null;
 }
 
-type TabType = 'concordance' | 'variants' | 'attestations' | 'info' | 'examples';
+interface SignReading {
+  reading_id: string;
+  source_collection_id: string | null;
+  reading_value: string;
+  reading_type: string | null;
+  gloss_english: string | null;
+  confidence_level: number | null;
+  criteria: string[] | null;
+  is_primary: number | null;
+  notes: string | null;
+  source_url: string | null;
+}
+
+interface TopEntity {
+  entity_id: string;
+  entity_type: string;
+  canonical_name: string;
+  block_count: number;
+}
+
+type TabType = 'concordance' | 'variants' | 'readings' | 'attestations' | 'info' | 'examples' | 'entities';
 
 export function SignDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +82,14 @@ export function SignDetailPage() {
   );
   const graphVariants = useMemo(
     () => (data as unknown as { graphs?: GraphVariant[] } | undefined)?.graphs ?? [],
+    [data]
+  );
+  const readings = useMemo(
+    () => (data as unknown as { readings?: SignReading[] } | undefined)?.readings ?? [],
+    [data]
+  );
+  const topEntities = useMemo(
+    () => (data as unknown as { topEntities?: TopEntity[] } | undefined)?.topEntities ?? [],
     [data]
   );
   const prevSign = (data as unknown as { prevSign?: { id: number; code: string } } | undefined)?.prevSign ?? null;
@@ -166,9 +200,11 @@ export function SignDetailPage() {
           <tbody>
             <tr>
               {tabLabel('info', 'Information')}
+              {readings.length > 0 && tabLabel('readings', 'Readings', readings.length)}
               {tabLabel('concordance', 'Concordance', catalogCount > 0 ? catalogCount : undefined)}
               {graphVariants.length > 0 && tabLabel('variants', 'Variants', graphVariants.length)}
               {tabLabel('attestations', 'Attestations', graphemes.length)}
+              {topEntities.length > 0 && tabLabel('entities', 'Entities', topEntities.length)}
               {roboflow.length > 0 && tabLabel('examples', 'ML Examples', roboflow.length)}
             </tr>
           </tbody>
@@ -227,27 +263,100 @@ export function SignDetailPage() {
                 <tr>
                   <th className="px-3 py-1 text-left text-xs uppercase">Image</th>
                   <th className="px-3 py-1 text-left text-xs uppercase">Suffix</th>
-                  <th className="px-3 py-1 text-left text-xs uppercase">Type</th>
-                  <th className="px-3 py-1 text-left text-xs uppercase">Medium</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Group</th>
+                  <th className="px-3 py-1 text-right text-xs uppercase">Occ.</th>
                   <th className="px-3 py-1 text-left text-xs uppercase">Tags</th>
                   <th className="px-3 py-1 text-left text-xs uppercase">Notes</th>
                 </tr>
               </thead>
               <tbody>
-                {graphVariants.map((g) => (
-                  <tr key={g.graph_id}>
-                    <td className="px-3 py-1">
-                      {g.image_url ? (
-                        <img src={g.image_url} alt={g.variant_suffix || ''} className="w-[50px] h-[50px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                {graphVariants.map((g) => {
+                  const flags: string[] = [];
+                  if (g.is_head_variant) flags.push('head');
+                  if (g.is_full_figure_variant) flags.push('full-figure');
+                  const group = flags.length > 0 ? flags.join(' · ') : (g.allograph_group || '-');
+                  return (
+                    <tr key={g.graph_id}>
+                      <td className="px-3 py-1">
+                        {g.image_url ? (
+                          <img src={g.image_url} alt={g.variant_suffix || ''} className="w-[50px] h-[50px] object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                        ) : (
+                          <span className="text-xs">-</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-1 text-xs font-[800]">{g.visual_category || g.variant_suffix || '-'}</td>
+                      <td className="px-3 py-1 text-xs">{group}</td>
+                      <td className="px-3 py-1 text-xs text-right">{g.twkm_occurrence_count ?? '-'}</td>
+                      <td className="px-3 py-1 text-xs">{g.iconographic_tags?.join(', ') || '-'}</td>
+                      <td className="px-3 py-1 text-xs">{g.notes || '-'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )
+        )}
+
+        {/* READINGS (polysemy) */}
+        {activeTab === 'readings' && (
+          readings.length === 0 ? (
+            <table className="w-full"><tbody><tr><td className="px-3 py-1 text-xs text-center">No readings recorded</td></tr></tbody></table>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Reading</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Type</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Gloss</th>
+                  <th className="px-3 py-1 text-right text-xs uppercase">Conf.</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                {readings.map((r) => (
+                  <tr key={r.reading_id}>
+                    <td className="px-3 py-1 text-xs font-[800]">
+                      {r.reading_value}
+                      {r.is_primary ? <span className="text-[9px] ml-1">(primary)</span> : null}
+                    </td>
+                    <td className="px-3 py-1 text-xs">{r.reading_type || '-'}</td>
+                    <td className="px-3 py-1 text-xs">{r.gloss_english ? `"${r.gloss_english}"` : '-'}</td>
+                    <td className="px-3 py-1 text-xs text-right">{r.confidence_level != null ? `${r.confidence_level}/8` : '-'}</td>
+                    <td className="px-3 py-1 text-xs">
+                      {r.source_url ? (
+                        <a href={r.source_url} target="_blank" rel="noopener noreferrer" className="underline hover:no-underline">{r.source_collection_id || 'src'}</a>
                       ) : (
-                        <span className="text-xs">-</span>
+                        r.source_collection_id || '-'
                       )}
                     </td>
-                    <td className="px-3 py-1 text-xs font-[800]">{g.variant_suffix || '-'}</td>
-                    <td className="px-3 py-1 text-xs">{g.variant_type_label || '-'}</td>
-                    <td className="px-3 py-1 text-xs">{g.medium || '-'}</td>
-                    <td className="px-3 py-1 text-xs">{g.iconographic_tags?.join(', ') || '-'}</td>
-                    <td className="px-3 py-1 text-xs">{g.notes || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        )}
+
+        {/* ENTITIES */}
+        {activeTab === 'entities' && (
+          topEntities.length === 0 ? (
+            <table className="w-full"><tbody><tr><td className="px-3 py-1 text-xs text-center">No linked entities</td></tr></tbody></table>
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Entity</th>
+                  <th className="px-3 py-1 text-left text-xs uppercase">Type</th>
+                  <th className="px-3 py-1 text-right text-xs uppercase">Blocks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topEntities.map((e) => (
+                  <tr key={e.entity_id}>
+                    <td className="px-3 py-1 text-xs font-[800]">
+                      <Link to={`/search?mode=entities&q=${encodeURIComponent(e.canonical_name)}`} className="underline hover:no-underline">{e.canonical_name}</Link>
+                    </td>
+                    <td className="px-3 py-1 text-xs">{e.entity_type}</td>
+                    <td className="px-3 py-1 text-xs text-right">{e.block_count}</td>
                   </tr>
                 ))}
               </tbody>

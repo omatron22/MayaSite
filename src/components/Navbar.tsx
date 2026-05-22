@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const links = [
   { path: '/search', label: 'Search' },
+  { path: '/entities', label: 'Entities' },
   { path: '/collections', label: 'Collections' },
   { path: '/about', label: 'About' },
 ];
@@ -14,6 +15,9 @@ export function Navbar() {
   const isActive = (path: string) => {
     if (path === '/search') {
       return location.pathname === '/search' || /^\/(sign|block|grapheme|entry)\//.test(location.pathname);
+    }
+    if (path === '/entities') {
+      return location.pathname === '/entities';
     }
     return location.pathname.startsWith(path);
   };

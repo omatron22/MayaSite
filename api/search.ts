@@ -29,6 +29,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       hasDate,
       export: exportMode,
       collapseVariants,
+      source,
+      readingType,
     } = req.query as Record<string, string>;
 
     if (mode === 'concordance') {
@@ -37,6 +39,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (mode === 'entry_detail') {
       return handleEntryDetail(req, res);
+    }
+
+    if (mode === 'entities') {
+      return handleEntitySearch(req, res);
     }
 
     const isExport = exportMode === 'true';
@@ -56,6 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         hasTranslation: hasTranslation === 'true',
         sortBy: sortBy as 'code' | 'frequency' | 'completeness',
         collapseVariants: collapseVariants === 'true',
+        source, readingType,
       }, pageSizeNum, offset, pageNum);
     } else if (mode === 'blocks') {
       response = await searchBlocks(query, {
@@ -89,6 +96,8 @@ interface SignFilters {
   hasTranslation: boolean;
   sortBy: 'code' | 'frequency' | 'completeness';
   collapseVariants: boolean;
+  source?: string;
+  readingType?: string;
 }
 
 async function searchSigns(
@@ -156,6 +165,30 @@ async function searchSigns(
   }
   if (filters.hasTranslation) {
     conditions.push("english_translation IS NOT NULL AND english_translation != ''");
+  }
+
+  // Filter by sign_readings source (e.g. mhd, twkm)
+  if (filters.source && filters.source !== 'all') {
+    const sources = filters.source.split(',').filter(Boolean);
+    if (sources.length === 1) {
+      conditions.push('EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.source_collection_id = ?)');
+      params.push(sources[0]);
+    } else if (sources.length > 1) {
+      conditions.push(`EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.source_collection_id IN (${sources.map(() => '?').join(',')}))`);
+      params.push(...sources);
+    }
+  }
+
+  // Filter by reading type (syllabogram, logogram, numeral, diacritic, unknown)
+  if (filters.readingType && filters.readingType !== 'all') {
+    const types = filters.readingType.split(',').filter(Boolean);
+    if (types.length === 1) {
+      conditions.push('EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.reading_type = ?)');
+      params.push(types[0]);
+    } else if (types.length > 1) {
+      conditions.push(`EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.reading_type IN (${types.map(() => '?').join(',')}))`);
+      params.push(...types);
+    }
   }
 
   // Variant collapse: only show parent entries and include variant counts
@@ -516,6 +549,63 @@ async function handleNewConcordance(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     console.error('New concordance error:', err);
     return res.status(500).json({ error: 'Failed to load concordance data', details: String(err) });
+  }
+}
+
+async function handleEntitySearch(req: VercelRequest, res: VercelResponse) {
+  const q = String(req.query.q || '').trim().toLowerCase();
+  const typeFilter = String(req.query.entityType || '').trim();
+  const page = Math.max(1, parseInt(String(req.query.page || '1')));
+  const pageSize = Math.min(100, Math.max(1, parseInt(String(req.query.pageSize || '50'))));
+  const offset = (page - 1) * pageSize;
+
+  const conditions: string[] = [];
+  const args: (string | number)[] = [];
+
+  if (q) {
+    conditions.push(`(e.normalized_name LIKE ?
+      OR EXISTS (SELECT 1 FROM entity_aliases a WHERE a.entity_id = e.entity_id AND a.normalized_alias LIKE ?))`);
+    const like = `%${q}%`;
+    args.push(like, like);
+  }
+  if (typeFilter && typeFilter !== 'all') {
+    const types = typeFilter.split(',').filter(Boolean);
+    if (types.length === 1) { conditions.push('e.entity_type = ?'); args.push(types[0]); }
+    else if (types.length > 1) {
+      conditions.push(`e.entity_type IN (${types.map(() => '?').join(',')})`);
+      args.push(...types);
+    }
+  }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  try {
+    const [countRes, rowsRes] = await Promise.all([
+      db.execute({
+        sql: `SELECT COUNT(*) AS n FROM entities e ${where}`,
+        args,
+      }),
+      db.execute({
+        sql: `SELECT e.entity_id, e.entity_type, e.canonical_name, e.description,
+                     (SELECT COUNT(DISTINCT m.block_id) FROM entity_mentions m WHERE m.entity_id = e.entity_id) AS block_count,
+                     (SELECT GROUP_CONCAT(a.alias, ' | ') FROM entity_aliases a WHERE a.entity_id = e.entity_id) AS aliases
+              FROM entities e
+              ${where}
+              ORDER BY block_count DESC, e.canonical_name
+              LIMIT ? OFFSET ?`,
+        args: [...args, pageSize, offset],
+      }),
+    ]);
+
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
+    return res.status(200).json({
+      results: rowsRes.rows,
+      total: Number(countRes.rows[0].n),
+      page,
+      pageSize,
+    });
+  } catch (err) {
+    console.error('Entity search error:', err);
+    return res.status(500).json({ error: 'Entity search failed', details: String(err) });
   }
 }
 
