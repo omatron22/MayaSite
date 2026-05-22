@@ -273,6 +273,7 @@ export interface TwkmPlaceRow {
   label: string;
   latitude: number | null;
   longitude: number | null;
+  block_count?: number;
 }
 export interface TwkmCollectionResponse<T> {
   tab: string;

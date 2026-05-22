@@ -33,8 +33,12 @@ function apiRoutes(): Plugin {
           });
         }
 
-        // Route /api/path/segments to the correct handler file
+        // Route /api/path/segments to the correct handler file. Validate each
+        // segment up front to block path-traversal attempts ('..', encoded
+        // slashes, backslashes) before they ever reach ssrLoadModule.
         const segments = url.pathname.replace('/api/', '').split('/');
+        const SAFE = /^[a-zA-Z0-9_-]+$/;
+        if (!segments.every((s) => SAFE.test(s))) return next();
         let modulePath: string;
 
         if (segments[0] === 'map' && segments[1] === 'sites') {

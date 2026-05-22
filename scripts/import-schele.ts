@@ -166,6 +166,8 @@ async function main() {
   const mentionStmts: { sql: string; args: (string | number | null)[] }[] = [];
   let matched404 = 0;
   let matchedSite = 0;
+  let skipped = 0;
+  let fetchErr = 0;
 
   for (let i = 0; i < idList.length; i++) {
     const aaId = idList[i];
@@ -173,12 +175,38 @@ async function main() {
     try {
       const html = await fetchWithRetry(ITEM_URL(aaId));
       const r = parseItem(aaId, html);
+      // Validate: a Schele record must have at least a title OR objectNumber
+      // OR imageUrl. If all three are null the parser silently broke — skip
+      // the row so we don't corrupt an existing good row on rerun.
+      if (!r.title && !r.objectNumber && !r.imageUrl) {
+        skipped++;
+        continue;
+      }
+
+      // Upsert that PRESERVES existing non-null values: if a future scrape
+      // regresses to null on any field, the COALESCE keeps the prior value.
+      // INSERT path uses the new values; UPDATE path uses COALESCE(new, old).
       itemStmts.push({
-        sql: `INSERT OR REPLACE INTO source_items
+        sql: `INSERT INTO source_items
                 (item_id, collection_id, external_id, title, creator, site_name,
                  period, culture, material, dimensions, description, notes,
                  image_url, thumb_url, source_url, rights_note, raw_json, object_number)
-              VALUES (?, 'schele-lacma', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              VALUES (?, 'schele-lacma', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              ON CONFLICT(collection_id, external_id) DO UPDATE SET
+                title       = COALESCE(excluded.title, title),
+                creator     = COALESCE(excluded.creator, creator),
+                site_name   = COALESCE(excluded.site_name, site_name),
+                period      = COALESCE(excluded.period, period),
+                culture     = COALESCE(excluded.culture, culture),
+                material    = COALESCE(excluded.material, material),
+                dimensions  = COALESCE(excluded.dimensions, dimensions),
+                description = COALESCE(excluded.description, description),
+                notes       = COALESCE(excluded.notes, notes),
+                image_url   = COALESCE(excluded.image_url, image_url),
+                thumb_url   = COALESCE(excluded.thumb_url, thumb_url),
+                rights_note = COALESCE(excluded.rights_note, rights_note),
+                raw_json    = excluded.raw_json,
+                object_number = COALESCE(excluded.object_number, object_number)`,
         args: [
           `schele-${aaId}`,
           aaId,
@@ -219,15 +247,26 @@ async function main() {
       }
     } catch (e) {
       if (String(e).includes('404')) matched404++;
+      else fetchErr++;
     }
     if ((i + 1) % 25 === 0) process.stdout.write('done\n');
     await new Promise((r) => setTimeout(r, ITEM_DELAY_MS));
   }
   console.log();
 
+  // Safety gate: if upstream parser broke and we'd write fewer than 80% of
+  // expected rows, abort without writing — don't corrupt good data.
+  const parsedRatio = itemStmts.length / Math.max(1, idList.length - matched404);
+  if (parsedRatio < 0.8) {
+    console.error(`\nABORT: parsed ${itemStmts.length}/${idList.length - matched404} = ${(parsedRatio * 100).toFixed(1)}% (below 80% safety floor).`);
+    console.error(`  skipped=${skipped} fetchErr=${fetchErr} 404s=${matched404}`);
+    console.error('  Upstream HTML likely changed. Inspect parseItem() before rerunning.');
+    process.exit(2);
+  }
+
   await batchExecute(itemStmts);
   await batchExecute(mentionStmts);
-  console.log(`\n  ${itemStmts.length} source_items inserted (${matched404} 404s skipped).`);
+  console.log(`\n  ${itemStmts.length} source_items upserted (${matched404} 404s; ${skipped} parser-empty rows skipped; ${fetchErr} other fetch errors).`);
   console.log(`  ${matchedSite} items linked to existing place entities.`);
 
   await db.execute(`UPDATE source_collections SET last_imported_at = datetime('now') WHERE collection_id = 'schele-lacma'`);

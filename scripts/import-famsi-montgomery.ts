@@ -155,19 +155,41 @@ async function main() {
 
   console.log(`\nParsed ${allRecords.length} total records.\n`);
 
-  // Insert source_items
-  const itemStmts = allRecords.map((r) => {
+  // Skip records where the regex matched the image but no metadata fields —
+  // those are silent parser misses that would otherwise overwrite a good row
+  // with nulls on rerun. Then upsert with COALESCE so a regression on any
+  // single field preserves the prior value.
+  const validRecords = allRecords.filter((r) => r.location || r.caption || r.category);
+  const skipped = allRecords.length - validRecords.length;
+
+  // Safety gate: refuse to write if validity dropped below 80% (parser likely
+  // broke on a layout change).
+  const validRatio = validRecords.length / Math.max(1, allRecords.length);
+  if (validRatio < 0.8) {
+    console.error(`\nABORT: only ${validRecords.length}/${allRecords.length} (${(validRatio * 100).toFixed(1)}%) records had any metadata. Layout likely changed — fix parsePage() before rerunning.`);
+    process.exit(2);
+  }
+
+  const itemStmts = validRecords.map((r) => {
     const site = normalizeSite(r.location);
     const period = r.category ? r.category.replace(/Maya,?\s*/i, '').trim() : null;
-    // r.imageFilename is now the full relative URL (e.g. /uploads/montgomery/303/image/JM000750TikEmblem.jpg).
-    // Build full URL + thumbnail URL by inserting _tn_ before the basename.
     const imageUrl = `${BASE}${r.imageFilename}`;
     const thumbUrl = `${BASE}${r.imageFilename.replace(/\/([^/]+)$/, '/_tn_$1')}`;
     return {
-      sql: `INSERT OR REPLACE INTO source_items
+      sql: `INSERT INTO source_items
               (item_id, collection_id, external_id, title, creator, site_name,
                period, description, notes, image_url, thumb_url, source_url, rights_note, raw_json)
-            VALUES (?, 'famsi-montgomery', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            VALUES (?, 'famsi-montgomery', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(collection_id, external_id) DO UPDATE SET
+              title       = COALESCE(excluded.title, title),
+              site_name   = COALESCE(excluded.site_name, site_name),
+              period      = COALESCE(excluded.period, period),
+              description = COALESCE(excluded.description, description),
+              notes       = COALESCE(excluded.notes, notes),
+              image_url   = COALESCE(excluded.image_url, image_url),
+              thumb_url   = COALESCE(excluded.thumb_url, thumb_url),
+              rights_note = COALESCE(excluded.rights_note, rights_note),
+              raw_json    = excluded.raw_json`,
       args: [
         `famsi-mont-${r.jmId.toLowerCase()}`,
         r.jmId,
@@ -186,7 +208,7 @@ async function main() {
     };
   });
   await batchExecute(itemStmts);
-  console.log(`  ${itemStmts.length} source_items inserted.`);
+  console.log(`  ${itemStmts.length} source_items upserted (${skipped} parser-empty rows skipped).`);
 
   // Link each Montgomery item to a place entity via location → site match
   // (writes into entity_mentions; block_id NULL since these are external items)

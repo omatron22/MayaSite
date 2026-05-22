@@ -20,8 +20,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const [countRes, rowsRes] = await Promise.all([
         db.execute({ sql: `SELECT COUNT(*) AS n FROM twkm_places ${where}`, args }),
         db.execute({
-          sql: `SELECT place_id, label, latitude, longitude FROM twkm_places ${where}
-                ORDER BY label LIMIT ? OFFSET ?`,
+          sql: `SELECT p.place_id, p.label, p.latitude, p.longitude,
+                       (SELECT COUNT(*) FROM blocks b WHERE LOWER(TRIM(b.site_name)) = LOWER(TRIM(p.label))) AS block_count
+                FROM twkm_places p ${where}
+                ORDER BY p.label LIMIT ? OFFSET ?`,
           args: [...args, pageSize, offset],
         }),
       ]);

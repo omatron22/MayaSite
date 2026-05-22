@@ -167,28 +167,20 @@ async function searchSigns(
     conditions.push("english_translation IS NOT NULL AND english_translation != ''");
   }
 
-  // Filter by sign_readings source (e.g. mhd, twkm)
-  if (filters.source && filters.source !== 'all') {
-    const sources = filters.source.split(',').filter(Boolean);
-    if (sources.length === 1) {
-      conditions.push('EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.source_collection_id = ?)');
-      params.push(sources[0]);
-    } else if (sources.length > 1) {
-      conditions.push(`EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.source_collection_id IN (${sources.map(() => '?').join(',')}))`);
-      params.push(...sources);
-    }
-  }
+  // Filter by sign_readings source and/or reading_type. When BOTH are present
+  // we must enforce them on the SAME reading row (single EXISTS), otherwise a
+  // sign with a TWKM phonogram + an MHD logogram would falsely match
+  // source=twkm AND readingType=logogram.
+  const sources = (filters.source && filters.source !== 'all') ? filters.source.split(',').filter(Boolean) : [];
+  const types = (filters.readingType && filters.readingType !== 'all') ? filters.readingType.split(',').filter(Boolean) : [];
 
-  // Filter by reading type (syllabogram, logogram, numeral, diacritic, unknown)
-  if (filters.readingType && filters.readingType !== 'all') {
-    const types = filters.readingType.split(',').filter(Boolean);
-    if (types.length === 1) {
-      conditions.push('EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.reading_type = ?)');
-      params.push(types[0]);
-    } else if (types.length > 1) {
-      conditions.push(`EXISTS (SELECT 1 FROM sign_readings sr WHERE sr.catalog_sign_id = cs.id AND sr.reading_type IN (${types.map(() => '?').join(',')}))`);
-      params.push(...types);
-    }
+  if (sources.length > 0 || types.length > 0) {
+    const subConds: string[] = ['sr.catalog_sign_id = cs.id'];
+    if (sources.length === 1) { subConds.push('sr.source_collection_id = ?'); params.push(sources[0]); }
+    else if (sources.length > 1) { subConds.push(`sr.source_collection_id IN (${sources.map(() => '?').join(',')})`); params.push(...sources); }
+    if (types.length === 1) { subConds.push('sr.reading_type = ?'); params.push(types[0]); }
+    else if (types.length > 1) { subConds.push(`sr.reading_type IN (${types.map(() => '?').join(',')})`); params.push(...types); }
+    conditions.push(`EXISTS (SELECT 1 FROM sign_readings sr WHERE ${subConds.join(' AND ')})`);
   }
 
   // Variant collapse: only show parent entries and include variant counts

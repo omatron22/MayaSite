@@ -187,7 +187,7 @@ export function TwkmCollectionPage() {
                       </td>
                       <td className="px-3 py-1 text-xs text-right">{r.latitude?.toFixed(3) ?? '-'}</td>
                       <td className="px-3 py-1 text-xs text-right">{r.longitude?.toFixed(3) ?? '-'}</td>
-                      <td className="px-3 py-1 text-xs text-right">-</td>
+                      <td className="px-3 py-1 text-xs text-right">{r.block_count?.toLocaleString() ?? '-'}</td>
                     </tr>
                   ))}
             </tbody>

@@ -51,7 +51,7 @@ async function main() {
   await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS entities (
       entity_id TEXT PRIMARY KEY,
-      entity_type TEXT CHECK(entity_type IN ('person','title','place','dynasty','deity','toponym','unknown')),
+      entity_type TEXT CHECK(entity_type IN ('person','scribe','title','place','dynasty','deity','toponym','unknown')),
       canonical_name TEXT NOT NULL,
       normalized_name TEXT NOT NULL,
       description TEXT,
@@ -119,7 +119,7 @@ async function main() {
     const id = `scribe-${norm(name).replace(/[^a-z0-9]+/g, '-')}`;
     scribeStmts.push({
       sql: `INSERT OR IGNORE INTO entities (entity_id, entity_type, canonical_name, normalized_name, description, source_collection_id)
-            VALUES (?, 'person', ?, ?, 'Scribe (Macri-Vail attribution)', 'mhd')`,
+            VALUES (?, 'scribe', ?, ?, 'Scribe (Macri-Vail attribution)', 'mhd')`,
       args: [id, name, norm(name)],
     });
   }

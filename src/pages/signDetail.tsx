@@ -59,6 +59,7 @@ type TabType = 'concordance' | 'variants' | 'readings' | 'attestations' | 'info'
 export function SignDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<TabType>('info');
+  const [primaryImageFailed, setPrimaryImageFailed] = useState(false);
 
   const signId = id ? parseInt(id) : NaN;
   const idValid = !isNaN(signId);
@@ -181,8 +182,8 @@ export function SignDetailPage() {
           <tbody>
             <tr>
               <td className="px-3 py-4 text-center">
-                {sign.primary_image_url ? (
-                  <img src={sign.primary_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                {sign.primary_image_url && !primaryImageFailed ? (
+                  <img src={sign.primary_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={() => setPrimaryImageFailed(true)} />
                 ) : sign.bonn_image_url ? (
                   <img src={sign.bonn_image_url} alt={displayCode} loading="lazy" className="max-h-[200px] object-contain inline-block" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 ) : (
