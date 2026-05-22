@@ -139,6 +139,9 @@ export function CmhiPage() {
             <td className="px-3 py-1">
               <span className="text-sm font-[800]">[CMHI]</span>
             </td>
+            <td {...clickableProps(() => navigate('/collections/twkm'))} className="px-3 py-1 cursor-pointer focus-cell">
+              <span className="text-sm">TWKM</span>
+            </td>
           </tr>
         </tbody>
       </table>

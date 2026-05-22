@@ -52,6 +52,9 @@ export function KerrPage() {
             <td {...clickableProps(() => navigate('/collections/cmhi'))} className="px-3 py-1 cursor-pointer focus-cell">
               <span className="text-sm">CMHI</span>
             </td>
+            <td {...clickableProps(() => navigate('/collections/twkm'))} className="px-3 py-1 cursor-pointer focus-cell">
+              <span className="text-sm">TWKM</span>
+            </td>
           </tr>
         </tbody>
       </table>

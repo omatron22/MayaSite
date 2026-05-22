@@ -260,6 +260,36 @@ export function fetchNewConcordance(params: NewConcordanceApiParams, signal?: Ab
   return fetchJson<NewConcordanceResponse>(`/api/search?${searchParams}`, signal);
 }
 
+// TWKM collection
+export interface TwkmArtefactRow {
+  artefact_id: string;
+  label: string;
+  date_start: number | null;
+  date_end: number | null;
+  places: string[];
+}
+export interface TwkmPlaceRow {
+  place_id: string;
+  label: string;
+  latitude: number | null;
+  longitude: number | null;
+}
+export interface TwkmCollectionResponse<T> {
+  tab: string;
+  results: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+export function fetchTwkmCollection(params: { tab: 'artefacts' | 'places'; q?: string; page?: number; pageSize?: number }, signal?: AbortSignal) {
+  const sp = new URLSearchParams();
+  sp.set('tab', params.tab);
+  if (params.q) sp.set('q', params.q);
+  if (params.page) sp.set('page', String(params.page));
+  if (params.pageSize) sp.set('pageSize', String(params.pageSize));
+  return fetchJson<TwkmCollectionResponse<TwkmArtefactRow | TwkmPlaceRow>>(`/api/collections/twkm?${sp}`, signal);
+}
+
 // Entity search
 export interface EntitySearchParams {
   q?: string;

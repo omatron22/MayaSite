@@ -65,7 +65,7 @@ export function AboutPage() {
     },
     {
       title: 'ClassicMayan / Bonn / TWKM Sign Catalog',
-      desc: '1,075 signs with 1,565 visual variants and 727 proposed readings from the University of Bonn TWKM project.',
+      desc: '1,075 signs with 1,565 visual variants and 1,216 proposed readings (with confidence + criteria) from the University of Bonn TWKM project. Includes 517 catalogued artefacts and 37 places linked to graph occurrences.',
       license: 'Creative Commons Attribution 4.0 International (CC BY 4.0). https://creativecommons.org/licenses/by/4.0/',
       attribution: 'Drawings by Christian Prager / TWKM, Rheinische Friedrich-Wilhelms-Universität Bonn.',
       images: 'linked',
@@ -119,6 +119,30 @@ export function AboutPage() {
       images: 'none',
       url: null,
     },
+    {
+      title: 'Sign Readings — polysemy (derived)',
+      desc: '2,901 readings recorded across 13 catalog systems: 575 signs now have more than one attested reading (polysemy realized). Backfilled from MHD syllabic/logographic values + every TWKM decipherment with its confidence level and supporting criteria.',
+      license: 'MayaSite-derived data. Each row inherits the terms of its source.',
+      attribution: 'See MHD and TWKM rows above.',
+      images: 'none',
+      url: null,
+    },
+    {
+      title: 'Entity layer — rulers, places, scribes (derived + curated)',
+      desc: '274 entities with 108 aliases and 228,547 block mentions. Includes 28 curated famous rulers (K\'inich Janaab\' Pakal I, Bird Jaguar IV, etc.) with English + Mayan alias variants, 222 places auto-seeded from block site_name, and 24 scribes from block.scribe.',
+      license: 'MayaSite-derived. Curated ruler list compiled from standard reference works (Martin & Grube, "Chronicle of the Maya Kings and Queens").',
+      attribution: 'See contributing sources above.',
+      images: 'none',
+      url: null,
+    },
+    {
+      title: 'Wayeb European Association of Mayanists',
+      desc: 'External reference: the Wayeb online publications (incl. the introductory handbook by Kettunen & Helmke) are the de facto English-language guide to reading Maya hieroglyphs. We link out — not redistribute.',
+      license: 'Free download from publisher. Cite the handbook directly.',
+      attribution: 'Harri Kettunen & Christophe Helmke, "Introduction to Maya Hieroglyphs" (latest edition).',
+      images: 'none',
+      url: 'https://www.wayeb.org/resources/',
+    },
   ];
 
   return (
@@ -144,9 +168,12 @@ export function AboutPage() {
             <tr>
               <td className="px-3 py-2 text-sm">
                 This project brings together 7 scholarly data sources into one searchable
-                interface — MHD, the Bonn/TWKM sign catalog, LMGG, Kerr vase photography, Harvard
-                CMHI, a Roboflow ML glyph dataset, and hand-compiled site coordinates — plus a
-                MayaSite-derived concordance layer linking signs across 13 numbering systems.
+                interface — MHD, the Bonn/TWKM sign catalog (signs, artefacts, places), LMGG, Kerr
+                vase photography, Harvard CMHI, a Roboflow ML glyph dataset, and hand-compiled site
+                coordinates — plus three derived layers: a concordance linking signs across 13
+                numbering systems, a polysemy table of 2,901 readings (575 signs with multiple
+                attested readings), and an entity layer of 274 rulers/places/scribes wired into
+                228k block mentions.
               </td>
             </tr>
           </tbody>
