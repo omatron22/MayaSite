@@ -290,6 +290,49 @@ export function fetchTwkmCollection(params: { tab: 'artefacts' | 'places'; q?: s
   return fetchJson<TwkmCollectionResponse<TwkmArtefactRow | TwkmPlaceRow>>(`/api/collections/twkm?${sp}`, signal);
 }
 
+// Generic source_items collection (Schele, Montgomery, future)
+export interface SourceItemRow {
+  item_id: string;
+  external_id: string;
+  title: string | null;
+  creator: string | null;
+  site_name: string | null;
+  period: string | null;
+  culture: string | null;
+  material: string | null;
+  dimensions: string | null;
+  description: string | null;
+  image_url: string | null;
+  thumb_url: string | null;
+  source_url: string | null;
+  rights_note: string | null;
+  object_number: string | null;
+}
+export interface SourceCollectionMeta {
+  collection_id: string;
+  title: string;
+  provider: string;
+  source_url: string | null;
+  rights_note: string | null;
+}
+export interface SourceCollectionResponse {
+  collection: SourceCollectionMeta | null;
+  results: SourceItemRow[];
+  total: number;
+  sites: { site_name: string; n: number }[];
+  page: number;
+  pageSize: number;
+}
+export function fetchSourceCollection(params: { collection: string; q?: string; site?: string; page?: number; pageSize?: number }, signal?: AbortSignal) {
+  const sp = new URLSearchParams();
+  sp.set('collection', params.collection);
+  if (params.q) sp.set('q', params.q);
+  if (params.site) sp.set('site', params.site);
+  if (params.page) sp.set('page', String(params.page));
+  if (params.pageSize) sp.set('pageSize', String(params.pageSize));
+  return fetchJson<SourceCollectionResponse>(`/api/collections/source?${sp}`, signal);
+}
+
 // Entity search
 export interface EntitySearchParams {
   q?: string;

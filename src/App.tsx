@@ -20,6 +20,7 @@ const CollectionsPage = lazyRetry(() => import('./pages/collections').then(m => 
 const KerrPage = lazyRetry(() => import('./pages/kerr').then(m => ({ default: m.KerrPage })));
 const CmhiPage = lazyRetry(() => import('./pages/cmhi').then(m => ({ default: m.CmhiPage })));
 const TwkmCollectionPage = lazyRetry(() => import('./pages/twkmCollection').then(m => ({ default: m.TwkmCollectionPage })));
+const SourceCollectionPage = lazyRetry(() => import('./pages/sourceCollection').then(m => ({ default: m.SourceCollectionPage })));
 const EntryDetailPage = lazyRetry(() => import('./pages/entryDetail').then(m => ({ default: m.EntryDetailPage })));
 const ApiPage = lazyRetry(() => import('./pages/api').then(m => ({ default: m.ApiPage })));
 const ScannerPage = lazyRetry(() => import('./pages/scanner').then(m => ({ default: m.ScannerPage })));
@@ -52,6 +53,7 @@ function App() {
                 <Route path="kerr" element={<KerrPage />} />
                 <Route path="cmhi" element={<CmhiPage />} />
                 <Route path="twkm" element={<TwkmCollectionPage />} />
+                <Route path=":slug" element={<SourceCollectionPage />} />
               </Route>
               <Route path="/about" element={<AboutPage />} />
               <Route path="/api" element={<ApiPage />} />

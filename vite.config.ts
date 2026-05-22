@@ -1,6 +1,8 @@
 import dotenv from 'dotenv'
 dotenv.config({ path: '.env.local' })
 dotenv.config() // fallback to .env
+import fs from 'node:fs'
+import path from 'node:path'
 import { defineConfig, type Plugin, type ViteDevServer } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -40,9 +42,15 @@ function apiRoutes(): Plugin {
         } else if (segments[0] === 'signs' && segments[1] === 'lookup') {
           modulePath = './api/signs/lookup.ts';
         } else if (segments.length === 2 && segments[1]) {
-          // /api/signs/123, /api/blocks/456, /api/graphemes/789
-          modulePath = `./api/${segments[0]}/[id].ts`;
-          query.id = segments[1];
+          // Prefer specific handler file if it exists (e.g. ./api/collections/source.ts)
+          const specific = path.resolve(`./api/${segments[0]}/${segments[1]}.ts`);
+          if (fs.existsSync(specific)) {
+            modulePath = `./api/${segments[0]}/${segments[1]}.ts`;
+          } else {
+            // Fall back to dynamic [id].ts handler (e.g. ./api/signs/[id].ts)
+            modulePath = `./api/${segments[0]}/[id].ts`;
+            query.id = segments[1];
+          }
         } else if (segments.length === 1) {
           // /api/search, /api/stats, /api/concordance, /api/inference
           modulePath = `./api/${segments[0]}.ts`;
